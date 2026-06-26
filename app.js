@@ -8,9 +8,16 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 let products = [];
+let paymentInfo = null;
 let cart = JSON.parse(localStorage.getItem("cheonyulCart") || "[]");
 
 const defaults = {
+  consults:[
+    {title:"한 질문 상담",price:"20,000원",badge:"기본",desc:"하나의 핵심 질문에 대해 현재 흐름과 방향을 살펴드립니다."},
+    {title:"세 질문 상담",price:"50,000원",badge:"추천",desc:"연결된 고민 세 가지를 묶어 흐름을 정리합니다."},
+    {title:"궁합 상담",price:"80,000원",badge:"관계",desc:"두 사람의 관계 흐름, 성향, 앞으로의 방향성을 함께 살펴드립니다."},
+    {title:"심층 신점 상담",price:"120,000원",badge:"심층",desc:"전반적인 상황과 인생 흐름을 깊이 있게 살펴보는 상담입니다."}
+  ],
   notices:[{tag:"필독",title:"상담은 예약제로 진행됩니다.",body:"카카오톡 문의 또는 홈페이지 예약 후 순서대로 안내드립니다."}],
   fields:[
     {title:"연애 · 재회",body:"상대방 속마음, 연락운, 재회 흐름, 관계 회복 가능성을 살펴봅니다."},
@@ -48,6 +55,16 @@ async function init(){
   const fields=await loadCollection("fields",defaults.fields);
   document.getElementById("fieldList").innerHTML=fields.map(f=>`<article><h3>${f.title||""}</h3><p>${f.body||""}</p></article>`).join("");
 
+  const consults=await loadCollection("consultPrices",defaults.consults);
+  const priceBox=document.getElementById("consultPriceList");
+  if(priceBox){
+    priceBox.innerHTML=consults.map(c=>`<article><span class="badge">${c.badge||"상담"}</span><h3>${c.title||""}</h3><p>${c.desc||""}</p><strong class="price">${c.price||"문의"}</strong><a class="btn primary" href="#booking">예약하기</a></article>`).join("");
+  }
+  const bookTypeEl=document.getElementById("bookType");
+  if(bookTypeEl){
+    bookTypeEl.innerHTML=consults.map(c=>`<option>${c.title||"상담"} ${c.price||""}</option>`).join("") + `<option>재회 상담</option><option>속마음 상담</option><option>금전운 상담</option><option>사업운 상담</option><option>취업운 상담</option><option>상품 문의</option>`;
+  }
+
   products=await loadCollection("products",defaults.products);
   fillCategories();
   renderProducts();
@@ -57,6 +74,7 @@ async function init(){
 
   const reviews=await loadApprovedReviews();
   document.getElementById("reviewList").innerHTML=reviews.map(r=>`<article>${r.image?`<img class="reviewImg" src="${r.image}">`:""}<div class="price">${r.stars||"★★★★★"}</div><p>“${r.body||""}”</p><span>${r.name||"익명"} · ${r.category||""}</span></article>`).join("");
+  paymentInfo = await loadPaymentInfo();
   updateCartCount();
 }
 async function loadApprovedReviews(){
@@ -88,7 +106,37 @@ window.addToCart=(p)=>{
   alert("장바구니에 담았습니다.");
 };
 window.buyNow=(p)=>{ window.addToCart(p); openCart(); };
-window.openCart=()=>{ renderCart(); document.getElementById("cartModal").style.display="flex"; };
+
+async function loadPaymentInfo(){
+  try{
+    const s=await getDocs(collection(db,"settings"));
+    let item=null;
+    s.docs.forEach(d=>{ if(d.id==="payment") item=d.data(); });
+    return item || {name:"천율도령",account:"02002407816",link:"",qr:"",guide:"송금 후 주문 신청을 눌러주세요. 입금 확인 후 상담 또는 상품 발송이 진행됩니다."};
+  }catch(e){
+    return {name:"천율도령",account:"02002407816",link:"",qr:"",guide:"송금 후 주문 신청을 눌러주세요."};
+  }
+}
+function renderPayment(){
+  const box=document.getElementById("kakaoPayInfo");
+  if(!box) return;
+  const p=paymentInfo || {};
+  box.innerHTML = `
+    ${p.qr?`<img class="payQr" src="${p.qr}" alt="카카오페이 QR">`:""}
+    <div class="copyLine"><b>받는 사람</b><br>${p.name||"천율도령"}</div>
+    <div class="copyLine"><b>카카오페이/계좌번호</b><br>${p.account||"02002407816"}</div>
+    ${p.link?`<a class="btn primary" target="_blank" href="${p.link}">카카오페이 송금하기</a>`:""}
+    <button class="btn secondary" onclick="copyPayAccount()">계좌번호 복사</button>
+    <p class="tiny">${p.guide||"송금 후 주문 신청을 눌러주세요."}</p>
+  `;
+}
+window.copyPayAccount=async()=>{
+  const text=(paymentInfo?.account)||"02002407816";
+  await navigator.clipboard.writeText(text);
+  alert("계좌번호가 복사되었습니다.");
+};
+
+window.openCart=()=>{ renderCart(); renderPayment(); document.getElementById("cartModal").style.display="flex"; };
 window.closeCart=()=>document.getElementById("cartModal").style.display="none";
 function renderCart(){
   document.getElementById("cartItems").innerHTML=cart.map((i,idx)=>`<div class="cartRow"><b>${i.name}</b><span>${i.price} × ${i.qty}</span><button onclick="removeCart(${idx})">삭제</button></div>`).join("") || `<p>장바구니가 비어 있습니다.</p>`;
@@ -102,7 +150,7 @@ window.copyOrder=async()=>{ await navigator.clipboard.writeText(orderText()); al
 window.submitOrder=async()=>{
   if(!cart.length) return alert("장바구니가 비어 있습니다.");
   if(!orderName.value||!orderContact.value) return alert("주문자와 연락처를 입력해 주세요.");
-  await addDoc(collection(db,"orders"),{items:cart,total:document.getElementById("cartTotal").textContent,name:orderName.value,contact:orderContact.value,address:orderAddress.value,memo:orderMemo.value,status:"신규",createdAt:serverTimestamp()});
+  await addDoc(collection(db,"orders"),{items:cart,total:document.getElementById("cartTotal").textContent,name:orderName.value,contact:orderContact.value,address:orderAddress.value,memo:orderMemo.value,status:"입금대기",payment:"카카오페이 송금",createdAt:serverTimestamp()});
   cart=[]; saveCart(); alert("주문 신청이 접수되었습니다. 카카오톡으로 결제 안내를 받으세요."); closeCart();
 };
 window.submitBooking=async()=>{

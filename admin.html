@@ -53,6 +53,29 @@
       </article>
 
       <article class="formBox">
+        <h3>카카오페이 송금 설정</h3>
+        <input id="payName" placeholder="받는 사람/상호 예: 천율도령">
+        <input id="payAccount" placeholder="카카오페이/계좌번호 예: 02002407816">
+        <input id="payLink" placeholder="카카오페이 송금 링크 선택 입력">
+        <input id="payQr" type="file" accept="image/*">
+        <textarea id="payGuide" placeholder="결제 안내 문구"></textarea>
+        <button id="savePaymentBtn" type="button">결제 정보 저장</button>
+        <p id="paymentStatus" class="tiny"></p>
+      </article>
+
+      <article class="formBox">
+        <h3>상담 가격 등록/수정</h3>
+        <input id="consultId" type="hidden">
+        <input id="consultTitle" placeholder="상담명 예: 한 질문 상담">
+        <input id="consultPrice" placeholder="가격 예: 20,000원">
+        <input id="consultBadge" placeholder="표시 태그 예: 기본 / 추천 / 심층">
+        <textarea id="consultDesc" placeholder="상담 설명"></textarea>
+        <button id="addConsultBtn" type="button">상담 가격 저장</button>
+        <button id="resetConsultBtn" type="button">새로 등록</button>
+        <p class="tiny">등록한 상담 가격은 홈페이지 가격표와 예약 선택 항목에 자동 반영됩니다.</p>
+      </article>
+
+      <article class="formBox">
         <h3>게시판 글 등록</h3>
         <input id="postTitle" placeholder="글 제목">
         <input id="postImages" type="file" accept="image/*" multiple>
@@ -87,6 +110,7 @@
       </article>
     </div>
 
+    <section class="adminList"><h3>상담 가격 관리</h3><div id="consultAdminList"></div></section>
     <section class="adminList"><h3>주문 관리</h3><div id="orderAdminList"></div></section>
     <section class="adminList"><h3>예약 관리</h3><div id="bookingAdminList"></div></section>
     <section class="adminList"><h3>상품 관리</h3><div id="productAdminList"></div></section>

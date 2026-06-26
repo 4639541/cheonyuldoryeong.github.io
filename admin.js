@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, doc, setDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
 import { firebaseConfig } from "./firebase-config.js";
 
@@ -36,7 +36,7 @@ async function adminLogout(){ await signOut(auth); }
 onAuthStateChanged(auth, (user)=>{
   $("loginBox")?.classList.toggle("hidden", !!user);
   $("adminPanel")?.classList.toggle("hidden", !user);
-  if(user) loadAll();
+  if(user){ loadPaymentSetting(); loadAll(); }
 });
 
 async function uploadFiles(fileList, folder){
@@ -51,6 +51,75 @@ async function uploadFiles(fileList, folder){
   }
   return urls;
 }
+
+
+
+async function savePayment(){
+  status("paymentStatus","저장 중입니다...");
+  let qr = "";
+  const file = $("payQr")?.files?.[0];
+  if(file){
+    const urls = await uploadFiles([file], "payment");
+    qr = urls[0] || "";
+  }
+  const data = {
+    name: val("payName") || "천율도령",
+    account: val("payAccount") || "02002407816",
+    link: val("payLink"),
+    guide: val("payGuide") || "송금 후 주문 신청을 눌러주세요. 입금 확인 후 상담 또는 상품 발송이 진행됩니다.",
+    updatedAt: serverTimestamp()
+  };
+  if(qr) data.qr = qr;
+  await setDoc(doc(db,"settings","payment"), data, {merge:true});
+  status("paymentStatus","카카오페이 송금 정보 저장 완료");
+  alert("결제 정보가 저장되었습니다.");
+}
+async function loadPaymentSetting(){
+  try{
+    const s = await getDocs(collection(db,"settings"));
+    s.docs.forEach(d=>{
+      if(d.id==="payment"){
+        const p=d.data();
+        setVal("payName", p.name||"");
+        setVal("payAccount", p.account||"");
+        setVal("payLink", p.link||"");
+        setVal("payGuide", p.guide||"");
+      }
+    });
+  }catch(e){ console.error(e); }
+}
+
+function resetConsultForm(){
+  setVal("consultId"); setVal("consultTitle"); setVal("consultPrice"); setVal("consultBadge"); setVal("consultDesc");
+}
+async function saveConsult(){
+  if(!val("consultTitle") || !val("consultPrice")) return alert("상담명과 가격을 입력해 주세요.");
+  const id = val("consultId");
+  const data = {
+    title: val("consultTitle"),
+    price: val("consultPrice"),
+    badge: val("consultBadge") || "상담",
+    desc: val("consultDesc"),
+    createdAt: serverTimestamp()
+  };
+  if(id){
+    await updateDoc(doc(db,"consultPrices",id), data);
+    alert("상담 가격이 수정되었습니다.");
+  }else{
+    await addDoc(collection(db,"consultPrices"), data);
+    alert("상담 가격이 등록되었습니다.");
+  }
+  resetConsultForm();
+  await loadAll();
+}
+window.editConsult = (id,title,price,badge,desc)=>{
+  setVal("consultId", id);
+  setVal("consultTitle", title);
+  setVal("consultPrice", price);
+  setVal("consultBadge", badge);
+  setVal("consultDesc", desc);
+  window.scrollTo({top:0,behavior:"smooth"});
+};
 
 async function addProduct(){
   if(!val("pName") || !val("pPrice")) return alert("상품명과 판매가를 입력해 주세요.");
@@ -140,7 +209,8 @@ async function fill(colName, boxId, html){
 }
 
 async function loadAll(){
-  const orderCount = await fill("orders","orderAdminList", o=>`<div class="adminItem"><b>${o.name||""} · ${o.total||""}</b><p>${(o.items||[]).map(i=>`${i.name||""} ${i.qty||1}개`).join("<br>")}<br>연락처: ${o.contact||""}<br>주소: ${o.address||""}<br><span class="status">${o.status||"신규"}</span></p><div class="actions"><button onclick="setStatus('orders','${o.id}','확인중')">확인중</button><button onclick="setStatus('orders','${o.id}','완료')">완료</button><button onclick="del('orders','${o.id}')">삭제</button></div></div>`);
+  await fill("consultPrices","consultAdminList", c=>`<div class="adminItem"><b>${c.title||""} · ${c.price||""}</b><p><span class="badge">${c.badge||"상담"}</span><br>${c.desc||""}</p><div class="actions"><button onclick="editConsult('${c.id}', '${String(c.title||"").replaceAll("'","\\'")}', '${String(c.price||"").replaceAll("'","\\'")}', '${String(c.badge||"").replaceAll("'","\\'")}', '${String(c.desc||"").replaceAll("'","\\'")}')">수정</button><button class="danger" onclick="del('consultPrices','${c.id}')">삭제</button></div></div>`);
+  const orderCount = await fill("orders","orderAdminList", o=>`<div class="adminItem"><b>${o.name||""} · ${o.total||""}</b><p>${(o.items||[]).map(i=>`${i.name||""} ${i.qty||1}개`).join("<br>")}<br>연락처: ${o.contact||""}<br>주소: ${o.address||""}<br>결제: ${o.payment||"카카오페이 송금"}<br><span class="status">${o.status||"신규"}</span></p><div class="actions"><button onclick="setStatus('orders','${o.id}','입금완료')">입금완료</button><button onclick="setStatus('orders','${o.id}','진행중')">진행중</button><button onclick="setStatus('orders','${o.id}','완료')">완료</button><button onclick="del('orders','${o.id}')">삭제</button></div></div>`);
   const bookingCount = await fill("bookings","bookingAdminList", b=>`<div class="adminItem"><b>${b.name||""} · ${b.type||""}</b><p>${b.contact||""}<br>${b.date||""} ${b.time||""}<br>${b.body||""}<br><span class="status">${b.status||"대기"}</span></p><div class="actions"><button onclick="setStatus('bookings','${b.id}','확정')">확정</button><button onclick="setStatus('bookings','${b.id}','완료')">완료</button><button onclick="del('bookings','${b.id}')">삭제</button></div></div>`);
   const productCount = await fill("products","productAdminList", p=>`<div class="adminItem"><b>${p.name||""} · ${p.price||""}</b><p>${p.category||""} / ${p.stock||""}<br>${p.desc||""}</p>${imgs(p)}<div class="actions"><button onclick="del('products','${p.id}')">삭제</button></div></div>`);
   await fill("posts","postAdminList", p=>`<div class="adminItem"><b>${p.title||""}</b><p>${p.body||""}</p>${imgs(p)}<button onclick="del('posts','${p.id}')">삭제</button></div>`);
@@ -172,6 +242,9 @@ window.del = async (colName,id)=>{ if(confirm("삭제할까요?")){ await delete
 document.addEventListener("DOMContentLoaded", ()=>{
   bind("loginBtn", adminLogin);
   bind("logoutBtn", adminLogout);
+  bind("savePaymentBtn", savePayment);
+  bind("addConsultBtn", saveConsult);
+  bind("resetConsultBtn", resetConsultForm);
   bind("addProductBtn", addProduct);
   bind("addPostBtn", addPost);
   bind("addFieldBtn", addField);

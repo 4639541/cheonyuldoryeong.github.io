@@ -13,3 +13,20 @@
 #homeManageList h2{
   margin-top:18px;
 }
+
+.loginMsg{
+  margin:10px 0 0;
+  padding:10px 12px;
+  border-radius:12px;
+  font-weight:800;
+}
+.loginMsg.bad{
+  background:#35100d;
+  color:#ffb7ad;
+  border:1px solid rgba(255,80,60,.35);
+}
+.loginMsg.ok{
+  background:#0d2a18;
+  color:#a9f5bd;
+  border:1px solid rgba(90,220,120,.35);
+}

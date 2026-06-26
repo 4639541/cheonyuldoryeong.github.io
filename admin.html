@@ -1,202 +1,28 @@
-<!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>천율도령 모바일 관리자</title>
-  <link rel="stylesheet" href="style.css?v=530">
-</head>
-<body>
-<header class="top">
-  <div class="inner">
-    <a class="logo" href="index.html">천율도령 모바일 관리자</a>
-    <a class="btn line small" href="index.html">홈</a>
-  </div>
-</header>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천율도령 관리자</title><link rel="stylesheet" href="style.css?v=600"></head>
+<body><header class="top"><div class="wrap nav"><a class="logo" href="admin.html">천율도령 관리자</a><a class="btn line small" href="index.html">홈</a></div></header>
+<main class="section wrap admin">
+<section id="loginBox" class="form"><p class="tag">ADMIN</p><h1>관리자 로그인</h1><input id="adminEmail" type="email" placeholder="관리자 이메일"><input id="adminPw" type="password" placeholder="비밀번호"><button id="adminLogin" class="btn gold full" type="button">로그인</button><p id="adminErr" class="hint"></p></section>
+<section id="adminPanel" class="hide">
+<div class="adminHead"><div><p class="tag">DASHBOARD</p><h1>모바일 관리자</h1></div><button id="adminLogout" class="btn line" type="button">로그아웃</button></div>
+<nav class="adminTabs"><a href="#dash">대시보드</a><a href="#orders">주문</a><a href="#bookings">예약</a><a href="#members">회원</a><a href="#memberCoupon">회원쿠폰</a><a href="#coupons">쿠폰</a><a href="#products">상품</a><a href="#settings">설정</a></nav>
+<section id="dash" class="stats"><article><b id="statOrders">0</b><span>주문</span></article><article><b id="statBookings">0</b><span>예약</span></article><article><b id="statMembers">0</b><span>회원</span></article><article><b id="statSales">0원</b><span>매출</span></article></section>
 
-<main class="sec inner admin">
-  <section id="loginBox" class="form">
-    <p class="tag">ADMIN LOGIN</p>
-    <h1>관리자 로그인</h1>
-    <input id="adminEmail" type="email" placeholder="관리자 이메일">
-    <input id="adminPassword" type="password" placeholder="비밀번호">
-    <button class="btn gold full" id="loginBtn" type="button">로그인</button>
-    <div id="loginError"></div>
-  </section>
+<section id="settings" class="block"><h2>사업자 정보</h2><div class="form"><input id="bizNameAdmin" placeholder="상호"><input id="bizOwnerAdmin" placeholder="대표자"><input id="bizNumberAdmin" placeholder="사업자등록번호"><input id="bizAddressAdmin" placeholder="주소"><input id="bizTypeAdmin" placeholder="업태"><input id="bizItemAdmin" placeholder="종목"><input id="bizContactAdmin" placeholder="고객문의"><input id="bizMailOrderAdmin" placeholder="통신판매업신고"><button id="saveBiz" class="btn gold full" type="button">사업자 정보 저장</button></div>
+<h2>결제 설정</h2><div class="form"><input id="payName" placeholder="받는 사람"><input id="payAccount" placeholder="카카오페이 번호"><input id="payLink" placeholder="카카오페이 링크"><input id="bankName" placeholder="은행명"><input id="bankOwner" placeholder="예금주"><input id="bankAccount" placeholder="계좌번호"><input id="payQr" type="file" accept="image/*"><textarea id="payGuide" placeholder="결제 안내"></textarea><button id="savePay" class="btn gold full" type="button">결제 정보 저장</button></div>
+<h2>예약 시간/마감일</h2><div class="form"><textarea id="timeInput" placeholder="오전 10시&#10;오후 2시"></textarea><textarea id="blockInput" placeholder="예약 마감 날짜 2026-07-01"></textarea><button id="saveTime" class="btn gold full" type="button">예약 설정 저장</button></div></section>
 
-  <section id="adminPanel" class="hidden">
-    <div class="adminHead">
-      <div>
-        <p class="tag">MOBILE ADMIN</p>
-        <h1>모바일 관리자</h1>
-      </div>
-      <button class="btn line" id="logoutBtn" type="button">로그아웃</button>
-    </div>
+<section id="prices" class="block"><h2>상담 가격</h2><div class="form"><input id="priceId" type="hidden"><input id="priceTitle" placeholder="상담명"><input id="priceAmount" placeholder="가격"><input id="priceBadge" placeholder="태그"><textarea id="priceDesc" placeholder="설명"></textarea><button id="savePrice" class="btn gold full" type="button">상담 가격 저장</button></div><div id="priceAdminList" class="list"></div></section>
 
-    <nav class="tabs">
-      <a href="#dashboard">대시보드</a><a href="#orders">주문</a><a href="#membersAdmin">회원</a><a href="#memberCouponAdmin">회원쿠폰</a><a href="#trackingAdmin">배송</a><a href="#bookings">예약</a>
-      <a href="#products">상품</a><a href="#couponAdmin">쿠폰</a><a href="#reviewsAdmin">후기</a><a href="#settings">설정</a>
-    </nav>
+<section id="products" class="block"><h2>상품 등록</h2><div class="form"><input id="pName" placeholder="상품명"><input id="pCategory" placeholder="카테고리"><input id="pPrice" placeholder="가격"><input id="pSale" placeholder="할인가"><input id="pStock" placeholder="재고"><input id="pImages" type="file" accept="image/*" multiple><textarea id="pDesc" placeholder="설명"></textarea><button id="addProduct" class="btn gold full" type="button">상품 등록</button></div><div id="productAdminList" class="list"></div></section>
 
-    <section id="dashboard" class="stats">
-      <article><b id="statOrders">0</b><span>주문</span></article>
-      <article><b id="statBookings">0</b><span>예약</span></article>
-      <article><b id="statProducts">0</b><span>상품</span></article>
-      <article><b id="statReviews">0</b><span>후기</span></article>
-      <article><b id="statSales">0원</b><span>매출</span></article>
-    </section>
+<section id="coupons" class="block"><h2>공용 쿠폰</h2><div class="form"><input id="couponCode" placeholder="쿠폰 코드"><input id="couponDiscount" placeholder="할인금액"><input id="couponDesc" placeholder="설명"><input id="couponPrefix" placeholder="자동 앞글자 CHEON"><input id="couponCount" placeholder="자동 개수"><button id="autoCoupon" class="btn line full" type="button">자동 쿠폰 발급</button><button id="addCoupon" class="btn gold full" type="button">수동 쿠폰 등록</button></div><div id="couponList" class="list"></div></section>
 
-    <section id="settings" class="block">
+<section id="members" class="block"><h2>회원 관리</h2><div id="memberList" class="list"></div></section>
+<section id="memberCoupon" class="block"><h2>회원별 쿠폰 발급</h2><div class="form"><select id="memberSelect"><option value="">회원 선택</option></select><input id="mCouponCode" placeholder="쿠폰 코드 비우면 자동"><input id="mCouponDiscount" placeholder="할인금액"><input id="mCouponDesc" placeholder="설명"><button id="issueMemberCoupon" class="btn gold full" type="button">선택 회원에게 쿠폰 발급</button></div><div id="memberCouponList" class="list"></div></section>
 
-      <h2>사업자 정보 설정</h2>
-      <div class="form businessAdminForm">
-        <input id="bizNameAdmin" placeholder="상호" value="천율도령">
-        <input id="bizOwnerAdmin" placeholder="대표자" value="정세진">
-        <input id="bizNumberAdmin" placeholder="사업자등록번호" value="570-76-00713">
-        <input id="bizAddressAdmin" placeholder="사업장 주소" value="경상북도 구미시 상모로12길 49, 101동 102호">
-        <input id="bizTypeAdmin" placeholder="업태" value="협회 및 단체, 수리 및 기타 개인서비스업">
-        <input id="bizItemAdmin" placeholder="종목" value="점술 및 유사 서비스업">
-        <input id="bizContactAdmin" placeholder="고객문의" value="카카오톡 오픈프로필 '천율도령'">
-        <input id="bizMailOrderAdmin" placeholder="통신판매업신고번호" value="신고 예정">
-        <input id="bizEmailAdmin" placeholder="이메일 선택 입력">
-        <input id="bizKakaoAdmin" placeholder="카카오톡 문의 링크 선택 입력">
-        <button class="btn gold full" id="saveBusinessBtn" type="button">사업자 정보 저장</button>
-        <p class="hint">저장 후 홈페이지를 새로고침하면 하단 사업자 정보에 반영됩니다.</p>
-      </div>
-
-      <h2>결제 설정</h2>
-      <div class="form paymentAdminForm">
-        <input id="payName" placeholder="받는 사람/상호 예: 천율도령">
-        <input id="payAccount" placeholder="카카오페이/페이머니 번호 예: 02002407816">
-        <input id="payLink" placeholder="카카오페이 송금 링크 선택 입력">
-        <input id="bankName" placeholder="은행명 예: 농협">
-        <input id="bankOwner" placeholder="예금주 예: 정세진">
-        <input id="bankAccount" placeholder="계좌번호">
-        <input id="payQr" type="file" accept="image/*">
-        <textarea id="payGuide" placeholder="결제 안내 문구"></textarea>
-        <button class="btn gold full" id="savePaymentBtn" type="button">결제 정보 저장</button>
-        <p class="hint">저장 후 상품 구매 → 장바구니에서 결제 정보가 표시됩니다.</p>
-      </div>
-
-      <h2>예약 가능 시간</h2>
-      <div class="form">
-        <textarea id="timesInput" placeholder="오전 10시&#10;오후 2시&#10;저녁 8시"></textarea>
-        <textarea id="blockedDatesInput" placeholder="예약 막을 날짜 예: 2026-07-01&#10;2026-07-02"></textarea>
-        <button class="btn gold full" id="saveTimesBtn" type="button">예약 시간 저장</button>
-      </div>
-    </section>
-
-    <section class="block">
-      <h2>상담 가격 관리</h2>
-      <div class="form">
-        <input id="priceId" type="hidden">
-        <input id="priceTitle" placeholder="상담명">
-        <input id="priceAmount" placeholder="가격 예: 20,000원">
-        <input id="priceBadge" placeholder="태그 예: 추천">
-        <textarea id="priceDesc" placeholder="상담 설명"></textarea>
-        <button class="btn gold full" id="priceSaveBtn" type="button">상담 가격 저장</button>
-        <button class="btn line full" id="priceResetBtn" type="button">새로 등록</button>
-      </div>
-      <div id="priceAdminList" class="list"></div>
-    </section>
-
-    <section id="products" class="block">
-      <h2>상품 등록</h2>
-      <div class="form">
-        <input id="pName" placeholder="상품명">
-        <input id="pCategory" placeholder="카테고리">
-        <input id="pPrice" placeholder="판매가 예: 25,000원">
-        <input id="pSale" placeholder="할인가 선택 입력">
-        <input id="pStock" placeholder="재고 예: 10개 / 품절 / 주문 가능">
-        <input id="pImages" type="file" accept="image/*" multiple>
-        <textarea id="pDesc" placeholder="상품 설명"></textarea>
-        <label class="check"><input id="pBest" type="checkbox"> 베스트 상품</label>
-        <button class="btn gold full" id="productAddBtn" type="button">상품 등록</button>
-      </div>
-      <div id="productAdminList" class="list"></div>
-    </section>
-
-    <section class="block">
-      <h2>공지 등록</h2>
-      <div class="form">
-        <input id="noticeTag" placeholder="태그">
-        <input id="noticeTitle" placeholder="공지 제목">
-        <textarea id="noticeBody" placeholder="공지 내용"></textarea>
-        <button class="btn gold full" id="noticeAddBtn" type="button">공지 등록</button>
-      </div>
-      <div id="noticeAdminList" class="list"></div>
-    </section>
-
-    <section class="block">
-      <h2>게시판 글 등록</h2>
-      <div class="form">
-        <input id="postTitle" placeholder="글 제목">
-        <input id="postImages" type="file" accept="image/*" multiple>
-        <textarea id="postBody" placeholder="글 내용"></textarea>
-        <button class="btn gold full" id="postAddBtn" type="button">게시글 등록</button>
-      </div>
-      <div id="postAdminList" class="list"></div>
-    </section>
-
-    
-    <section id="couponAdmin" class="block">
-      <h2>쿠폰 관리</h2>
-      <div class="couponStats stats miniStats">
-        <article><b id="couponTotal">0</b><span>전체 쿠폰</span></article>
-        <article><b id="couponUsable">0</b><span>사용 가능</span></article>
-        <article><b id="couponUsed">0</b><span>사용 완료</span></article>
-      </div>
-      <div class="form">
-        <input id="couponCodeAdmin" placeholder="수동 쿠폰 코드 예: WELCOME5000">
-        <input id="couponDiscount" placeholder="할인금액 예: 5000">
-        <input id="couponDesc" placeholder="쿠폰 설명 예: 신규 고객 할인">
-        <input id="couponPrefix" placeholder="자동 코드 앞글자 예: CHEON">
-        <input id="couponCount" placeholder="자동 발급 개수 예: 10">
-        <button class="btn line full" id="couponAutoBtn" type="button">자동 쿠폰 발급</button>
-        <button class="btn gold full" id="couponAddBtn" type="button">수동 쿠폰 등록</button>
-      </div>
-      <div id="couponList" class="list couponTable"></div>
-    </section>
-
-    
-    
-    <section id="memberCouponAdmin" class="block">
-      <h2>회원별 쿠폰 발급</h2>
-      <div class="form">
-        <select id="memberCouponUser">
-          <option value="">회원 선택</option>
-        </select>
-        <input id="memberCouponCode" placeholder="쿠폰 코드 비우면 자동 생성">
-        <input id="memberCouponDiscount" placeholder="할인금액 예: 5000">
-        <input id="memberCouponDesc" placeholder="쿠폰 설명 예: 회원 전용 쿠폰">
-        <button class="btn gold full" id="memberCouponIssueBtn" type="button">선택 회원에게 쿠폰 발급</button>
-      </div>
-      <div id="memberCouponList" class="list"></div>
-    </section>
-
-    <section id="membersAdmin" class="block">
-      <h2>회원 관리</h2>
-      <div id="memberAdminList" class="list"></div>
-    </section>
-
-    <section id="orders" class="block">
-      <h2>주문 관리</h2>
-      <div id="orderList" class="list"></div>
-    </section>
-
-    <section id="bookings" class="block">
-      <h2>예약 관리</h2>
-      <div id="bookingList" class="list"></div>
-    </section>
-
-    <section id="reviewsAdmin" class="block">
-      <h2>승인 대기 후기</h2>
-      <div id="pendingReviewList" class="list"></div>
-      <h2>공개 후기</h2>
-      <div id="approvedReviewList" class="list"></div>
-    </section>
-  </section>
-</main>
-<script type="module" src="admin.js?v=530"></script>
-</body>
-</html>
+<section id="orders" class="block"><h2>주문 관리</h2><div id="orderList" class="list"></div></section>
+<section id="bookings" class="block"><h2>예약 관리</h2><div id="bookingList" class="list"></div></section>
+<section class="block"><h2>공지</h2><div class="form"><input id="noticeTag" placeholder="태그"><input id="noticeTitle" placeholder="제목"><textarea id="noticeBody" placeholder="내용"></textarea><button id="addNotice" class="btn gold full" type="button">공지 등록</button></div><div id="noticeAdminList" class="list"></div></section>
+<section class="block"><h2>게시판</h2><div class="form"><input id="postTitle" placeholder="제목"><input id="postImages" type="file" accept="image/*" multiple><textarea id="postBody" placeholder="내용"></textarea><button id="addPost" class="btn gold full" type="button">게시글 등록</button></div><div id="postAdminList" class="list"></div></section>
+<section class="block"><h2>후기</h2><h3>승인 대기</h3><div id="pendingReviews" class="list"></div><h3>공개 후기</h3><div id="approvedReviews" class="list"></div></section>
+</section></main><script type="module" src="admin.js?v=600"></script></body></html>

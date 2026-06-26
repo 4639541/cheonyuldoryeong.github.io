@@ -334,43 +334,69 @@ setTimeout(()=>{
   loadPaymentFinal();
 }, 700);
 
-
 function makeCouponCodeFinal(prefix="CHEON"){
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = (prefix || "CHEON").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,8);
+  let code = (prefix || "CHEON").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,8) || "CHEON";
   code += "-";
   for(let i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
   return code;
 }
-window.addManualCouponFinal = async ()=>{
-  const code = val("couponCodeAdmin").toUpperCase();
-  const discount = val("couponDiscount");
-  if(!code || !discount) return alert("쿠폰 코드와 할인금액을 입력해 주세요.");
-  await addDoc(collection(db,"coupons"),{
-    code, discount, desc:val("couponDesc"), auto:false, used:false, active:true, createdAt:serverTimestamp()
-  });
-  alert("쿠폰이 등록되었습니다.");
-  loadAll();
-};
-window.addAutoCouponsFinal = async ()=>{
-  const discount = val("couponDiscount");
-  if(!discount) return alert("할인금액을 먼저 입력해 주세요.");
-  const prefix = val("couponPrefix") || "CHEON";
-  const count = Math.min(100, Math.max(1, parseInt(val("couponCount") || "1", 10)));
-  const desc = val("couponDesc") || "자동 발급 쿠폰";
-  const made = [];
-  for(let i=0;i<count;i++){
-    const code = makeCouponCodeFinal(prefix);
-    made.push(code);
-    await addDoc(collection(db,"coupons"),{code, discount, desc, auto:true, used:false, active:true, createdAt:serverTimestamp()});
-  }
-  setVal("couponCodeAdmin", made[0] || "");
-  alert(`쿠폰 ${made.length}개가 자동 발급되었습니다.\n첫 쿠폰: ${made[0]}`);
-  loadAll();
-};
+
 setTimeout(()=>{
-  const manual = document.getElementById("couponAddBtn");
-  if(manual) manual.onclick = (e)=>{e.preventDefault(); window.addManualCouponFinal();};
-  const auto = document.getElementById("couponAutoBtn");
-  if(auto) auto.onclick = (e)=>{e.preventDefault(); window.addAutoCouponsFinal();};
-}, 700);
+  const autoBtn = document.getElementById("couponAutoBtn");
+  const addBtn = document.getElementById("couponAddBtn");
+
+  if(autoBtn){
+    autoBtn.onclick = async (e)=>{
+      e.preventDefault();
+      const discount = val("couponDiscount");
+      if(!discount) return alert("할인금액을 입력해 주세요.");
+      const prefix = val("couponPrefix") || "CHEON";
+      const count = Math.min(100, Math.max(1, parseInt(val("couponCount") || "1", 10)));
+      const desc = val("couponDesc") || "자동 발급 쿠폰";
+      const made = [];
+      for(let i=0;i<count;i++){
+        const code = makeCouponCodeFinal(prefix);
+        made.push(code);
+        await addDoc(collection(db,"coupons"),{
+          code, discount, desc, auto:true, used:false, createdAt:serverTimestamp()
+        });
+      }
+      setVal("couponCodeAdmin", made[0] || "");
+      alert(`쿠폰 ${made.length}개가 자동 발급되었습니다.`);
+      loadAll();
+    };
+  }
+
+  if(addBtn){
+    addBtn.onclick = async (e)=>{
+      e.preventDefault();
+      if(!val("couponCodeAdmin") || !val("couponDiscount")) return alert("쿠폰 코드와 할인금액을 입력해 주세요.");
+      await addDoc(collection(db,"coupons"),{
+        code:val("couponCodeAdmin").toUpperCase(),
+        discount:val("couponDiscount"),
+        desc:val("couponDesc") || "수동 등록 쿠폰",
+        auto:false,
+        used:false,
+        createdAt:serverTimestamp()
+      });
+      ["couponCodeAdmin","couponDiscount","couponDesc"].forEach(id=>setVal(id));
+      alert("쿠폰이 등록되었습니다.");
+      loadAll();
+    };
+  }
+}, 800);
+
+async function refreshCouponStatsFinal(){
+  try{
+    const coupons = await list("coupons");
+    const total = coupons.length;
+    const used = coupons.filter(c=>c.used===true).length;
+    const usable = total - used;
+    if(document.getElementById("couponTotal")) document.getElementById("couponTotal").textContent = total;
+    if(document.getElementById("couponUsable")) document.getElementById("couponUsable").textContent = usable;
+    if(document.getElementById("couponUsed")) document.getElementById("couponUsed").textContent = used;
+  }catch(e){}
+}
+setInterval(refreshCouponStatsFinal, 2000);
+setTimeout(refreshCouponStatsFinal, 1000);

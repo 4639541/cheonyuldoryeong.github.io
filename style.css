@@ -85,84 +85,132 @@ footer .inner{text-align:center}footer h3{color:#e6ba60;margin:0 0 10px}footer p
   pointer-events:auto!important;
 }
 
-/* 5.1 payment and coupon complete */
-.payBox,.pay{
-  overflow:visible!important;
+.paymentModalBox{
+  max-width:720px;
 }
-#paymentInfo{
-  display:grid!important;
-  gap:14px!important;
+.paymentSection{
+  border:1px solid rgba(230,186,96,.28);
+  background:rgba(5,4,3,.55);
+  border-radius:22px;
+  padding:18px;
+  margin:16px 0;
+}
+.paymentSection h3{
+  margin:0 0 12px;
+  color:#fff3d8;
+  font-size:22px;
+}
+.payGrid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
 }
 .payCard{
-  display:flex!important;
-  flex-direction:column!important;
-  gap:8px!important;
-  padding:18px!important;
-  border:1px solid rgba(230,186,96,.28)!important;
-  border-radius:20px!important;
-  background:#070504!important;
+  border:1px solid rgba(230,186,96,.28);
+  border-radius:20px;
+  padding:18px;
+  background:#050403;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
 }
-.payCard h4{
-  margin:0!important;
-  color:#fff3d8!important;
-  font-size:20px!important;
+.payTitle{
+  color:#fff3d8;
+  font-size:22px;
+  font-weight:950;
 }
-.payCard p{
-  margin:0!important;
+.payName,.payOwner{
+  color:#e9ddc3;
+  font-weight:800;
 }
-.payCard strong{
+.payNumber{
+  color:#fff3d8;
+  font-size:24px;
+  font-weight:950;
+  word-break:break-all;
+}
+.payActions{
+  display:grid;
+  gap:8px;
+  margin-top:8px;
+}
+.payCopyBtn{
   display:block!important;
-  font-size:22px!important;
-  color:#fff3d8!important;
-  word-break:break-all!important;
-}
-.payButtons{
-  display:grid!important;
-  gap:8px!important;
-}
-.payBtn,.payCopyBtn,#couponBtn{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
   width:100%!important;
-  min-height:52px!important;
   position:relative!important;
   z-index:9999!important;
   pointer-events:auto!important;
-  margin:0!important;
+  min-height:52px!important;
+}
+.couponRow{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+}
+.couponStatus{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  border:1px solid rgba(230,186,96,.25);
+  border-radius:16px;
+  padding:12px;
+  margin-top:10px;
+}
+.couponStatus b{
+  color:#e6ba60;
+}
+.summaryBox{
+  background:linear-gradient(180deg,#15100a,#080604);
+}
+.summaryLine{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1px solid rgba(230,186,96,.18);
+}
+.summaryLine.discount b{
+  color:#ff7b7b;
+}
+.totalLine{
+  border-bottom:0;
+  font-size:22px;
+}
+.totalLine b{
+  color:#e6ba60;
+  font-size:30px;
+}
+.orderSubmitBtn{
+  min-height:58px;
+  font-size:19px;
 }
 .cartItem{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-  gap:12px!important;
-  border:1px solid rgba(230,186,96,.22)!important;
-  border-radius:16px!important;
-  padding:12px!important;
-  margin:8px 0!important;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  border:1px solid rgba(230,186,96,.25);
+  border-radius:16px;
+  padding:12px;
+  margin:8px 0;
 }
-.cartItem p{margin:4px 0 0!important}
-.totalLine{
-  display:flex!important;
-  justify-content:space-between!important;
-  gap:12px!important;
-  padding:8px 0!important;
-  border-bottom:1px solid rgba(230,186,96,.14)!important;
+.cartItem p{
+  margin:3px 0 0;
+  color:#c9b58d;
 }
-.totalLine.final{
-  font-size:22px!important;
-  color:#e6ba60!important;
-  border-bottom:0!important;
+.cartRemove{
+  min-height:38px;
+  padding:8px 12px;
+  background:#2a0f0f;
+  color:#fff;
+  border-radius:999px;
 }
-.couponOk{
-  color:#e6ba60!important;
-  font-weight:900!important;
-}
-.couponTitle{
-  margin:18px 0 6px!important;
-  color:#e6ba60!important;
+.couponTable .item{
+  border-left:4px solid #e6ba60;
 }
 @media(max-width:700px){
-  .cartItem{align-items:flex-start!important;flex-direction:column!important}
-  .cartItem .btn{width:100%!important}
+  .couponRow{grid-template-columns:1fr}
+  .couponStatus{display:block}
+  .payNumber{font-size:22px}
+  .paymentSection{padding:14px}
 }

@@ -136,23 +136,49 @@
 </main>
 
 <div id="cartModal" class="modal">
-  <div class="modalBox">
+  <div class="modalBox paymentModalBox">
     <button class="x" id="cartCloseBtn" type="button">×</button>
-    <h2>주문 신청</h2>
-    <div id="cartItems"></div>
-    <div class="total">합계: <b id="cartTotal">0원</b></div>
-    <h3 id="couponAreaTitle" class="couponTitle">쿠폰 등록/사용</h3>
-    <input id="couponInput" placeholder="쿠폰 코드 입력 예: CHEON-ABC123">
-    <button class="btn line full" id="couponBtn" type="button">쿠폰 적용</button>
-    <div class="pay">
+    <h2>주문 · 결제</h2>
+
+    <section class="paymentSection">
+      <h3>선택 상품</h3>
+      <div id="cartItems"></div>
+    </section>
+
+    <section class="paymentSection">
       <h3>결제 안내</h3>
       <div id="paymentInfo"></div>
-    </div>
-    <input id="orderName" placeholder="주문자 이름">
-    <input id="orderContact" placeholder="연락처 또는 카카오톡 ID">
-    <input id="orderAddress" placeholder="배송 주소 / 상담이면 비워도 됩니다">
-    <textarea id="orderMemo" placeholder="요청사항"></textarea>
-    <button class="btn gold full" id="orderBtn" type="button">주문 신청</button>
+    </section>
+
+    <section class="paymentSection couponBox">
+      <h3>쿠폰 등록</h3>
+      <div class="couponRow">
+        <input id="couponInput" placeholder="쿠폰 코드를 입력하세요">
+        <button class="btn gold" id="couponBtn" type="button">쿠폰 적용</button>
+      </div>
+      <div class="couponStatus">
+        <span>적용된 쿠폰</span>
+        <b id="couponAppliedText">적용된 쿠폰이 없습니다.</b>
+      </div>
+      <p class="hint">관리자가 발급한 쿠폰을 입력 후 적용해 주세요. 쿠폰은 1회만 사용할 수 있습니다.</p>
+    </section>
+
+    <section class="paymentSection summaryBox">
+      <h3>결제 요약</h3>
+      <div class="summaryLine"><span>상품 금액</span><b id="cartSubtotal">0원</b></div>
+      <div class="summaryLine discount"><span>쿠폰 할인</span><b id="cartDiscount">0원</b></div>
+      <div class="summaryLine totalLine"><span>결제 금액</span><b id="cartTotal">0원</b></div>
+    </section>
+
+    <section class="paymentSection">
+      <h3>주문자 정보</h3>
+      <input id="orderName" placeholder="주문자 이름">
+      <input id="orderContact" placeholder="연락처 또는 카카오톡 ID">
+      <input id="orderAddress" placeholder="배송 주소 / 상담이면 비워도 됩니다">
+      <textarea id="orderMemo" placeholder="요청사항"></textarea>
+      <button class="btn gold full orderSubmitBtn" id="orderBtn" type="button">🔒 주문하기</button>
+      <p class="hint dangerText">주문 후 24시간 이내 미입금 시 자동 취소될 수 있습니다.</p>
+    </section>
   </div>
 </div>
 

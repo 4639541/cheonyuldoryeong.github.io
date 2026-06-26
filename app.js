@@ -10,10 +10,10 @@ const $ = (id) => document.getElementById(id);
 
 let products = [];
 let payment = {};
-let cart = JSON.parse(localStorage.getItem("cyCart") || "[]");
 let coupon = null;
 let couponDiscount = 0;
-let bookingSettings = { times:["오전","오후","저녁","상담 후 조율"], blockedDates:[] };
+let cart = JSON.parse(localStorage.getItem("cyCart") || "[]");
+let bookingSettings = {times:["오전","오후","저녁","상담 후 조율"], blockedDates:[]};
 
 const defaults = {
   notices:[{tag:"필독",title:"상담은 예약제로 진행됩니다.",body:"예약 신청 후 카카오톡으로 순차 안내드립니다."}],
@@ -28,22 +28,18 @@ const defaults = {
   posts:[{title:"게시판 안내",body:"관리자에서 이미지와 글을 등록할 수 있습니다.",images:[]}]
 };
 
-function esc(v){ return String(v ?? ""); }
-function moneyNumber(v){ return Number(String(v || "").replace(/[^\d]/g,"")) || 0; }
-function formatWon(n){ return (Number(n)||0).toLocaleString() + "원"; }
-function subtotal(){ return cart.reduce((sum,i)=>sum + moneyNumber(i.price) * Number(i.qty||1), 0); }
-function finalTotal(){ return Math.max(0, subtotal() - couponDiscount); }
-function saveCart(){
-  localStorage.setItem("cyCart", JSON.stringify(cart));
-  if($("cartCount")) $("cartCount").textContent = cart.reduce((a,b)=>a+Number(b.qty||1),0);
-}
-function gallery(images=[]){
-  return images?.length ? `<div class="gallery">${images.map(src=>`<img src="${src}" alt="">`).join("")}</div>` : "";
-}
+function esc(v){return String(v ?? "");}
+function moneyNumber(v){return Number(String(v || "").replace(/[^\d]/g,"")) || 0;}
+function formatWon(n){return (Number(n)||0).toLocaleString()+"원";}
+function subtotal(){return cart.reduce((sum,i)=>sum + moneyNumber(i.price) * Number(i.qty||1), 0);}
+function finalTotal(){return Math.max(0, subtotal() - couponDiscount);}
+function saveCart(){localStorage.setItem("cyCart", JSON.stringify(cart)); if($("cartCount")) $("cartCount").textContent = cart.reduce((a,b)=>a+Number(b.qty||1),0);}
+function gallery(images=[]){return images?.length ? `<div class="gallery">${images.map(src=>`<img src="${src}" alt="">`).join("")}</div>` : "";}
+
 async function list(col, fallback=[]){
   try{
     const snap = await getDocs(collection(db,col));
-    const arr = snap.docs.map(d=>({id:d.id, ...d.data()}))
+    const arr = snap.docs.map(d=>({id:d.id,...d.data()}))
       .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
     return arr.length ? arr : fallback;
   }catch(e){
@@ -81,7 +77,6 @@ async function init(){
   await loadBusinessInfo();
   saveCart();
 }
-
 function bindUI(){
   $("searchInput")?.addEventListener("input", renderProducts);
   $("categorySelect")?.addEventListener("change", renderProducts);
@@ -96,7 +91,6 @@ function bindUI(){
   $("reviewSubmitBtn")?.addEventListener("click", submitReview);
   $("trackBtn")?.addEventListener("click", trackOrder);
 }
-
 function renderCategories(){
   const cats = [...new Set(products.map(p=>p.category).filter(Boolean))];
   $("categorySelect").innerHTML = `<option value="">전체 카테고리</option>` + cats.map(c=>`<option>${esc(c)}</option>`).join("");
@@ -121,178 +115,27 @@ function addCart(id){
   saveCart();
   alert("장바구니에 담았습니다.");
 }
-function openCart(){
-  renderCart();
-  renderPayment();
-  $("cartModal").classList.add("show");
-}
-function renderCart(){
-  const items = cart.map((i,idx)=>`
-    <div class="cartItem">
-      <div>
-        <b>${esc(i.name)}</b>
-        <p>${esc(i.price)} × ${i.qty}</p>
-      </div>
-      <button class="btn line removeCart" data-i="${idx}" type="button">삭제</button>
-    </div>`).join("");
+function openCart(){renderCart(); renderPayment(); $("cartModal").classList.add("show");}
 
-  $("cartItems").innerHTML = items || "<p>장바구니가 비어 있습니다.</p>";
-  document.querySelectorAll(".removeCart").forEach(btn=>btn.addEventListener("click",()=>{
-    cart.splice(Number(btn.dataset.i),1);
-    coupon = null;
-    couponDiscount = 0;
-    saveCart();
-    renderCart();
-  }));
 
-  const sub = subtotal();
-  $("cartTotal").innerHTML = `
-    <div class="totalLine"><span>상품금액</span><b>${formatWon(sub)}</b></div>
-    <div class="totalLine"><span>쿠폰할인</span><b>-${formatWon(couponDiscount)}</b></div>
-    <div class="totalLine final"><span>결제금액</span><b>${formatWon(finalTotal())}</b></div>
-    ${coupon ? `<p class="couponOk">적용 쿠폰: ${coupon.code}</p>` : ""}
-  `;
-}
-
-async function getPayment(){
-  try{
-    const snap = await getDocs(collection(db,"settings"));
-    let found = null;
-    snap.docs.forEach(d=>{ if(d.id === "payment") found = {id:d.id, ...d.data()}; });
-    return found || {
-      name:"천율도령",
-      account:"020-02-407816",
-      link:"",
-      bankName:"농·축협",
-      bankOwner:"정세진",
-      bankAccount:"3521566284653",
-      guide:"송금 후 주문 신청을 눌러주세요."
-    };
-  }catch(e){
-    return {name:"천율도령",account:"020-02-407816",bankName:"농·축협",bankOwner:"정세진",bankAccount:"3521566284653",guide:"송금 후 주문 신청을 눌러주세요."};
-  }
-}
-
-function renderPayment(){
-  const box = document.getElementById("paymentInfo");
-  if(!box) return;
-  const p = payment || {};
-  const kakaoNo = p.account || "020-02-407816";
-  const bankNo = p.bankAccount || "3521566284653";
-
-  box.innerHTML = `
-    ${p.qr ? `<img class="payQr" src="${p.qr}" alt="카카오페이 QR">` : ""}
-    <section class="payCard">
-      <h4>카카오페이</h4>
-      <p>${p.name || "천율도령"}</p>
-      <strong>${kakaoNo}</strong>
-      <div class="payButtons">
-        ${p.link ? `<a class="btn gold full payBtn" target="_blank" href="${p.link}">카카오페이 송금하기</a>` : ""}
-        <button class="btn line full payCopyBtn" type="button" data-copy="${kakaoNo}" data-label="카카오페이 번호">카카오페이 번호 복사</button>
-      </div>
-    </section>
-
-    <section class="payCard">
-      <h4>계좌이체</h4>
-      <p>${p.bankName || ""}</p>
-      <strong>${bankNo}</strong>
-      <p>예금주: ${p.bankOwner || ""}</p>
-      <button class="btn line full payCopyBtn" type="button" data-copy="${bankNo}" data-label="계좌번호">계좌번호 복사</button>
-    </section>
-
-    <p class="hint">${p.guide || "송금 후 주문 신청을 눌러주세요."}</p>
-  `;
-
-  document.querySelectorAll(".payCopyBtn").forEach(btn=>{
-    btn.addEventListener("click", async (e)=>{
-      e.preventDefault();
-      e.stopPropagation();
-      const text = btn.dataset.copy || "";
-      const label = btn.dataset.label || "번호";
-      if(!text) return alert(`복사할 ${label}가 없습니다.`);
-      try{
-        await navigator.clipboard.writeText(text);
-      }catch(err){
-        const temp = document.createElement("textarea");
-        temp.value = text;
-        temp.style.position = "fixed";
-        temp.style.left = "-9999px";
-        document.body.appendChild(temp);
-        temp.focus();
-        temp.select();
-        document.execCommand("copy");
-        document.body.removeChild(temp);
-      }
-      alert(`${label}가 복사되었습니다.`);
-    });
-  });
-}
-
-async function applyCoupon(){
-  const code = $("couponInput").value.trim().toUpperCase();
-  if(!code) return alert("쿠폰 코드를 입력해 주세요.");
-  if(!cart.length) return alert("장바구니에 상품을 먼저 담아 주세요.");
-
-  const coupons = await list("coupons", []);
-  const c = coupons.find(x => (x.code || "").toUpperCase() === code);
-  if(!c) return alert("등록되지 않은 쿠폰 코드입니다.");
-  if(c.used === true) return alert("이미 사용된 쿠폰입니다.");
-  if(c.active === false) return alert("사용이 중지된 쿠폰입니다.");
-
-  const min = moneyNumber(c.minOrder || 0);
-  if(min && subtotal() < min) return alert(`이 쿠폰은 ${formatWon(min)} 이상 주문 시 사용 가능합니다.`);
-
-  coupon = c;
-  couponDiscount = Math.min(moneyNumber(c.discount), subtotal());
-  renderCart();
-  alert(`쿠폰이 적용되었습니다.\n할인금액: ${formatWon(couponDiscount)}`);
-}
 
 function orderNo(){
   const d = new Date();
   const date = d.toISOString().slice(2,10).replaceAll("-","");
   return `CY${date}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
 }
-async function submitOrder(){
-  if(!cart.length) return alert("장바구니가 비어 있습니다.");
-  if(!$("orderName").value || !$("orderContact").value) return alert("주문자 이름과 연락처를 입력해 주세요.");
-  const no = orderNo();
-  await addDoc(collection(db,"orders"),{
-    orderNo:no,
-    items:cart,
-    subtotal:formatWon(subtotal()),
-    discount:couponDiscount,
-    coupon:coupon?.code || "",
-    total:formatWon(finalTotal()),
-    name:$("orderName").value,
-    contact:$("orderContact").value,
-    address:$("orderAddress").value,
-    memo:$("orderMemo").value,
-    status:"입금대기",
-    payment:"카카오페이/계좌이체",
-    trackingCompany:"",
-    trackingNo:"",
-    createdAt:serverTimestamp()
-  });
-  if(coupon?.id){
-    try{ await updateDoc(doc(db,"coupons",coupon.id),{used:true, usedAt:serverTimestamp(), usedOrderNo:no}); }catch(e){}
-  }
-  await decreaseStock();
-  cart=[]; coupon=null; couponDiscount=0; saveCart();
-  $("cartModal").classList.remove("show");
-  alert(`주문 신청 완료\n주문번호: ${no}`);
-}
+
+
 async function decreaseStock(){
   for(const item of cart){
     const p = products.find(x=>x.id===item.id);
     const n = parseInt(String(p?.stock||"").replace(/[^\d]/g,""),10);
     if(Number.isFinite(n)){
       const next = Math.max(0,n-Number(item.qty||1));
-      try{ await updateDoc(doc(db,"products",p.id),{stock: next<=0 ? "품절" : `${next}개`}); }catch(e){}
+      try{await updateDoc(doc(db,"products",p.id),{stock: next<=0 ? "품절" : `${next}개`});}catch(e){}
     }
   }
 }
-
 async function getBookingSettings(){
   const settings = await list("settings", []);
   const t = settings.find(s=>s.id==="bookingTimes");
@@ -309,7 +152,9 @@ function setupBookingCalendar(){
 function updateAvailableTimes(){
   const date = $("bookDate")?.value || "";
   const blocked = bookingSettings.blockedDates.includes(date);
-  $("bookTime").innerHTML = blocked ? `<option>예약 마감</option>` : bookingSettings.times.map(t=>`<option>${esc(t)}</option>`).join("");
+  $("bookTime").innerHTML = blocked 
+    ? `<option>예약 마감</option>` 
+    : bookingSettings.times.map(t=>`<option>${esc(t)}</option>`).join("");
   if($("bookedNotice")) $("bookedNotice").textContent = blocked ? "해당 날짜는 예약이 마감되었습니다." : "";
 }
 async function submitBooking(){
@@ -328,7 +173,6 @@ async function submitBooking(){
   });
   alert("예약 신청이 접수되었습니다.");
 }
-
 async function optimizeImage(file,max=1600,quality=.82){
   if(!file || !file.type.startsWith("image/")) return file;
   const img = await new Promise((resolve,reject)=>{
@@ -371,6 +215,187 @@ async function submitReview(){
   alert("후기 등록 요청이 완료되었습니다.");
 }
 
+
+
+
+
+
+async function getPayment(){
+  try{
+    const snap = await getDocs(collection(db,"settings"));
+    let found = null;
+    snap.docs.forEach(d=>{
+      if(d.id === "payment") found = {id:d.id, ...d.data()};
+    });
+    return found || {
+      name:"천율도령",
+      account:"02002407816",
+      link:"",
+      bankName:"",
+      bankOwner:"",
+      bankAccount:"",
+      guide:"송금 후 주문 신청을 눌러주세요."
+    };
+  }catch(e){
+    console.warn("결제 정보 불러오기 실패", e);
+    return {name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청을 눌러주세요."};
+  }
+}
+
+
+
+
+
+
+
+
+
+function renderCart(){
+  const itemsBox = document.getElementById("cartItems");
+  if(!itemsBox) return;
+  itemsBox.innerHTML = cart.map((i,idx)=>`
+    <div class="cartItem">
+      <div>
+        <b>${esc(i.name)}</b>
+        <p>${esc(i.price)} × ${i.qty}</p>
+      </div>
+      <button class="cartRemove" data-i="${idx}" type="button">삭제</button>
+    </div>
+  `).join("") || `<div class="card">장바구니가 비어 있습니다.</div>`;
+
+  document.querySelectorAll(".cartRemove").forEach(btn=>{
+    btn.onclick = ()=>{
+      cart.splice(Number(btn.dataset.i),1);
+      saveCart();
+      renderCart();
+    };
+  });
+
+  const sub = subtotal();
+  const total = finalTotal();
+  const subEl = document.getElementById("cartSubtotal");
+  const disEl = document.getElementById("cartDiscount");
+  const totalEl = document.getElementById("cartTotal");
+  const couponText = document.getElementById("couponAppliedText");
+
+  if(subEl) subEl.textContent = formatWon(sub);
+  if(disEl) disEl.textContent = formatWon(couponDiscount);
+  if(totalEl) totalEl.textContent = formatWon(total);
+  if(couponText) couponText.textContent = coupon ? `${coupon.code} / ${formatWon(couponDiscount)} 할인` : "적용된 쿠폰이 없습니다.";
+}
+
+function renderPayment(){
+  const box = document.getElementById("paymentInfo");
+  if(!box) return;
+
+  const p = payment || {};
+  const kakaoNo = p.account || "020-02-407816";
+  const bankNo = p.bankAccount || "";
+
+  box.innerHTML = `
+    <div class="payGrid">
+      <article class="payCard">
+        <div class="payTitle">카카오페이</div>
+        <div class="payName">${p.name || "천율도령"}</div>
+        <div class="payNumber">${kakaoNo}</div>
+        <div class="payActions">
+          ${p.link ? `<a class="btn gold full" target="_blank" href="${p.link}">카카오페이 송금하기</a>` : ""}
+          <button class="btn line full payCopyBtn" type="button" data-copy="${kakaoNo}" data-label="카카오페이 번호">카카오페이 번호 복사</button>
+        </div>
+      </article>
+
+      ${bankNo ? `
+      <article class="payCard">
+        <div class="payTitle">계좌이체</div>
+        <div class="payName">${p.bankName || ""}</div>
+        <div class="payNumber">${bankNo}</div>
+        <div class="payOwner">예금주: ${p.bankOwner || ""}</div>
+        <button class="btn line full payCopyBtn" type="button" data-copy="${bankNo}" data-label="계좌번호">계좌번호 복사</button>
+      </article>` : ""}
+    </div>
+    ${p.qr ? `<img class="payQr" src="${p.qr}" alt="카카오페이 QR">` : ""}
+    <p class="hint">${p.guide || "송금 후 주문 신청을 눌러주세요."}</p>
+  `;
+
+  document.querySelectorAll(".payCopyBtn").forEach(btn=>{
+    btn.onclick = async (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const text = btn.dataset.copy || "";
+      const label = btn.dataset.label || "번호";
+      if(!text) return alert(`복사할 ${label}가 없습니다.`);
+      try{
+        await navigator.clipboard.writeText(text);
+      }catch(err){
+        const t = document.createElement("textarea");
+        t.value = text;
+        t.style.position = "fixed";
+        t.style.left = "-9999px";
+        document.body.appendChild(t);
+        t.select();
+        document.execCommand("copy");
+        document.body.removeChild(t);
+      }
+      alert(`${label}가 복사되었습니다.`);
+    };
+  });
+}
+
+async function applyCoupon(){
+  const code = document.getElementById("couponInput")?.value.trim().toUpperCase();
+  if(!code) return alert("쿠폰 코드를 입력해 주세요.");
+
+  const coupons = await list("coupons", []);
+  const c = coupons.find(x => (x.code || "").toUpperCase() === code);
+  if(!c) return alert("등록되지 않은 쿠폰 코드입니다.");
+  if(c.used === true) return alert("이미 사용된 쿠폰입니다.");
+
+  coupon = c;
+  couponDiscount = moneyNumber(c.discount);
+
+  if(couponDiscount <= 0) return alert("쿠폰 할인금액이 올바르지 않습니다.");
+
+  alert(`쿠폰이 적용되었습니다.\n할인금액: ${formatWon(couponDiscount)}`);
+  renderCart();
+}
+
+async function submitOrder(){
+  if(!cart.length) return alert("장바구니가 비어 있습니다.");
+  if(!document.getElementById("orderName").value || !document.getElementById("orderContact").value) return alert("주문자 이름과 연락처를 입력해 주세요.");
+
+  const no = orderNo();
+  await addDoc(collection(db,"orders"),{
+    orderNo:no,
+    items:cart,
+    subtotal:formatWon(subtotal()),
+    discount:couponDiscount,
+    coupon:coupon?.code || "",
+    total:formatWon(finalTotal()),
+    name:document.getElementById("orderName").value,
+    contact:document.getElementById("orderContact").value,
+    address:document.getElementById("orderAddress").value,
+    memo:document.getElementById("orderMemo").value,
+    status:"입금대기",
+    payment:"카카오페이/계좌이체",
+    trackingCompany:"",
+    trackingNo:"",
+    createdAt:serverTimestamp()
+  });
+
+  if(coupon?.id){
+    try{await updateDoc(doc(db,"coupons",coupon.id),{used:true,usedAt:serverTimestamp()});}catch(e){}
+  }
+  await decreaseStock();
+
+  cart=[]; coupon=null; couponDiscount=0;
+  saveCart();
+  document.getElementById("cartModal").classList.remove("show");
+  alert(`주문 신청 완료\n주문번호: ${no}`);
+}
+
+init();
+
+
 async function loadBusinessInfo(){
   try{
     const settings = await list("settings", []);
@@ -390,12 +415,15 @@ async function loadBusinessInfo(){
       const el = document.getElementById(id);
       if(el) el.textContent = value;
     }
-  }catch(e){}
+  }catch(e){
+    console.warn("사업자 정보 불러오기 실패", e);
+  }
 }
+
 async function trackOrder(){
-  const no = $("trackOrderNo")?.value?.trim();
-  const contact = $("trackContact")?.value?.trim();
-  const box = $("trackingResult");
+  const no = document.getElementById("trackOrderNo")?.value?.trim();
+  const contact = document.getElementById("trackContact")?.value?.trim();
+  const box = document.getElementById("trackingResult");
   if(!no || !contact) return alert("주문번호와 연락처를 입력해 주세요.");
   const orders = await list("orders", []);
   const found = orders.find(o => String(o.orderNo||"").trim() === no && String(o.contact||"").trim() === contact);
@@ -403,7 +431,17 @@ async function trackOrder(){
     box.innerHTML = `<div class="card">일치하는 주문을 찾지 못했습니다.<br>주문번호와 연락처를 다시 확인해 주세요.</div>`;
     return;
   }
-  box.innerHTML = `<div class="card"><h3>주문번호 ${found.orderNo||found.id}</h3><p>주문자 : ${found.name||""}</p><p>주문상태 : <b>${found.status||"입금대기"}</b></p><p>배송방법/택배사 : ${found.trackingCompany||"등록 전"}</p><p>송장번호/배송메모 : ${found.trackingNo||"등록 전"}</p><p>총 결제금액 : ${found.total||""}</p></div>`;
+  box.innerHTML = `<div class="card">
+    <h3>주문번호 ${found.orderNo||found.id}</h3>
+    <p>주문자 : ${found.name||""}</p>
+    <p>주문상태 : <b>${found.status||"입금대기"}</b></p>
+    <p>배송방법/택배사 : ${found.trackingCompany||"등록 전"}</p>
+    <p>송장번호/배송메모 : ${found.trackingNo||"등록 전"}</p>
+    <p>총 결제금액 : ${found.total||""}</p>
+  </div>`;
 }
 
-init();
+setTimeout(()=>{
+  loadBusinessInfo();
+  document.getElementById("trackBtn")?.addEventListener("click", trackOrder);
+}, 300);

@@ -35,7 +35,7 @@
 
     <nav class="tabs">
       <a href="#dashboard">대시보드</a><a href="#orders">주문</a><a href="#trackingAdmin">배송</a><a href="#bookings">예약</a>
-      <a href="#products">상품</a><a href="#reviewsAdmin">후기</a><a href="#settings">설정</a>
+      <a href="#products">상품</a><a href="#couponAdmin">쿠폰</a><a href="#reviewsAdmin">후기</a><a href="#settings">설정</a>
     </nav>
 
     <section id="dashboard" class="stats">
@@ -84,20 +84,6 @@
         <textarea id="blockedDatesInput" placeholder="예약 막을 날짜 예: 2026-07-01&#10;2026-07-02"></textarea>
         <button class="btn gold full" id="saveTimesBtn" type="button">예약 시간 저장</button>
       </div>
-    </section>
-
-    <section class="block">
-      <h2>쿠폰 자동 발급/등록</h2>
-      <div class="form">
-        <input id="couponCodeAdmin" placeholder="쿠폰 코드 예: FIRST5000">
-        <input id="couponDiscount" placeholder="할인금액 예: 5000">
-        <input id="couponDesc" placeholder="쿠폰 설명">
-        <input id="couponPrefix" placeholder="자동 코드 앞글자 예: CHEON">
-        <input id="couponCount" placeholder="자동 발급 개수 예: 10">
-        <button class="btn line full" id="couponAutoBtn" type="button">자동 쿠폰 발급</button>
-        <button class="btn gold full" id="couponAddBtn" type="button">수동 쿠폰 등록</button>
-      </div>
-      <div id="couponList" class="list"></div>
     </section>
 
     <section class="block">
@@ -150,6 +136,26 @@
         <button class="btn gold full" id="postAddBtn" type="button">게시글 등록</button>
       </div>
       <div id="postAdminList" class="list"></div>
+    </section>
+
+    
+    <section id="couponAdmin" class="block">
+      <h2>쿠폰 관리</h2>
+      <div class="couponStats stats miniStats">
+        <article><b id="couponTotal">0</b><span>전체 쿠폰</span></article>
+        <article><b id="couponUsable">0</b><span>사용 가능</span></article>
+        <article><b id="couponUsed">0</b><span>사용 완료</span></article>
+      </div>
+      <div class="form">
+        <input id="couponCodeAdmin" placeholder="수동 쿠폰 코드 예: WELCOME5000">
+        <input id="couponDiscount" placeholder="할인금액 예: 5000">
+        <input id="couponDesc" placeholder="쿠폰 설명 예: 신규 고객 할인">
+        <input id="couponPrefix" placeholder="자동 코드 앞글자 예: CHEON">
+        <input id="couponCount" placeholder="자동 발급 개수 예: 10">
+        <button class="btn line full" id="couponAutoBtn" type="button">자동 쿠폰 발급</button>
+        <button class="btn gold full" id="couponAddBtn" type="button">수동 쿠폰 등록</button>
+      </div>
+      <div id="couponList" class="list couponTable"></div>
     </section>
 
     <section id="orders" class="block">

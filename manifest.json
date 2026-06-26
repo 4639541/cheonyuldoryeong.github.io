@@ -1,0 +1,9 @@
+{
+  "name": "천율도령",
+  "short_name": "천율도령",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#050403",
+  "theme_color": "#050403",
+  "icons": []
+}

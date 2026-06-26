@@ -109,3 +109,46 @@
   .adminItem .actions{grid-template-columns:1fr}
   .statsGrid{grid-template-columns:1fr 1fr!important}
 }
+
+/* Touch fix */
+.mobileTabs{
+  position:sticky!important;
+  top:60px!important;
+  z-index:99999!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+  overflow:visible!important;
+  background:#050403!important;
+  padding:10px 0!important;
+  pointer-events:auto!important;
+}
+.mobileTabs a{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:48px!important;
+  padding:12px 18px!important;
+  border-radius:999px!important;
+  background:#e9e9e9!important;
+  color:#000!important;
+  font-weight:900!important;
+  text-decoration:none!important;
+  pointer-events:auto!important;
+  position:relative!important;
+  z-index:100000!important;
+}
+.mobileNotice,.dashHead,.statsGrid,.adminGrid,.adminList,.formBox{
+  position:relative!important;
+  z-index:1!important;
+}
+.topbar{
+  z-index:100000!important;
+}
+button,a,input,select,textarea{
+  pointer-events:auto!important;
+}
+@media(max-width:700px){
+  .mobileTabs{top:60px!important}
+  .mobileTabs a{flex:0 0 auto!important}
+}

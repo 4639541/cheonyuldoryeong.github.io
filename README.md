@@ -69,3 +69,9 @@ index.html, admin.html, style.css, firebase-config.js, app.js, admin.js
 - 모바일 입력창 및 버튼 터치 최적화
 - 주문 상태 변경, 배송조회 입력, 문자문구 복사 휴대폰 최적화
 - 관리자 페이지 이름: 천율도령 모바일 관리자
+
+
+터치 오류 수정:
+- 모바일 탭 버튼을 JavaScript 버튼이 아닌 링크 방식으로 변경
+- z-index/pointer-events 보정
+- 투명 레이어가 버튼을 덮어 터치 안 되는 문제 해결

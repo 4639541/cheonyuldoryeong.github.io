@@ -281,22 +281,60 @@ async function getPayment(){
   }
 }
 
+
+
+
 function renderPayment(){
   const box = document.getElementById("paymentInfo");
   if(!box) return;
+
   const p = payment || {};
+  const accountToCopy = p.bankAccount || p.account || "";
+
   box.innerHTML = `
     ${p.qr ? `<img class="payQr" src="${p.qr}" alt="카카오페이 QR">` : ""}
-    <div class="copy"><b>카카오페이 송금</b><br>받는 사람: ${p.name || "천율도령"}<br>${p.account || "02002407816"}</div>
-    ${p.bankAccount ? `<div class="copy"><b>계좌이체</b><br>${p.bankName || ""} ${p.bankAccount || ""}<br>예금주: ${p.bankOwner || ""}</div>` : ""}
+    <div class="copy">
+      <b>카카오페이</b><br>
+      ${p.name || "천율도령"}<br>
+      ${p.account || "020-02-407816"}
+    </div>
+    ${p.bankAccount ? `
+      <div class="copy">
+        <b>계좌이체</b><br>
+        ${p.bankName || ""} ${p.bankAccount || ""}<br>
+        예금주: ${p.bankOwner || ""}
+      </div>
+    ` : ""}
     ${p.link ? `<a class="btn gold full" target="_blank" href="${p.link}">카카오페이 송금하기</a>` : ""}
-    <button class="btn line full" id="copyPaymentBtn" type="button">계좌/번호 복사</button>
+    <button class="btn line full accountCopyBtn" id="copyAccountBtn" type="button">계좌번호 복사</button>
     <p class="hint">${p.guide || "송금 후 주문 신청을 눌러주세요."}</p>
   `;
-  document.getElementById("copyPaymentBtn")?.addEventListener("click", async()=>{
-    await navigator.clipboard.writeText(p.bankAccount || p.account || "");
-    alert("결제 번호/계좌번호가 복사되었습니다.");
-  });
+
+  const copyBtn = document.getElementById("copyAccountBtn");
+  if(copyBtn){
+    copyBtn.onclick = async (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+
+      if(!accountToCopy){
+        alert("복사할 계좌번호가 없습니다.");
+        return;
+      }
+
+      try{
+        await navigator.clipboard.writeText(accountToCopy);
+        alert("계좌번호가 복사되었습니다.");
+      }catch(err){
+        const temp = document.createElement("textarea");
+        temp.value = accountToCopy;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+        alert("계좌번호가 복사되었습니다.");
+      }
+    };
+  }
 }
 
 init();

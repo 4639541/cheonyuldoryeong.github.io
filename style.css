@@ -45,3 +45,12 @@ footer .inner{text-align:center}footer h3{color:#e6ba60;margin:0 0 10px}footer p
 
 .paymentAdminForm{border:2px solid rgba(230,186,96,.45)}
 .pay .copy{margin-bottom:8px}
+
+.accountCopyBtn{
+  position:relative;
+  z-index:50;
+  pointer-events:auto!important;
+}
+.pay .btn{
+  pointer-events:auto!important;
+}

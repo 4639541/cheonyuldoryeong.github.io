@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>천율도령 모바일 관리자</title>
-  <link rel="stylesheet" href="style.css?v=520">
+  <link rel="stylesheet" href="style.css?v=530">
 </head>
 <body>
 <header class="top">
@@ -34,7 +34,7 @@
     </div>
 
     <nav class="tabs">
-      <a href="#dashboard">대시보드</a><a href="#orders">주문</a><a href="#membersAdmin">회원</a><a href="#trackingAdmin">배송</a><a href="#bookings">예약</a>
+      <a href="#dashboard">대시보드</a><a href="#orders">주문</a><a href="#membersAdmin">회원</a><a href="#memberCouponAdmin">회원쿠폰</a><a href="#trackingAdmin">배송</a><a href="#bookings">예약</a>
       <a href="#products">상품</a><a href="#couponAdmin">쿠폰</a><a href="#reviewsAdmin">후기</a><a href="#settings">설정</a>
     </nav>
 
@@ -159,6 +159,21 @@
     </section>
 
     
+    
+    <section id="memberCouponAdmin" class="block">
+      <h2>회원별 쿠폰 발급</h2>
+      <div class="form">
+        <select id="memberCouponUser">
+          <option value="">회원 선택</option>
+        </select>
+        <input id="memberCouponCode" placeholder="쿠폰 코드 비우면 자동 생성">
+        <input id="memberCouponDiscount" placeholder="할인금액 예: 5000">
+        <input id="memberCouponDesc" placeholder="쿠폰 설명 예: 회원 전용 쿠폰">
+        <button class="btn gold full" id="memberCouponIssueBtn" type="button">선택 회원에게 쿠폰 발급</button>
+      </div>
+      <div id="memberCouponList" class="list"></div>
+    </section>
+
     <section id="membersAdmin" class="block">
       <h2>회원 관리</h2>
       <div id="memberAdminList" class="list"></div>
@@ -182,6 +197,6 @@
     </section>
   </section>
 </main>
-<script type="module" src="admin.js?v=520"></script>
+<script type="module" src="admin.js?v=530"></script>
 </body>
 </html>

@@ -355,6 +355,12 @@ async function applyCoupon(){
   const c = coupons.find(x => (x.code || "").toUpperCase() === code);
   if(!c) return alert("등록되지 않은 쿠폰 코드입니다.");
   if(c.used === true) return alert("이미 사용된 쿠폰입니다.");
+  if(c.memberUid || c.memberEmail){
+    if(!currentMember) return alert("회원 전용 쿠폰입니다. 로그인 후 사용해 주세요.");
+    const uid = currentMember.uid || currentMember.id || "";
+    if(c.memberUid && c.memberUid !== uid) return alert("해당 회원에게 발급된 쿠폰만 사용할 수 있습니다.");
+    if(c.memberEmail && c.memberEmail !== currentMember.email) return alert("해당 회원에게 발급된 쿠폰만 사용할 수 있습니다.");
+  }
 
   coupon = c;
   couponDiscount = moneyNumber(c.discount);
@@ -435,6 +441,7 @@ function renderMemberPanel(){
     showMemberTab("login");
   }
   setMemberText();
+  loadMyCoupons();
 }
 function fillMemberToForms(){
   if(!currentMember) return;
@@ -505,6 +512,42 @@ function bindMemberUI(){
   document.getElementById("loginMemberBtn")?.addEventListener("click", async()=>{try{await loginMember();}catch(e){alert("로그인 실패: 이메일 또는 비밀번호를 확인해 주세요.");}});
   document.getElementById("logoutMemberBtn")?.addEventListener("click", logoutMember);
   onAuthStateChanged(auth, loadMemberProfile);
+}
+
+
+async function loadMyCoupons(){
+  const box = document.getElementById("myCouponList");
+  if(!box) return;
+  if(!currentMember){
+    box.innerHTML = `<p class="hint">로그인 후 확인 가능합니다.</p>`;
+    return;
+  }
+  try{
+    const coupons = await list("coupons", []);
+    const uid = currentMember.uid || currentMember.id || "";
+    const myCoupons = coupons.filter(c => c.memberUid === uid || c.memberEmail === currentMember.email);
+    box.innerHTML = myCoupons.length ? myCoupons.map(c=>`
+      <div class="myCouponCard ${c.used ? "used" : ""}">
+        <b>${c.code}</b>
+        <span>${formatWon(moneyNumber(c.discount))} 할인</span>
+        <small>${c.used ? "사용 완료" : "사용 가능"} · ${c.desc || "회원 전용 쿠폰"}</small>
+        ${!c.used ? `<button class="btn line full myCouponUseBtn" type="button" data-code="${c.code}">이 쿠폰 사용하기</button>` : ""}
+      </div>
+    `).join("") : `<p class="hint">발급된 쿠폰이 없습니다.</p>`;
+
+    document.querySelectorAll(".myCouponUseBtn").forEach(btn=>{
+      btn.onclick = ()=>{
+        const input = document.getElementById("couponInput");
+        if(input) input.value = btn.dataset.code || "";
+        closeMemberModal();
+        document.getElementById("cartModal")?.classList.add("show");
+        renderCart();
+        renderPayment();
+      };
+    });
+  }catch(e){
+    box.innerHTML = `<p class="hint">쿠폰을 불러오지 못했습니다.</p>`;
+  }
 }
 
 init();

@@ -401,3 +401,69 @@ async function refreshCouponStatsFinal(){
 }
 setInterval(refreshCouponStatsFinal, 2000);
 setTimeout(refreshCouponStatsFinal, 1000);
+
+
+function makeMemberCouponCode(prefix="MEMBER"){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = prefix + "-";
+  for(let i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+
+async function refreshMemberCouponAdmin(){
+  try{
+    const [members, coupons] = await Promise.all([list("members"), list("coupons")]);
+    const select = document.getElementById("memberCouponUser");
+    if(select){
+      const current = select.value;
+      select.innerHTML = `<option value="">회원 선택</option>` + members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
+      if(current) select.value = current;
+    }
+    const box = document.getElementById("memberCouponList");
+    if(box){
+      const memberCoupons = coupons.filter(c=>c.memberUid || c.memberEmail);
+      box.innerHTML = memberCoupons.length ? memberCoupons.map(c=>item(
+        `${c.code} · ${c.discount}원 할인`,
+        `회원: ${c.memberName || c.memberEmail || c.memberUid}<br>${c.desc || "회원 전용 쿠폰"}<br>상태: ${c.used ? "사용 완료" : "사용 가능"}`,
+        `<button class="danger" onclick="del('coupons','${c.id}')">삭제</button>`
+      )).join("") : "<p>회원별 발급 쿠폰이 없습니다.</p>";
+    }
+  }catch(e){}
+}
+
+setTimeout(()=>{
+  const btn = document.getElementById("memberCouponIssueBtn");
+  if(btn){
+    btn.onclick = async (e)=>{
+      e.preventDefault();
+      const sel = document.getElementById("memberCouponUser");
+      const memberUid = sel?.value || "";
+      if(!memberUid) return alert("쿠폰을 발급할 회원을 선택해 주세요.");
+      const opt = sel.options[sel.selectedIndex];
+      const memberEmail = opt?.dataset.email || "";
+      const memberName = opt?.dataset.name || "";
+      const discount = val("memberCouponDiscount");
+      if(!discount) return alert("할인금액을 입력해 주세요.");
+      const code = (val("memberCouponCode") || makeMemberCouponCode()).toUpperCase();
+      await addDoc(collection(db,"coupons"),{
+        code,
+        discount,
+        desc: val("memberCouponDesc") || "회원 전용 쿠폰",
+        auto:false,
+        used:false,
+        memberUid,
+        memberEmail,
+        memberName,
+        createdAt:serverTimestamp()
+      });
+      setVal("memberCouponCode","");
+      setVal("memberCouponDiscount","");
+      setVal("memberCouponDesc","");
+      alert(`${memberName || memberEmail} 회원에게 쿠폰이 발급되었습니다.`);
+      refreshMemberCouponAdmin();
+      loadAll();
+    };
+  }
+  refreshMemberCouponAdmin();
+}, 1000);
+setInterval(refreshMemberCouponAdmin, 4000);

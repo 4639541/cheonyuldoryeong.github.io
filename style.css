@@ -248,3 +248,27 @@ footer .inner{text-align:center}footer h3{color:#e6ba60;margin:0 0 10px}footer p
 @media(max-width:850px){
   .navMemberBtn{width:100%;min-height:44px}
 }
+
+.myCouponList{
+  display:grid;
+  gap:10px;
+  margin:10px 0 16px;
+}
+.myCouponCard{
+  border:1px solid rgba(230,186,96,.3);
+  border-radius:16px;
+  padding:12px;
+  background:#080604;
+  display:grid;
+  gap:6px;
+}
+.myCouponCard b{
+  color:#e6ba60;
+  font-size:18px;
+}
+.myCouponCard.used{
+  opacity:.55;
+}
+#memberCouponUser{
+  min-height:52px;
+}

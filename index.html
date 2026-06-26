@@ -6,7 +6,7 @@
 <title>천율도령 모바일</title>
 <meta name="theme-color" content="#050403">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=300">
+<link rel="stylesheet" href="mobile.css?v=400">
 </head>
 <body>
 <header class="appTop">
@@ -31,6 +31,7 @@
       <button data-go="reserve">📅 예약</button>
       <button data-go="shop">🛍 상품</button>
       <button data-go="mypage">🎫 내 쿠폰</button>
+      <button data-go="benefits">💎 혜택</button>
       <button data-go="tracking">🚚 배송</button>
     </div>
 
@@ -83,6 +84,17 @@
     <div id="myHistory" class="cards"></div>
   </section>
 
+  <section id="benefits" class="page">
+    <h1>회원 혜택</h1>
+    <div id="memberGradeBox" class="formCard"></div>
+    <h2>적립금</h2>
+    <div id="pointBox" class="cards"></div>
+    <h2>즐겨찾기</h2>
+    <div id="favoriteList" class="cards"></div>
+    <h2>최근 본 상품</h2>
+    <div id="recentList" class="cards"></div>
+  </section>
+
   <section id="reviews" class="page">
     <h1>후기</h1>
     <button id="reviewOpen" class="primary" type="button">후기 작성</button>
@@ -95,6 +107,7 @@
   <button data-go="reserve">예약</button>
   <button data-go="shop">상품</button>
   <button data-go="reviews">후기</button>
+  <button data-go="benefits">혜택</button>
   <button data-go="mypage">마이</button>
 </nav>
 
@@ -154,6 +167,6 @@
   </div>
 </div>
 
-<script type="module" src="mobile.js?v=300"></script>
+<script type="module" src="mobile.js?v=400"></script>
 </body>
 </html>

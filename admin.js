@@ -52,6 +52,39 @@ async function uploadFiles(fileList, folder){
   return urls;
 }
 
+
+function resetConsultForm(){
+  setVal("consultId"); setVal("consultTitle"); setVal("consultPrice"); setVal("consultBadge"); setVal("consultDesc");
+}
+async function saveConsult(){
+  if(!val("consultTitle") || !val("consultPrice")) return alert("상담명과 가격을 입력해 주세요.");
+  const id = val("consultId");
+  const data = {
+    title: val("consultTitle"),
+    price: val("consultPrice"),
+    badge: val("consultBadge") || "상담",
+    desc: val("consultDesc"),
+    createdAt: serverTimestamp()
+  };
+  if(id){
+    await updateDoc(doc(db,"consultPrices",id), data);
+    alert("상담 가격이 수정되었습니다.");
+  }else{
+    await addDoc(collection(db,"consultPrices"), data);
+    alert("상담 가격이 등록되었습니다.");
+  }
+  resetConsultForm();
+  await loadAll();
+}
+window.editConsult = (id,title,price,badge,desc)=>{
+  setVal("consultId", id);
+  setVal("consultTitle", title);
+  setVal("consultPrice", price);
+  setVal("consultBadge", badge);
+  setVal("consultDesc", desc);
+  window.scrollTo({top:0,behavior:"smooth"});
+};
+
 async function addProduct(){
   if(!val("pName") || !val("pPrice")) return alert("상품명과 판매가를 입력해 주세요.");
   status("productStatus","이미지 업로드 중입니다...");
@@ -140,6 +173,7 @@ async function fill(colName, boxId, html){
 }
 
 async function loadAll(){
+  await fill("consultPrices","consultAdminList", c=>`<div class="adminItem"><b>${c.title||""} · ${c.price||""}</b><p><span class="badge">${c.badge||"상담"}</span><br>${c.desc||""}</p><div class="actions"><button onclick="editConsult('${c.id}', '${String(c.title||"").replaceAll("'","\\'")}', '${String(c.price||"").replaceAll("'","\\'")}', '${String(c.badge||"").replaceAll("'","\\'")}', '${String(c.desc||"").replaceAll("'","\\'")}')">수정</button><button class="danger" onclick="del('consultPrices','${c.id}')">삭제</button></div></div>`);
   const orderCount = await fill("orders","orderAdminList", o=>`<div class="adminItem"><b>${o.name||""} · ${o.total||""}</b><p>${(o.items||[]).map(i=>`${i.name||""} ${i.qty||1}개`).join("<br>")}<br>연락처: ${o.contact||""}<br>주소: ${o.address||""}<br><span class="status">${o.status||"신규"}</span></p><div class="actions"><button onclick="setStatus('orders','${o.id}','확인중')">확인중</button><button onclick="setStatus('orders','${o.id}','완료')">완료</button><button onclick="del('orders','${o.id}')">삭제</button></div></div>`);
   const bookingCount = await fill("bookings","bookingAdminList", b=>`<div class="adminItem"><b>${b.name||""} · ${b.type||""}</b><p>${b.contact||""}<br>${b.date||""} ${b.time||""}<br>${b.body||""}<br><span class="status">${b.status||"대기"}</span></p><div class="actions"><button onclick="setStatus('bookings','${b.id}','확정')">확정</button><button onclick="setStatus('bookings','${b.id}','완료')">완료</button><button onclick="del('bookings','${b.id}')">삭제</button></div></div>`);
   const productCount = await fill("products","productAdminList", p=>`<div class="adminItem"><b>${p.name||""} · ${p.price||""}</b><p>${p.category||""} / ${p.stock||""}<br>${p.desc||""}</p>${imgs(p)}<div class="actions"><button onclick="del('products','${p.id}')">삭제</button></div></div>`);
@@ -172,6 +206,8 @@ window.del = async (colName,id)=>{ if(confirm("삭제할까요?")){ await delete
 document.addEventListener("DOMContentLoaded", ()=>{
   bind("loginBtn", adminLogin);
   bind("logoutBtn", adminLogout);
+  bind("addConsultBtn", saveConsult);
+  bind("resetConsultBtn", resetConsultForm);
   bind("addProductBtn", addProduct);
   bind("addPostBtn", addPost);
   bind("addFieldBtn", addField);

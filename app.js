@@ -11,12 +11,6 @@ let products = [];
 let cart = JSON.parse(localStorage.getItem("cheonyulCart") || "[]");
 
 const defaults = {
-  consults:[
-    {title:"한 질문 상담",price:"20,000원",badge:"기본",desc:"하나의 핵심 질문에 대해 현재 흐름과 방향을 살펴드립니다."},
-    {title:"세 질문 상담",price:"50,000원",badge:"추천",desc:"연결된 고민 세 가지를 묶어 흐름을 정리합니다."},
-    {title:"궁합 상담",price:"80,000원",badge:"관계",desc:"두 사람의 관계 흐름, 성향, 앞으로의 방향성을 함께 살펴드립니다."},
-    {title:"심층 신점 상담",price:"120,000원",badge:"심층",desc:"전반적인 상황과 인생 흐름을 깊이 있게 살펴보는 상담입니다."}
-  ],
   notices:[{tag:"필독",title:"상담은 예약제로 진행됩니다.",body:"카카오톡 문의 또는 홈페이지 예약 후 순서대로 안내드립니다."}],
   fields:[
     {title:"연애 · 재회",body:"상대방 속마음, 연락운, 재회 흐름, 관계 회복 가능성을 살펴봅니다."},
@@ -53,16 +47,6 @@ async function init(){
 
   const fields=await loadCollection("fields",defaults.fields);
   document.getElementById("fieldList").innerHTML=fields.map(f=>`<article><h3>${f.title||""}</h3><p>${f.body||""}</p></article>`).join("");
-
-  const consults=await loadCollection("consultPrices",defaults.consults);
-  const priceBox=document.getElementById("consultPriceList");
-  if(priceBox){
-    priceBox.innerHTML=consults.map(c=>`<article><span class="badge">${c.badge||"상담"}</span><h3>${c.title||""}</h3><p>${c.desc||""}</p><strong class="price">${c.price||"문의"}</strong><a class="btn primary" href="#booking">예약하기</a></article>`).join("");
-  }
-  const bookTypeEl=document.getElementById("bookType");
-  if(bookTypeEl){
-    bookTypeEl.innerHTML=consults.map(c=>`<option>${c.title||"상담"} ${c.price||""}</option>`).join("") + `<option>재회 상담</option><option>속마음 상담</option><option>금전운 상담</option><option>사업운 상담</option><option>취업운 상담</option><option>상품 문의</option>`;
-  }
 
   products=await loadCollection("products",defaults.products);
   fillCategories();

@@ -6,7 +6,7 @@
 <title>천율도령 모바일</title>
 <meta name="theme-color" content="#050403">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=470">
+<link rel="stylesheet" href="mobile.css?v=480">
 </head>
 <body>
 <header class="appTop">
@@ -135,6 +135,27 @@
     <div id="myConsultRecords" class="cards"></div>
   </section>
 
+  <section id="chatPage" class="page">
+    <h1>실시간 상담 채팅</h1>
+    <div id="chatLoginGuide" class="formCard">로그인 후 상담 채팅을 이용할 수 있습니다.</div>
+    <div id="chatBox" class="chatBox"></div>
+    <div class="chatInputRow">
+      <input id="chatInput" placeholder="메시지를 입력하세요">
+      <button id="chatSend" class="primary" type="button">전송</button>
+    </div>
+  </section>
+
+  <section id="referralPage" class="page">
+    <h1>추천인 · 적립금</h1>
+    <div id="myReferralBox" class="formCard"></div>
+    <div class="formCard">
+      <input id="referralInput" placeholder="추천인 코드 입력">
+      <button id="saveReferral" class="primary" type="button">추천인 등록</button>
+    </div>
+    <h2>적립금 내역</h2>
+    <div id="pointHistory" class="cards"></div>
+  </section>
+
   <section id="reviews" class="page">
     <h1>후기</h1>
     <button id="reviewOpen" class="primary" type="button">후기 작성</button>
@@ -155,6 +176,8 @@
   <button data-go="benefits">혜택</button>
   <button data-go="records">이력</button>
   <button data-go="progressCenter">진행</button>
+  <button data-go="chatPage">채팅</button>
+  <button data-go="referralPage">추천</button>
   <button data-go="mypage">마이</button>
 </nav>
 
@@ -214,6 +237,6 @@
   </div>
 </div>
 
-<script type="module" src="mobile.js?v=470"></script>
+<script type="module" src="mobile.js?v=480"></script>
 </body>
 </html>

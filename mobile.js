@@ -11,7 +11,7 @@ const money=v=>Number(String(v||"").replace(/[^\d]/g,""))||0;
 const won=n=>(Number(n)||0).toLocaleString()+"원";
 
 let state={
-  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[],
+  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], events:[],
   payment:{name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청"},
   booking:{times:["오전 10시","오후 2시","오후 7시"],blockedDates:[]}
 };
@@ -112,6 +112,57 @@ function renderProgressCenter(){
   ].join("") || "<p>진행 중인 내역이 없습니다.</p>";
 }
 
+
+// ===== 4.8 chat / points / referral additions =====
+function referralCode(){
+  if(!member) return "";
+  return "CY" + String(member.uid||member.id||"").slice(0,6).toUpperCase();
+}
+function renderReferral(){
+  const box=$("myReferralBox"); if(!box) return;
+  if(!member){box.innerHTML="로그인 후 추천인 코드를 확인할 수 있습니다.";return;}
+  box.innerHTML=`<h3>내 추천인 코드</h3><div class="price">${referralCode()}</div><p>친구가 이 코드를 입력하면 추천 보상이 지급될 수 있습니다.</p><p>보유 적립금: <b>${won(Number(member.points||0))}</b></p>`;
+}
+async function saveReferralCode(){
+  if(!member)return alert("로그인 후 이용해 주세요.");
+  const code=($("referralInput").value||"").trim().toUpperCase();
+  if(!code)return alert("추천인 코드를 입력해 주세요.");
+  if(member.referredBy)return alert("이미 추천인을 등록했습니다.");
+  await updateDoc(doc(db,"members",member.uid||member.id),{referredBy:code,updatedAt:serverTimestamp()});
+  await addDoc(collection(db,"notifications"),{target:"admin",title:"추천인 등록",body:`${member.name||member.email} / ${code}`,createdAt:serverTimestamp()});
+  alert("추천인이 등록되었습니다.");
+}
+function renderPointHistory(){
+  const box=$("pointHistory"); if(!box) return;
+  if(!member){box.innerHTML="<p>로그인 후 확인 가능합니다.</p>";return;}
+  const uid=member.uid||member.id;
+  const rows=(state.points||[]).filter(p=>p.memberUid===uid||p.memberEmail===member.email);
+  box.innerHTML=rows.length?rows.map(p=>`<article class="card"><h3>${won(Number(p.amount||0))}</h3><p>${esc(p.reason||"적립금")}</p></article>`).join(""):"<p>적립금 내역이 없습니다.</p>";
+}
+function renderEvents(){
+  if($("homeBenefitList")){
+    const eventCards=(state.events||[]).slice(0,3).map(e=>`<article class="card benefitCard"><h3>${esc(e.title||"이벤트")}</h3><p>${esc(e.body||"")}</p><small>종료일: ${esc(e.endDate||"-")}</small></article>`).join("");
+    if(eventCards) $("homeBenefitList").innerHTML=eventCards + $("homeBenefitList").innerHTML;
+  }
+}
+function chatThreadId(){return member ? (member.uid||member.id) : "";}
+function renderChat(){
+  const guide=$("chatLoginGuide"), box=$("chatBox"); if(!box) return;
+  if(!member){ if(guide)guide.style.display="block"; box.innerHTML=""; return; }
+  if(guide)guide.style.display="none";
+  const uid=chatThreadId();
+  const rows=(state.chats||[]).filter(c=>c.threadId===uid).sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+  box.innerHTML=rows.map(m=>`<div class="msg ${m.sender==='admin'?'adminMsg':'userMsg'}"><b>${m.sender==='admin'?'천율도령':'나'}</b><p>${esc(m.text||"")}</p></div>`).join("")||"<p>상담 메시지를 남겨주세요.</p>";
+  box.scrollTop=box.scrollHeight;
+}
+async function sendChat(){
+  if(!member)return alert("로그인 후 이용해 주세요.");
+  const text=($("chatInput").value||"").trim(); if(!text)return;
+  await addDoc(collection(db,"chats"),{threadId:chatThreadId(),memberUid:member.uid||member.id,memberEmail:member.email,memberName:member.name||"",sender:"user",text,read:false,createdAt:serverTimestamp()});
+  await addDoc(collection(db,"notifications"),{target:"admin",title:"새 채팅 메시지",body:`${member.name||member.email}: ${text}`,createdAt:serverTimestamp()});
+  $("chatInput").value="";
+}
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
@@ -145,6 +196,10 @@ function renderAll(){
   renderConsultRecords();
   renderNotifications();
   renderProgressCenter();
+  renderReferral();
+  renderPointHistory();
+  renderEvents();
+  renderChat();
   saveCart();
 }
 function renderHome(){
@@ -209,6 +264,7 @@ async function order(){
   await addDoc(collection(db,"notifications"),{target:"admin",title:"새 주문 접수",body:`${$("orderName").value} / ${won(total())}`,createdAt:serverTimestamp()});
   await addDoc(collection(db,"notifications"),{memberUid:member?.uid||member?.id||"",memberEmail:member?.email||"",title:"주문 접수 알림",body:`주문번호 ${no} 접수 완료`,createdAt:serverTimestamp()});
   if(coupon?.id)try{await updateDoc(doc(db,"coupons",coupon.id),{used:true,usedAt:serverTimestamp(),usedCount:Number(coupon.usedCount||0)+1})}catch(e){}
+  if(member){const point=Math.floor(total()*0.01); if(point>0){await addDoc(collection(db,"points"),{memberUid:member.uid||member.id,memberEmail:member.email,amount:point,reason:"주문 적립금",createdAt:serverTimestamp()}); try{await updateDoc(doc(db,"members",member.uid||member.id),{points:Number(member.points||0)+point,updatedAt:serverTimestamp()})}catch(e){}}}
   cart=[]; coupon=null; couponDiscount=0; saveCart(); close("cartModal"); alert("주문 완료\n주문번호: "+no);
 }
 function renderTimes(){const d=$("bookDate")?.value, blocked=state.booking.blockedDates.includes(d); if($("bookTime")) $("bookTime").innerHTML=blocked?"<option>예약 마감</option>":state.booking.times.map(t=>`<option>${t}</option>`).join("")}
@@ -274,11 +330,11 @@ function bind(){
   $("loginOpen").onclick=()=>member?go("mypage"):open("authModal");
   $("loginTab").onclick=()=>{$("loginTab").classList.add("on");$("joinTab").classList.remove("on");$("loginPanel").classList.remove("hide");$("joinPanel").classList.add("hide")};
   $("joinTab").onclick=()=>{$("joinTab").classList.add("on");$("loginTab").classList.remove("on");$("joinPanel").classList.remove("hide");$("loginPanel").classList.add("hide")};
-  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
+  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("chatSend"))$("chatSend").onclick=sendChat; if($("saveReferral"))$("saveReferral").onclick=saveReferralCode; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
 }
 function startSync(){
   if(started)return; started=true;
-  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules"};
+  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",events:"events"};
   Object.entries(map).forEach(([col,key])=>listen(col,key));
 }
 bind(); hydrate(); renderAll(); startSync(); recordVisit(); onAuthStateChanged(auth,loadMember);

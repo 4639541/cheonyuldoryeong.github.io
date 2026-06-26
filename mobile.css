@@ -84,3 +84,38 @@
   from{box-shadow:0 0 0 rgba(230,186,96,0)}
   to{box-shadow:0 0 18px rgba(230,186,96,.25)}
 }
+
+.chatBox{
+  height:360px;
+  overflow:auto;
+  border:1px solid rgba(230,186,96,.25);
+  border-radius:18px;
+  padding:12px;
+  background:#080604;
+}
+.chatInputRow{
+  display:grid;
+  grid-template-columns:1fr 76px;
+  gap:8px;
+  margin-top:10px;
+}
+.msg{
+  max-width:82%;
+  padding:10px 12px;
+  border-radius:16px;
+  margin:8px 0;
+}
+.userMsg{
+  margin-left:auto;
+  background:#e6ba60;
+  color:#130d06;
+}
+.adminMsg{
+  margin-right:auto;
+  background:#17110b;
+  border:1px solid rgba(230,186,96,.25);
+}
+.msg p{margin:4px 0 0}
+@media(max-width:420px){
+  .chatInputRow{grid-template-columns:1fr}
+}

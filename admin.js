@@ -219,22 +219,14 @@ async function loadAll(){
 
   let pendingCount=0, approvedCount=0;
   try{
-    const allReviewsForPending=await getDocs(collection(db,"reviews"));
-    const pendingDocs=allReviewsForPending.docs
-      .map(d=>({id:d.id,...d.data()}))
-      .filter(r=>r.approved===false)
-      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-    pendingCount=pendingDocs.length;
-    $("pendingReviewList").innerHTML = pendingDocs.map(r=>`<div class="adminItem"><b>${r.name||""} · ${r.category||""} · ${r.stars||""}</b><p>${r.body||""}</p>${r.image?`<img class="thumb" src="${r.image}">`:""}<div class="actions"><button onclick="approveReview('${r.id}')">승인</button><button onclick="del('reviews','${r.id}')">삭제</button></div></div>`).join("") || "<p>승인 대기 후기가 없습니다.</p>";
+    const pending=await getDocs(collection(db,"reviews"));
+    pendingCount=pending.docs.length;
+    $("pendingReviewList").innerHTML = pending.docs.map(d=>{const r={id:d.id,...d.data()};return `<div class="adminItem"><b>${r.name||""} · ${r.category||""} · ${r.stars||""}</b><p>${r.body||""}</p>${r.image?`<img class="thumb" src="${r.image}">`:""}<div class="actions"><button onclick="approveReview('${r.id}')">승인</button><button onclick="del('reviews','${r.id}')">삭제</button></div></div>`}).join("") || "<p>승인 대기 후기가 없습니다.</p>";
   }catch(e){ $("pendingReviewList").innerHTML=`<div class="errorBox">${e.message}</div>`; }
   try{
-    const allReviewsForApproved=await getDocs(collection(db,"reviews"));
-    const approvedDocs=allReviewsForApproved.docs
-      .map(d=>({id:d.id,...d.data()}))
-      .filter(r=>r.approved===true)
-      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-    approvedCount=approvedDocs.length;
-    $("approvedReviewList").innerHTML = approvedDocs.map(r=>`<div class="adminItem"><b>${r.name||""} · ${r.category||""} · ${r.stars||""}</b><p>${r.body||""}</p>${r.image?`<img class="thumb" src="${r.image}">`:""}<button onclick="del('reviews','${r.id}')">삭제</button></div>`).join("") || "<p>공개 후기가 없습니다.</p>";
+    const approved=await getDocs(collection(db,"reviews"));
+    approvedCount=approved.docs.length;
+    $("approvedReviewList").innerHTML = approved.docs.map(d=>{const r={id:d.id,...d.data()};return `<div class="adminItem"><b>${r.name||""} · ${r.category||""} · ${r.stars||""}</b><p>${r.body||""}</p>${r.image?`<img class="thumb" src="${r.image}">`:""}<button onclick="del('reviews','${r.id}')">삭제</button></div>`}).join("") || "<p>공개 후기가 없습니다.</p>";
   }catch(e){ $("approvedReviewList").innerHTML=`<div class="errorBox">${e.message}</div>`; }
 
   if($("statOrders")) $("statOrders").textContent=orderCount;

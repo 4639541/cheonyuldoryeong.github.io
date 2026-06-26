@@ -37,7 +37,7 @@ index.html, admin.html, style.css, firebase-config.js, app.js, admin.js
 - 관리자에서 입금완료/진행중/완료 변경 가능
 
 
-오류 수정:
-- Firestore 'The query requires an index' 오류 제거
-- 후기 목록에서 where + orderBy 복합 쿼리를 사용하지 않도록 수정
-- Firebase 인덱스 생성 없이 바로 사용 가능
+최종 오류 수정:
+- 승인 대기 후기 / 공개 후기 Firestore 복합 인덱스 오류 완전 제거
+- reviews 컬렉션은 전체를 불러온 뒤 브라우저에서 승인 여부를 필터링합니다.
+- 남은 복합 쿼리 체크: []

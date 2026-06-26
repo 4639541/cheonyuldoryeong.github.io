@@ -75,3 +75,11 @@ index.html, admin.html, style.css, firebase-config.js, app.js, admin.js
 - 모바일 탭 버튼을 JavaScript 버튼이 아닌 링크 방식으로 변경
 - z-index/pointer-events 보정
 - 투명 레이어가 버튼을 덮어 터치 안 되는 문제 해결
+
+
+프로필/링크 연동 복구:
+- 홈페이지 프로필 카드 복구
+- profile.png 자동 표시
+- 카카오톡 문의 링크 복구
+- 모바일 관리자 링크 추가
+- OG 공유 제목/설명/이미지 추가

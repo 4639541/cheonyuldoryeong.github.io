@@ -1,9 +1,18 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천명신당 관리자</title><link rel="stylesheet" href="style.css"></head><body>
 <header class="topbar"><div class="wrap nav"><a class="logo" href="index.html">천명신당 관리자</a><nav><a href="index.html">홈으로</a></nav></div></header>
 <main class="section wrap admin-page"><p class="kicker">ADMIN LOGIN</p><h1>관리자 로그인</h1>
-<section id="loginBox" class="admin-box"><input id="adminEmail" type="email" placeholder="관리자 이메일"><input id="adminPassword" type="password" placeholder="비밀번호"><button onclick="adminLogin()">로그인</button><p class="tiny">Firebase Authentication에 등록한 이메일/비밀번호로 로그인하세요.</p></section>
+<section id="loginBox" class="admin-box"><input id="adminEmail" type="email" placeholder="관리자 이메일"><input id="adminPassword" type="password" placeholder="비밀번호"><button onclick="adminLogin()">로그인</button></section>
 <section id="adminPanel" class="admin-panel hidden"><div class="admin-head"><h2>관리자 페이지</h2><button onclick="adminLogout()">로그아웃</button></div>
-<div class="admin-grid"><article class="admin-box"><h3>공지사항 등록</h3><input id="noticeTag" placeholder="태그 예: 필독"><input id="noticeTitle" placeholder="공지 제목"><textarea id="noticeBody" placeholder="공지 내용"></textarea><button onclick="addNotice()">공지 등록</button></article>
-<article class="admin-box"><h3>상담 후기 직접 등록</h3><input id="directReviewName" placeholder="이름/닉네임"><input id="directReviewCategory" placeholder="상담 분야"><select id="directReviewStars"><option value="★★★★★">★★★★★</option><option value="★★★★☆">★★★★☆</option><option value="★★★☆☆">★★★☆☆</option></select><textarea id="directReviewBody" placeholder="후기 내용"></textarea><button onclick="addDirectReview()">후기 공개 등록</button></article></div>
-<section class="admin-box"><h3>공지사항 목록</h3><div id="adminNoticeList"></div></section><section class="admin-box"><h3>승인 대기 후기</h3><div id="pendingReviewList"></div></section><section class="admin-box"><h3>공개 후기</h3><div id="adminReviewList"></div></section></section></main>
-<script type="module" src="admin.js"></script></body></html>
+<div class="admin-grid">
+<article class="admin-box"><h3>상담 분야 등록</h3><input id="fieldTitle" placeholder="상담 분야명 예: 재회 상담"><textarea id="fieldBody" placeholder="상담 분야 설명"></textarea><button onclick="addField()">상담 분야 등록</button></article>
+<article class="admin-box"><h3>상담 서비스/상품 등록</h3><input id="productName" placeholder="서비스/상품명"><input id="productPrice" placeholder="가격 또는 안내 예: 문의"><input id="productImage" placeholder="이미지 주소 선택 입력"><textarea id="productDesc" placeholder="서비스/상품 설명"></textarea><button onclick="addProduct()">서비스 등록</button></article>
+<article class="admin-box"><h3>공지사항 등록</h3><input id="noticeTag" placeholder="태그 예: 필독"><input id="noticeTitle" placeholder="공지 제목"><textarea id="noticeBody" placeholder="공지 내용"></textarea><button onclick="addNotice()">공지 등록</button></article>
+<article class="admin-box"><h3>상담 후기 직접 등록</h3><input id="directReviewName" placeholder="이름/닉네임"><input id="directReviewCategory" placeholder="상담 분야"><select id="directReviewStars"><option value="★★★★★">★★★★★</option><option value="★★★★☆">★★★★☆</option><option value="★★★☆☆">★★★☆☆</option></select><textarea id="directReviewBody" placeholder="후기 내용"></textarea><button onclick="addDirectReview()">후기 공개 등록</button></article>
+</div>
+<section class="admin-box"><h3>예약 요청 목록</h3><div id="reservationList"></div></section>
+<section class="admin-box"><h3>상담 분야 목록</h3><div id="adminFieldList"></div></section>
+<section class="admin-box"><h3>상담 서비스/상품 목록</h3><div id="adminProductList"></div></section>
+<section class="admin-box"><h3>공지사항 목록</h3><div id="adminNoticeList"></div></section>
+<section class="admin-box"><h3>승인 대기 후기</h3><div id="pendingReviewList"></div></section>
+<section class="admin-box"><h3>공개 후기</h3><div id="adminReviewList"></div></section>
+</section></main><script type="module" src="admin.js"></script></body></html>

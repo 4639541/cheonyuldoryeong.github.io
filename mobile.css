@@ -30,3 +30,13 @@
   color:#a9f5bd;
   border:1px solid rgba(90,220,120,.35);
 }
+
+.loginHelp{
+  color:#cdb990;
+  font-size:13px;
+  margin:8px 0 0;
+}
+#adminJoin,#adminResetPw{
+  width:100%;
+  margin-top:8px;
+}

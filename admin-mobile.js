@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
 import { firebaseConfig } from "./firebase-config.js";
@@ -136,10 +136,62 @@ async function adminLog(action){
   try{ await addDoc(collection(db,"adminLogs"),{action,createdAt:serverTimestamp()}); }catch(e){}
 }
 
+
+async function adminFirstJoin(){
+  const email = val("adminEmail");
+  const pw = val("adminPw");
+  if(!email || !pw){
+    setMsg("관리자 이메일과 비밀번호를 입력한 뒤 최초 등록을 눌러주세요.");
+    return;
+  }
+  if(pw.length < 6){
+    setMsg("비밀번호는 6자리 이상이어야 합니다.");
+    return;
+  }
+  try{
+    setMsg("관리자 계정을 등록 중입니다...", false);
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
+    await setDoc(doc(db,"admins",cred.user.uid),{
+      uid:cred.user.uid,
+      email,
+      role:"admin",
+      createdAt:serverTimestamp()
+    },{merge:true});
+    setMsg("관리자 등록 완료. 자동 로그인되었습니다.", false);
+    alert("관리자 등록이 완료되었습니다.");
+  }catch(e){
+    console.error(e);
+    if(e.code === "auth/email-already-in-use"){
+      setMsg("이미 등록된 이메일입니다. 로그인 버튼을 눌러주세요.");
+    }else if(e.code === "auth/operation-not-allowed"){
+      setMsg("Firebase Authentication에서 이메일/비밀번호 로그인을 활성화해야 합니다.");
+    }else{
+      setMsg("관리자 등록 실패: " + (e.message || e.code || e));
+    }
+  }
+}
+
+async function adminResetPassword(){
+  const email = val("adminEmail");
+  if(!email){
+    setMsg("비밀번호 재설정 받을 이메일을 입력해 주세요.");
+    return;
+  }
+  try{
+    await sendPasswordResetEmail(auth, email);
+    setMsg("비밀번호 재설정 메일을 보냈습니다. 메일함을 확인해 주세요.", false);
+  }catch(e){
+    console.error(e);
+    setMsg("비밀번호 재설정 실패: " + (e.message || e.code || e));
+  }
+}
+
 function bind(){
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>goTab(b.dataset.tab));
 
   $("adminLogin")?.addEventListener("click", adminLogin);
+  $("adminJoin")?.addEventListener("click", adminFirstJoin);
+  $("adminResetPw")?.addEventListener("click", adminResetPassword);
   $("adminPw")?.addEventListener("keydown",(e)=>{ if(e.key==="Enter") adminLogin(); });
   $("adminEmail")?.addEventListener("keydown",(e)=>{ if(e.key==="Enter") adminLogin(); });
   $("adminLogout")?.addEventListener("click",()=>signOut(auth));
@@ -215,11 +267,24 @@ window.st = async(c,id,s)=>{await updateDoc(doc(db,c,id),{status:s,updatedAt:ser
 window.tr = async(id)=>{const trackingCompany=prompt("택배사/배송방법"); if(trackingCompany===null)return; const trackingNo=prompt("송장번호/메모"); await updateDoc(doc(db,"orders",id),{trackingCompany,trackingNo,status:"배송중",updatedAt:serverTimestamp()});await adminLog("배송 정보 입력");load();};
 window.del = async(c,id)=>{if(confirm("삭제할까요?")){await deleteDoc(doc(db,c,id));await adminLog(`${c} 삭제`);load();}};
 
+
+async function ensureAdminProfile(u){
+  try{
+    await setDoc(doc(db,"admins",u.uid),{
+      uid:u.uid,
+      email:u.email || "",
+      role:"admin",
+      lastLoginAt:serverTimestamp()
+    },{merge:true});
+  }catch(e){}
+}
+
 onAuthStateChanged(auth,(u)=>{
   $("adminLoginBox")?.classList.toggle("hide",!!u);
   $("adminPanel")?.classList.toggle("hide",!u);
   if(u){
     setMsg("");
+    ensureAdminProfile(u);
     load();
   }
 });

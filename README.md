@@ -33,3 +33,9 @@ GitHub에 압축 해제 후 전체 파일을 덮어쓰기 업로드하세요.
 - 후기 여러 장 업로드
 - 대시보드 통계 + 매출 합계
 - 이미지 자동 최적화
+
+
+도메인 연결 추가:
+- CNAME 파일 추가
+- GitHub Pages Custom domain: cheonyuldory.kro.kr
+- DNS A 레코드 4개 + www CNAME 설정 후 사용

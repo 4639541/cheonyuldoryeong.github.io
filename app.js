@@ -79,8 +79,11 @@ async function init(){
 }
 async function loadApprovedReviews(){
   try{
-    const s=await getDocs(query(collection(db,"reviews"),where("approved","==",true),orderBy("createdAt","desc")));
-    const arr=s.docs.map(d=>d.data());
+    const s=await getDocs(collection(db,"reviews"));
+    const arr=s.docs
+      .map(d=>d.data())
+      .filter(r=>r.approved===true)
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
     return arr.length?arr:defaults.reviews;
   }catch(e){ return defaults.reviews; }
 }

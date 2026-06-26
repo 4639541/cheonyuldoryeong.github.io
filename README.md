@@ -35,3 +35,9 @@ index.html, admin.html, style.css, firebase-config.js, app.js, admin.js
 - 구매 화면에 송금 정보 표시
 - 주문 상태 기본값: 입금대기
 - 관리자에서 입금완료/진행중/완료 변경 가능
+
+
+오류 수정:
+- Firestore 'The query requires an index' 오류 제거
+- 후기 목록에서 where + orderBy 복합 쿼리를 사용하지 않도록 수정
+- Firebase 인덱스 생성 없이 바로 사용 가능

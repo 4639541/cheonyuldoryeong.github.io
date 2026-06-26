@@ -86,9 +86,41 @@ bind("saveTimesBtn",async()=>{
   },{merge:true});
   alert("예약 가능 시간이 저장되었습니다.");
 });
+
+function makeCouponCode(prefix="CHEON"){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = (prefix || "CHEON").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,8);
+  code += "-";
+  for(let i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+bind("couponAutoBtn",async()=>{
+  const discount = val("couponDiscount");
+  if(!discount) return alert("할인금액을 먼저 입력해 주세요.");
+  const prefix = val("couponPrefix") || "CHEON";
+  const count = Math.min(100, Math.max(1, parseInt(val("couponCount") || "1", 10)));
+  const desc = val("couponDesc") || "자동 발급 쿠폰";
+  const made = [];
+  for(let i=0;i<count;i++){
+    const code = makeCouponCode(prefix);
+    made.push(code);
+    await addDoc(collection(db,"coupons"),{
+      code,
+      discount,
+      desc,
+      auto:true,
+      used:false,
+      createdAt:serverTimestamp()
+    });
+  }
+  setVal("couponCodeAdmin", made[0] || "");
+  alert(`쿠폰 ${made.length}개가 자동 발급되었습니다.\n첫 쿠폰: ${made[0]}`);
+  loadAll();
+});
+
 bind("couponAddBtn",async()=>{
   if(!val("couponCodeAdmin")||!val("couponDiscount")) return alert("쿠폰 코드와 할인금액을 입력해 주세요.");
-  await addDoc(collection(db,"coupons"),{code:val("couponCodeAdmin").toUpperCase(),discount:val("couponDiscount"),desc:val("couponDesc"),createdAt:serverTimestamp()});
+  await addDoc(collection(db,"coupons"),{code:val("couponCodeAdmin").toUpperCase(),discount:val("couponDiscount"),desc:val("couponDesc"),auto:false,used:false,createdAt:serverTimestamp()});
   ["couponCodeAdmin","couponDiscount","couponDesc"].forEach(id=>setVal(id));
   loadAll();
 });
@@ -130,7 +162,7 @@ async function loadAll(){
   $("statReviews").textContent=reviews.length;
   if($("statSales")) $("statSales").textContent=orders.reduce((sum,o)=>sum+moneyNumber(o.total),0).toLocaleString()+"원";
 
-  $("couponList").innerHTML=coupons.map(c=>item(`${c.code} · ${c.discount}원 할인`,c.desc,`<button class="danger" onclick="del('coupons','${c.id}')">삭제</button>`)).join("")||"<p>쿠폰이 없습니다.</p>";
+  $("couponList").innerHTML=coupons.map(c=>item(`${c.code} · ${c.discount}원 할인`,`${c.desc||""}<br>${c.auto?"자동 발급":"수동 등록"} / ${c.used?"사용됨":"미사용"}`,`<button class="danger" onclick="del('coupons','${c.id}')">삭제</button>`)).join("")||"<p>쿠폰이 없습니다.</p>";
   $("priceAdminList").innerHTML=prices.map(p=>item(`${p.title} · ${p.price}`,p.desc,`<button onclick="editPrice('${p.id}','${safe(p.title)}','${safe(p.price)}','${safe(p.badge)}','${safe(p.desc)}')">수정</button><button class="danger" onclick="del('consultPrices','${p.id}')">삭제</button>`)).join("")||"<p>상담 가격이 없습니다.</p>";
   $("productAdminList").innerHTML=products.map(p=>item(`${p.name} · ${p.price}`,`${p.category||""}<br>${p.stock||""}<br>${p.desc||""}${gallery(p)}`,`<button class="danger" onclick="del('products','${p.id}')">삭제</button>`)).join("")||"<p>상품이 없습니다.</p>";
   $("noticeAdminList").innerHTML=notices.map(n=>item(`[${n.tag}] ${n.title}`,n.body,`<button class="danger" onclick="del('notices','${n.id}')">삭제</button>`)).join("")||"<p>공지사항이 없습니다.</p>";

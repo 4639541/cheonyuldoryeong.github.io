@@ -39,3 +39,11 @@ GitHub에 압축 해제 후 전체 파일을 덮어쓰기 업로드하세요.
 - CNAME 파일 추가
 - GitHub Pages Custom domain: cheonyuldory.kro.kr
 - DNS A 레코드 4개 + www CNAME 설정 후 사용
+
+
+쿠폰 자동 발급 기능 추가:
+- 관리자에서 할인금액 입력 후 자동 발급 가능
+- 앞글자(prefix) 설정 가능
+- 발급 개수 설정 가능
+- 예: CHEON-K7P9Q2
+- 자동/수동, 사용/미사용 상태 표시

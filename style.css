@@ -2,3 +2,19 @@
 @media(min-width:851px){.stats{grid-template-columns:repeat(5,1fr)!important}}
 .soldout{opacity:.55;filter:grayscale(.4)}
 .disabledOption{color:#888}
+
+.dateLabel{
+  display:block;
+  margin:10px 0 2px;
+  color:#e6ba60;
+  font-weight:900;
+  font-size:14px;
+}
+input[type="date"]{
+  color-scheme:dark;
+}
+input[type="date"]::-webkit-calendar-picker-indicator{
+  filter:invert(1);
+  opacity:.9;
+  cursor:pointer;
+}

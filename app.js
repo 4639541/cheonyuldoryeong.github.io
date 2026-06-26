@@ -212,6 +212,7 @@ function updateAvailableTimes(){
 }
 async function submitBooking(){
   if(!$("bookName").value || !$("bookContact").value) return alert("이름과 연락처를 입력해 주세요.");
+  if(!$("bookDate").value) return alert("상담 희망 날짜를 선택해 주세요.");
   if(bookingSettings.blockedDates.includes($("bookDate").value)) return alert("해당 날짜는 예약이 마감되었습니다.");
   await addDoc(collection(db,"bookings"),{
     name:$("bookName").value,

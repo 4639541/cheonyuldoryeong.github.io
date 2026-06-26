@@ -74,6 +74,7 @@ async function init(){
   const posts = await list("posts", defaults.posts);
   $("postList").innerHTML = posts.map(p=>`<article class="card">${gallery(p.images||[])}<h3>${esc(p.title)}</h3><p>${esc(p.body)}</p></article>`).join("");
 
+  await loadBusinessInfo();
   saveCart();
 }
 function bindUI(){
@@ -267,4 +268,26 @@ async function submitReview(){
   $("reviewModal").classList.remove("show");
   alert("후기 등록 요청이 완료되었습니다.");
 }
+async function loadBusinessInfo(){
+  try{
+    const settings = await list("settings", []);
+    const biz = settings.find(s=>s.id==="business") || {};
+    const data = {
+      bizFooterName: biz.footerName || "천율도령 공식 신점 상담",
+      bizName: biz.name || "천율도령",
+      bizOwner: biz.owner || "정세진",
+      bizNumber: biz.number || "570-76-00713",
+      bizAddress: biz.address || "경상북도 구미시 상모로12길 49, 101동 102호",
+      bizType: biz.type || "협회 및 단체, 수리 및 기타 개인서비스업",
+      bizItem: biz.item || "점술 및 유사 서비스업",
+      bizContact: biz.contact || "카카오톡 오픈프로필 '천율도령'",
+      bizMailOrder: biz.mailOrder || "신고 예정"
+    };
+    Object.entries(data).forEach(([id,value])=>{
+      const el = document.getElementById(id);
+      if(el) el.textContent = value;
+    });
+  }catch(e){}
+}
+
 init();

@@ -20,3 +20,20 @@ input[type="date"]::-webkit-calendar-picker-indicator{
 }
 
 footer .inner{text-align:center}footer h3{color:#e6ba60;margin:0 0 10px}footer p{margin:4px 0;color:#d8ccb2}
+.businessFooter{
+  text-align:center;
+  max-width:900px;
+}
+.businessFooter h3{
+  color:#e6ba60;
+  margin:0 0 12px;
+}
+.businessFooter p{
+  margin:4px 0;
+  color:#d8ccb2;
+  word-break:keep-all;
+}
+@media(max-width:700px){
+  .businessFooter{text-align:left}
+  .businessFooter p{font-size:13px}
+}

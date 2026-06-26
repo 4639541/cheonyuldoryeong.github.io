@@ -59,6 +59,19 @@ onAuthStateChanged(auth,u=>{
 
 async function loadSettings(){
   const settings=await list("settings");
+  
+  const biz=settings.find(x=>x.id==="business")||{};
+  setVal("bizNameAdmin",biz.name||"천율도령");
+  setVal("bizOwnerAdmin",biz.owner||"정세진");
+  setVal("bizNumberAdmin",biz.number||"570-76-00713");
+  setVal("bizAddressAdmin",biz.address||"경상북도 구미시 상모로12길 49, 101동 102호");
+  setVal("bizTypeAdmin",biz.type||"협회 및 단체, 수리 및 기타 개인서비스업");
+  setVal("bizItemAdmin",biz.item||"점술 및 유사 서비스업");
+  setVal("bizContactAdmin",biz.contact||"카카오톡 오픈프로필 '천율도령'");
+  setVal("bizMailOrderAdmin",biz.mailOrder||"신고 예정");
+  setVal("bizEmailAdmin",biz.email||"");
+  setVal("bizKakaoAdmin",biz.kakao||"");
+
   const p=settings.find(x=>x.id==="payment")||{};
   setVal("payName",p.name||"");
   setVal("payAccount",p.account||"");
@@ -71,6 +84,26 @@ async function loadSettings(){
   setVal("timesInput",(t.times||[]).join("\n"));
   setVal("blockedDatesInput",(t.blockedDates||[]).join("\n"));
 }
+
+async function saveBusiness(){
+  await setDoc(doc(db,"settings","business"),{
+    footerName:"천율도령 공식 신점 상담",
+    name:val("bizNameAdmin") || "천율도령",
+    owner:val("bizOwnerAdmin") || "정세진",
+    number:val("bizNumberAdmin") || "570-76-00713",
+    address:val("bizAddressAdmin") || "경상북도 구미시 상모로12길 49, 101동 102호",
+    type:val("bizTypeAdmin") || "협회 및 단체, 수리 및 기타 개인서비스업",
+    item:val("bizItemAdmin") || "점술 및 유사 서비스업",
+    contact:val("bizContactAdmin") || "카카오톡 오픈프로필 '천율도령'",
+    mailOrder:val("bizMailOrderAdmin") || "신고 예정",
+    email:val("bizEmailAdmin"),
+    kakao:val("bizKakaoAdmin"),
+    updatedAt:serverTimestamp()
+  },{merge:true});
+  alert("사업자 정보가 저장되었습니다.");
+}
+
+bind("saveBusinessBtn",saveBusiness);
 bind("savePaymentBtn",async()=>{
   const imgs=await uploadFiles($("payQr").files,"payment");
   const data={name:val("payName")||"천율도령",account:val("payAccount"),link:val("payLink"),bankName:val("bankName"),bankOwner:val("bankOwner"),bankAccount:val("bankAccount"),guide:val("payGuide"),updatedAt:serverTimestamp()};

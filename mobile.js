@@ -11,7 +11,7 @@ const money=v=>Number(String(v||"").replace(/[^\d]/g,""))||0;
 const won=n=>(Number(n)||0).toLocaleString()+"원";
 
 let state={
-  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], events:[],
+  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], events:[], memberFiles:[], seoSettings:[], adminRoles:[],
   payment:{name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청"},
   booking:{times:["오전 10시","오후 2시","오후 7시"],blockedDates:[]}
 };
@@ -163,6 +163,29 @@ async function sendChat(){
   $("chatInput").value="";
 }
 
+
+// ===== 5.0 full platform additions =====
+function renderMemberFiles(){
+  const box=$("myFilesList"); if(!box) return;
+  if(!member){box.innerHTML="<p>로그인 후 상담 자료를 확인할 수 있습니다.</p>";return;}
+  const uid=member.uid||member.id;
+  const rows=(state.memberFiles||[]).filter(f=>f.memberUid===uid||f.memberEmail===member.email);
+  box.innerHTML=rows.length?rows.map(f=>`<article class="card"><h3>${esc(f.title||"상담 자료")}</h3><p>${esc(f.memo||"")}</p>${(f.urls||[]).map((u,i)=>`<a class="secondary fileLink" target="_blank" href="${u}">자료 ${i+1} 열기</a>`).join("")}</article>`).join(""):"<p>등록된 자료가 없습니다.</p>";
+}
+function renderReceipts(){
+  const box=$("myReceiptList"); if(!box)return;
+  if(!member){box.innerHTML="<p>로그인 후 확인 가능합니다.</p>";return;}
+  const uid=member.uid||member.id;
+  const rows=(state.orders||[]).filter(o=>o.memberUid===uid||o.memberEmail===member.email||o.contact===member.contact);
+  box.innerHTML=rows.length?rows.map(o=>`<article class="card receipt"><h3>주문서 ${esc(o.orderNo||"")}</h3><p>주문자: ${esc(o.name||"")}</p><p>금액: ${esc(o.total||"")}</p><p>상태: ${esc(o.status||"")}</p><button class="secondary" onclick="window.print()">인쇄/저장</button></article>`).join(""):"<p>주문 내역이 없습니다.</p>";
+}
+function applySeo(){
+  const s=(state.seoSettings||[])[0];
+  if(!s)return;
+  if(s.title) document.title=s.title;
+  let d=document.querySelector('meta[name="description"]'); if(d&&s.desc)d.setAttribute("content",s.desc);
+}
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
@@ -200,6 +223,9 @@ function renderAll(){
   renderPointHistory();
   renderEvents();
   renderChat();
+  renderMemberFiles();
+  renderReceipts();
+  applySeo();
   saveCart();
 }
 function renderHome(){
@@ -334,7 +360,7 @@ function bind(){
 }
 function startSync(){
   if(started)return; started=true;
-  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",events:"events"};
+  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",events:"events",memberFiles:"memberFiles",seoSettings:"seoSettings",adminRoles:"adminRoles"};
   Object.entries(map).forEach(([col,key])=>listen(col,key));
 }
 bind(); hydrate(); renderAll(); startSync(); recordVisit(); onAuthStateChanged(auth,loadMember);

@@ -119,3 +119,20 @@
 @media(max-width:420px){
   .chatInputRow{grid-template-columns:1fr}
 }
+
+.fileLink{
+  display:block;
+  margin:8px 0;
+  text-align:center;
+}
+.receipt{
+  border:1px dashed rgba(230,186,96,.55);
+}
+#memberFileList .card,#roleList .card,#seoPreview .card{
+  border-left:4px solid #e6ba60;
+}
+@media print{
+  body{background:#fff;color:#000}
+  .appTop,.bottomNav,.primary,.secondary{display:none!important}
+  .receipt{border:1px solid #000;color:#000}
+}

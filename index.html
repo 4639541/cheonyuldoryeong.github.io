@@ -3,10 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>천율도령 모바일</title>
+<title>천율도령 공식 신점 상담</title>
+<meta name="description" content="천율도령 공식 신점 상담, 상담 예약, 상품 구매, 회원 쿠폰, 실시간 상담 채팅">
+<meta property="og:title" content="천율도령 공식 신점 상담">
+<meta property="og:description" content="신점 상담·상품 구매·예약·회원 관리">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"천율도령 공식 신점 상담","description":"신점 상담, 부적, 초발원, 상담 예약 서비스"}</script>
 <meta name="theme-color" content="#050403">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=480">
+<link rel="stylesheet" href="mobile.css?v=500">
 </head>
 <body>
 <header class="appTop">
@@ -156,6 +161,16 @@
     <div id="pointHistory" class="cards"></div>
   </section>
 
+  <section id="filesPage" class="page">
+    <h1>내 상담 자료</h1>
+    <div id="myFilesList" class="cards"></div>
+  </section>
+
+  <section id="receiptPage" class="page">
+    <h1>영수증/주문서</h1>
+    <div id="myReceiptList" class="cards"></div>
+  </section>
+
   <section id="reviews" class="page">
     <h1>후기</h1>
     <button id="reviewOpen" class="primary" type="button">후기 작성</button>
@@ -178,6 +193,8 @@
   <button data-go="progressCenter">진행</button>
   <button data-go="chatPage">채팅</button>
   <button data-go="referralPage">추천</button>
+  <button data-go="filesPage">자료</button>
+  <button data-go="receiptPage">영수증</button>
   <button data-go="mypage">마이</button>
 </nav>
 
@@ -237,6 +254,6 @@
   </div>
 </div>
 
-<script type="module" src="mobile.js?v=480"></script>
+<script type="module" src="mobile.js?v=500"></script>
 </body>
 </html>

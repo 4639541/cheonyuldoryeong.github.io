@@ -293,7 +293,7 @@ onAuthStateChanged(auth,(u)=>{
   }
 });
 
-["orders","bookings","members","coupons","products","consultPrices","settings","visits","adminLogs","banners","benefits","consultRecords","spiritualRequests","allowedAdmins","notifications","crmNotes","schedules","chats","points","events"].forEach(c=>{
+["orders","bookings","members","coupons","products","consultPrices","settings","visits","adminLogs","banners","benefits","consultRecords","spiritualRequests","allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings"].forEach(c=>{
   try{onSnapshot(collection(db,c),()=>{if(!$("adminPanel")?.classList.contains("hide")) load();});}catch(e){}
 });
 
@@ -332,10 +332,10 @@ setTimeout(()=>{
 // ===== 4.6 operation admin additions =====
 async function ensureAllowedAdmin(){
   try{
-    const rows=await list("allowedAdmins","notifications","crmNotes","schedules","chats","points","events");
+    const rows=await list("allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings");
     const current=auth.currentUser?.email||"";
     if(!rows.length && current){
-      await addDoc(collection(db,"allowedAdmins","notifications","crmNotes","schedules","chats","points","events"),{email:current,createdAt:serverTimestamp()});
+      await addDoc(collection(db,"allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings"),{email:current,createdAt:serverTimestamp()});
       return true;
     }
     return rows.some(a=>String(a.email||"").toLowerCase()===current.toLowerCase());
@@ -343,7 +343,7 @@ async function ensureAllowedAdmin(){
 }
 async function loadOps(){
   try{
-    const [members,records,spirituals,orders,bookings,allowed] = await Promise.all(["members","consultRecords","spiritualRequests","orders","bookings","allowedAdmins","notifications","crmNotes","schedules","chats","points","events"].map(list));
+    const [members,records,spirituals,orders,bookings,allowed] = await Promise.all(["members","consultRecords","spiritualRequests","orders","bookings","allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings"].map(list));
     if($("recordMemberSelect")) $("recordMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
     if($("consultRecordList")) $("consultRecordList").innerHTML=records.map(r=>card(r.title||"상담 이력",`${r.memberName||r.memberEmail||""}<br>${r.date||""}<br>${r.memo||""}<br>${r.nextDate?`재상담: ${r.nextDate}`:""}`,`<button class="secondary" onclick="del('consultRecords','${r.id}')">삭제</button>`)).join("")||"<p>상담 이력이 없습니다.</p>";
     if($("spiritualList")) $("spiritualList").innerHTML=spirituals.map(s=>card(`${s.type||"신청"} · ${s.name||""}`,`${s.contact||""}<br>${s.amount||""}<br>${s.body||""}<br>상태: ${s.status||""}`,`<button class="secondary" onclick="st('spiritualRequests','${s.id}','진행중')">진행중</button><button class="secondary" onclick="st('spiritualRequests','${s.id}','완료')">완료</button><button class="secondary" onclick="del('spiritualRequests','${s.id}')">삭제</button>`)).join("")||"<p>신청 내역이 없습니다.</p>";
@@ -375,7 +375,7 @@ setTimeout(()=>{
   });
   $("addAllowedAdmin")?.addEventListener("click",async()=>{
     if(!val("allowedAdminEmail")) return alert("이메일을 입력해 주세요.");
-    await addDoc(collection(db,"allowedAdmins","notifications","crmNotes","schedules","chats","points","events"),{email:val("allowedAdminEmail"),createdAt:serverTimestamp()});
+    await addDoc(collection(db,"allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings"),{email:val("allowedAdminEmail"),createdAt:serverTimestamp()});
     await adminLog("관리자 이메일 허용"); alert("허용 관리자 추가 완료"); loadOps();
   });
   loadOps();
@@ -385,7 +385,7 @@ setInterval(loadOps,4000);
 // ===== 4.7 admin CRM / alerts / calendar additions =====
 async function loadCrmAndAlerts(){
   try{
-    const [members,orders,bookings,spirituals,records,notifications,crm,schedules]=await Promise.all(["members","orders","bookings","spiritualRequests","consultRecords","notifications","crmNotes","schedules","chats","points","events"].map(list));
+    const [members,orders,bookings,spirituals,records,notifications,crm,schedules]=await Promise.all(["members","orders","bookings","spiritualRequests","consultRecords","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings"].map(list));
     if($("crmMemberSelect")) $("crmMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
     if($("adminAlertList")){
       const adminNoti=notifications.filter(n=>n.target==="admin"||!n.memberUid&&!n.memberEmail).slice(0,30);
@@ -432,7 +432,7 @@ setInterval(loadCrmAndAlerts,4000);
 let selectedChatMember="";
 async function loadChatPointsEvents(){
   try{
-    const [members,chats,points,events]=await Promise.all(["members","chats","points","events"].map(list));
+    const [members,chats,points,events]=await Promise.all(["members","chats","points","events","memberFiles","adminRoles","seoSettings"].map(list));
     if($("chatMemberSelect")) $("chatMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
     if($("pointMemberSelect")) $("pointMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
     const sel=$("chatMemberSelect"); if(sel && selectedChatMember) sel.value=selectedChatMember;
@@ -471,3 +471,58 @@ setTimeout(()=>{
   loadChatPointsEvents();
 },1000);
 setInterval(loadChatPointsEvents,4000);
+
+// ===== 5.0 full platform admin additions =====
+async function uploadAdminFiles(files, folder){
+  const urls=[];
+  for(const f of Array.from(files||[])){
+    const r=ref(storage,`${folder}/${Date.now()}_${f.name}`);
+    await uploadBytes(r,f);
+    urls.push(await getDownloadURL(r));
+  }
+  return urls;
+}
+function downloadJson(filename,data){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=filename; a.click(); URL.revokeObjectURL(a.href);
+}
+async function loadFinalAdmin(){
+  try{
+    const [members,files,roles,seo]=await Promise.all(["members","memberFiles","adminRoles","seoSettings"].map(list));
+    if($("fileMemberSelect")) $("fileMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
+    if($("memberFileList")) $("memberFileList").innerHTML=files.map(f=>card(`${f.title||"자료"} · ${f.memberName||f.memberEmail||""}`,`${f.memo||""}<br>${(f.urls||[]).length}개 파일`, `<button class="secondary" onclick="del('memberFiles','${f.id}')">삭제</button>`)).join("")||"<p>업로드된 자료가 없습니다.</p>";
+    if($("roleList")) $("roleList").innerHTML=roles.map(r=>card(r.email||"",`권한: ${r.role||"staff"}`,`<button class="secondary" onclick="del('adminRoles','${r.id}')">삭제</button>`)).join("")||"<p>등록된 권한이 없습니다.</p>";
+    if($("seoPreview")) $("seoPreview").innerHTML=seo.map(s=>card(s.title||"SEO",`${s.desc||""}<br>${s.keywords||""}`)).join("")||"<p>SEO 설정이 없습니다.</p>";
+  }catch(e){console.warn(e)}
+}
+setTimeout(()=>{
+  $("uploadMemberFile")?.addEventListener("click",async()=>{
+    const sel=$("fileMemberSelect"), opt=sel.options[sel.selectedIndex];
+    if(!sel.value)return alert("회원을 선택해 주세요.");
+    const urls=await uploadAdminFiles($("memberFiles").files,"memberFiles");
+    await addDoc(collection(db,"memberFiles"),{memberUid:sel.value,memberEmail:opt.dataset.email,memberName:opt.dataset.name,title:val("fileTitle"),memo:val("fileMemo"),urls,createdAt:serverTimestamp()});
+    await addDoc(collection(db,"notifications"),{memberUid:sel.value,memberEmail:opt.dataset.email,title:"상담 자료 등록",body:`${val("fileTitle")} 자료가 등록되었습니다.`,createdAt:serverTimestamp()});
+    await adminLog("회원 자료 업로드"); alert("회원 자료가 홈페이지에 반영되었습니다."); loadFinalAdmin();
+  });
+  $("saveRole")?.addEventListener("click",async()=>{
+    if(!val("roleEmail"))return alert("이메일을 입력해 주세요.");
+    await addDoc(collection(db,"adminRoles"),{email:val("roleEmail"),role:val("roleType"),createdAt:serverTimestamp()});
+    await adminLog("관리자 권한 저장"); alert("권한 저장 완료"); loadFinalAdmin();
+  });
+  $("downloadFullBackup")?.addEventListener("click",async()=>{
+    const cols=["orders","bookings","members","coupons","products","consultPrices","settings","reviews","chats","points","events","memberFiles","adminRoles","seoSettings","spiritualRequests","consultRecords","notifications","memberFiles","adminRoles"];
+    const data={};
+    for(const c of cols) data[c]=await list(c).catch(()=>[]);
+    downloadJson("cheonyul-backup.json",data);
+  });
+  $("restoreBackup")?.addEventListener("click",async()=>{
+    alert("안전상 자동 복원은 비활성화했습니다. 백업 JSON은 보관용으로 사용하세요.");
+  });
+  $("saveSeo")?.addEventListener("click",async()=>{
+    await addDoc(collection(db,"seoSettings"),{title:val("seoTitle"),desc:val("seoDesc"),keywords:val("seoKeywords"),createdAt:serverTimestamp()});
+    await adminLog("SEO 설정 저장"); alert("SEO 설정 저장 완료"); loadFinalAdmin();
+  });
+  loadFinalAdmin();
+},1000);
+setInterval(loadFinalAdmin,5000);

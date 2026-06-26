@@ -214,3 +214,37 @@ footer .inner{text-align:center}footer h3{color:#e6ba60;margin:0 0 10px}footer p
   .payNumber{font-size:22px}
   .paymentSection{padding:14px}
 }
+
+.navMemberBtn{
+  background:#e6ba60;
+  color:#130d06;
+  border:0;
+  border-radius:999px;
+  padding:8px 13px;
+  font-weight:950;
+  min-height:36px;
+}
+.memberTabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:14px 0;
+}
+.memberTab{
+  background:#0b0805;
+  color:#fff3d8;
+  border:1px solid rgba(230,186,96,.35);
+}
+.memberTab.active{
+  background:#e6ba60;
+  color:#130d06;
+}
+.memberPanel{
+  margin-top:10px;
+}
+.memberModalBox{
+  max-width:520px;
+}
+@media(max-width:850px){
+  .navMemberBtn{width:100%;min-height:44px}
+}

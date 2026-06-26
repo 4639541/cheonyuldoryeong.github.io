@@ -8,7 +8,7 @@
   <meta property="og:title" content="천율도령 공식 신점 상담">
   <meta property="og:description" content="연애·재회·속마음·금전운·사업운·취업운 공식 상담">
   <meta property="og:image" content="profile.png">
-  <link rel="stylesheet" href="style.css?v=510">
+  <link rel="stylesheet" href="style.css?v=520">
 </head>
 <body>
 <header class="top">
@@ -16,7 +16,7 @@
     <a class="logo" href="index.html">천율도령 공식 신점 상담</a>
     <button id="menuBtn" class="menu" type="button">☰</button>
     <nav id="nav">
-      <a href="#price">상담가격</a>
+      <button id="memberOpenBtn" class="navMemberBtn" type="button">로그인/회원가입</button><a href="#price">상담가격</a>
       <a href="#shop">상품</a>
       <a href="#booking">예약</a>
       <a href="#reviews">후기</a>
@@ -135,6 +135,40 @@
   </section>
 </main>
 
+
+<div id="memberModal" class="modal">
+  <div class="modalBox memberModalBox">
+    <button class="x" id="memberCloseBtn" type="button">×</button>
+    <h2>회원 로그인</h2>
+    <p class="hint">회원가입 후 주문/예약 시 정보가 자동 입력됩니다.</p>
+
+    <div class="memberTabs">
+      <button class="memberTab active" id="loginTabBtn" type="button">로그인</button>
+      <button class="memberTab" id="signupTabBtn" type="button">회원가입</button>
+    </div>
+
+    <section id="loginPanel" class="memberPanel">
+      <input id="loginEmail" type="email" placeholder="이메일">
+      <input id="loginPassword" type="password" placeholder="비밀번호">
+      <button class="btn gold full" id="loginMemberBtn" type="button">로그인</button>
+    </section>
+
+    <section id="signupPanel" class="memberPanel hidden">
+      <input id="signupName" placeholder="이름/닉네임">
+      <input id="signupContact" placeholder="연락처 또는 카카오톡 ID">
+      <input id="signupEmail" type="email" placeholder="이메일">
+      <input id="signupPassword" type="password" placeholder="비밀번호 6자리 이상">
+      <button class="btn gold full" id="signupMemberBtn" type="button">회원가입</button>
+    </section>
+
+    <section id="memberInfoPanel" class="memberPanel hidden">
+      <h3>내 정보</h3>
+      <p id="memberInfoText"></p>
+      <button class="btn line full" id="logoutMemberBtn" type="button">로그아웃</button>
+    </section>
+  </div>
+</div>
+
 <div id="cartModal" class="modal">
   <div class="modalBox paymentModalBox">
     <button class="x" id="cartCloseBtn" type="button">×</button>
@@ -210,6 +244,6 @@
     <p>© 천율도령 공식 신점 상담. All Rights Reserved.</p>
   </div>
 </footer>
-<script type="module" src="app.js?v=510"></script>
+<script type="module" src="app.js?v=520"></script>
 </body>
 </html>

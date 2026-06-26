@@ -195,7 +195,7 @@ bind("postAddBtn",async()=>{
 });
 
 async function loadAll(){
-  const [orders,bookings,products,reviews,coupons,prices,notices,posts]=await Promise.all(["orders","bookings","products","reviews","coupons","consultPrices","notices","posts"].map(list));
+  const [orders,bookings,products,reviews,coupons,prices,notices,posts,members]=await Promise.all(["orders","bookings","products","reviews","coupons","consultPrices","notices","posts","members"].map(list));
   $("statOrders").textContent=orders.length;
   $("statBookings").textContent=bookings.length;
   $("statProducts").textContent=products.length;
@@ -208,6 +208,7 @@ async function loadAll(){
   $("noticeAdminList").innerHTML=notices.map(n=>item(`[${n.tag}] ${n.title}`,n.body,`<button class="danger" onclick="del('notices','${n.id}')">삭제</button>`)).join("")||"<p>공지사항이 없습니다.</p>";
   $("postAdminList").innerHTML=posts.map(p=>item(p.title,`${p.body}${gallery(p)}`,`<button class="danger" onclick="del('posts','${p.id}')">삭제</button>`)).join("")||"<p>게시글이 없습니다.</p>";
 
+  $("memberAdminList").innerHTML=(members||[]).map(m=>item(`${m.name||"이름 없음"} · ${m.email||""}`,`연락처: ${m.contact||""}<br>가입일: ${m.createdAt?.seconds ? new Date(m.createdAt.seconds*1000).toLocaleString() : "-"}`,`<button class="danger" onclick="del(\'members\',\'${m.id}\')">삭제</button>`)).join("")||"<p>회원이 없습니다.</p>";
   $("orderList").innerHTML=orders.map(o=>item(`${o.orderNo||o.id} · ${o.name||""} · ${o.total||""}`,`${(o.items||[]).map(i=>`${i.name} ${i.qty}개`).join("<br>")}<br>연락처: ${o.contact||""}<br>주소: ${o.address||""}<br>상태: ${o.status||"입금대기"}<br>쿠폰: ${o.coupon||"-"} / 할인: ${o.discount||0}원<br>배송: ${o.trackingCompany||"-"} ${o.trackingNo||""}`,`<button onclick="setStatus('orders','${o.id}','입금완료')">입금완료</button><button onclick="setStatus('orders','${o.id}','진행중')">진행중</button><button onclick="setStatus('orders','${o.id}','완료')">완료</button><button onclick="tracking('${o.id}')">배송조회 입력</button><button onclick="copyMsg('${safe(o.orderNo||o.id)}','${safe(o.name)}','${safe(o.total)}')">문자문구 복사</button><button class="danger" onclick="del('orders','${o.id}')">삭제</button>`)).join("")||"<p>주문이 없습니다.</p>";
   $("bookingList").innerHTML=bookings.map(b=>item(`${b.name||""} · ${b.type||""}`,`${b.contact||""}<br>${b.date||""} ${b.time||""}<br>${b.body||""}<br>상태: ${b.status||"대기"}`,`<button onclick="setStatus('bookings','${b.id}','확정')">확정</button><button onclick="setStatus('bookings','${b.id}','완료')">완료</button><button class="danger" onclick="del('bookings','${b.id}')">삭제</button>`)).join("")||"<p>예약이 없습니다.</p>";
 

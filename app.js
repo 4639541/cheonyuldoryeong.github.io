@@ -1,11 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import { firebaseConfig } from "./firebase-config.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 const $ = (id) => document.getElementById(id);
 
 let products = [];
@@ -13,6 +15,7 @@ let payment = {};
 let coupon = null;
 let couponDiscount = 0;
 let cart = JSON.parse(localStorage.getItem("cyCart") || "[]");
+let currentMember = null;
 let bookingSettings = {times:["오전","오후","저녁","상담 후 조율"], blockedDates:[]};
 
 const defaults = {
@@ -51,6 +54,7 @@ async function list(col, fallback=[]){
 async function init(){
   $("menuBtn")?.addEventListener("click", () => $("nav")?.classList.toggle("show"));
   bindUI();
+  bindMemberUI();
 
   const notices = await list("notices", defaults.notices);
   $("noticeList").innerHTML = notices.map(n=>`<article class="card"><span class="badge">${esc(n.tag||"공지")}</span><h3>${esc(n.title)}</h3><p>${esc(n.body)}</p></article>`).join("");
@@ -115,7 +119,7 @@ function addCart(id){
   saveCart();
   alert("장바구니에 담았습니다.");
 }
-function openCart(){renderCart(); renderPayment(); $("cartModal").classList.add("show");}
+function openCart(){fillMemberToForms(); renderCart(); renderPayment(); $("cartModal").classList.add("show");}
 
 
 
@@ -168,6 +172,8 @@ async function submitBooking(){
     date:$("bookDate").value,
     time:$("bookTime").value,
     body:$("bookBody").value,
+    memberUid: currentMember?.uid || currentMember?.id || "",
+    memberEmail: currentMember?.email || "",
     status:"대기",
     createdAt:serverTimestamp()
   });
@@ -375,6 +381,8 @@ async function submitOrder(){
     contact:document.getElementById("orderContact").value,
     address:document.getElementById("orderAddress").value,
     memo:document.getElementById("orderMemo").value,
+    memberUid: currentMember?.uid || currentMember?.id || "",
+    memberEmail: currentMember?.email || "",
     status:"입금대기",
     payment:"카카오페이/계좌이체",
     trackingCompany:"",
@@ -391,6 +399,112 @@ async function submitOrder(){
   saveCart();
   document.getElementById("cartModal").classList.remove("show");
   alert(`주문 신청 완료\n주문번호: ${no}`);
+}
+
+
+function memberVal(id){return document.getElementById(id)?.value?.trim() || "";}
+function setMemberText(){
+  const btn = document.getElementById("memberOpenBtn");
+  if(btn) btn.textContent = currentMember ? "내 정보" : "로그인/회원가입";
+}
+function openMemberModal(){
+  document.getElementById("memberModal")?.classList.add("show");
+  renderMemberPanel();
+}
+function closeMemberModal(){
+  document.getElementById("memberModal")?.classList.remove("show");
+}
+function showMemberTab(mode){
+  document.getElementById("loginPanel")?.classList.toggle("hidden", mode !== "login");
+  document.getElementById("signupPanel")?.classList.toggle("hidden", mode !== "signup");
+  document.getElementById("loginTabBtn")?.classList.toggle("active", mode === "login");
+  document.getElementById("signupTabBtn")?.classList.toggle("active", mode === "signup");
+}
+function renderMemberPanel(){
+  const logged = !!currentMember;
+  document.getElementById("memberInfoPanel")?.classList.toggle("hidden", !logged);
+  document.getElementById("loginPanel")?.classList.toggle("hidden", logged);
+  document.getElementById("signupPanel")?.classList.add("hidden");
+  document.getElementById("loginTabBtn")?.classList.toggle("hidden", logged);
+  document.getElementById("signupTabBtn")?.classList.toggle("hidden", logged);
+
+  if(logged){
+    const text = document.getElementById("memberInfoText");
+    if(text) text.innerHTML = `이름: <b>${currentMember.name || ""}</b><br>연락처: ${currentMember.contact || ""}<br>이메일: ${currentMember.email || ""}`;
+  }else{
+    showMemberTab("login");
+  }
+  setMemberText();
+}
+function fillMemberToForms(){
+  if(!currentMember) return;
+  const pairs = [
+    ["orderName", currentMember.name],
+    ["orderContact", currentMember.contact],
+    ["bookName", currentMember.name],
+    ["bookContact", currentMember.contact]
+  ];
+  pairs.forEach(([id,v])=>{
+    const el = document.getElementById(id);
+    if(el && !el.value) el.value = v || "";
+  });
+}
+async function signupMember(){
+  const name = memberVal("signupName");
+  const contact = memberVal("signupContact");
+  const email = memberVal("signupEmail");
+  const pw = memberVal("signupPassword");
+  if(!name || !contact || !email || !pw) return alert("회원가입 정보를 모두 입력해 주세요.");
+  if(pw.length < 6) return alert("비밀번호는 6자리 이상 입력해 주세요.");
+  const cred = await createUserWithEmailAndPassword(auth, email, pw);
+  await setDoc(doc(db,"members",cred.user.uid),{
+    uid:cred.user.uid,
+    name,
+    contact,
+    email,
+    role:"member",
+    createdAt:serverTimestamp()
+  },{merge:true});
+  alert("회원가입이 완료되었습니다.");
+}
+async function loginMember(){
+  const email = memberVal("loginEmail");
+  const pw = memberVal("loginPassword");
+  if(!email || !pw) return alert("이메일과 비밀번호를 입력해 주세요.");
+  await signInWithEmailAndPassword(auth, email, pw);
+  alert("로그인되었습니다.");
+}
+async function logoutMember(){
+  await signOut(auth);
+  alert("로그아웃되었습니다.");
+}
+async function loadMemberProfile(user){
+  if(!user){
+    currentMember = null;
+    setMemberText();
+    renderMemberPanel();
+    return;
+  }
+  try{
+    const snap = await getDocs(collection(db,"members"));
+    const found = snap.docs.find(d=>d.id === user.uid);
+    currentMember = found ? {id:found.id,...found.data()} : {uid:user.uid,email:user.email,name:"",contact:""};
+  }catch(e){
+    currentMember = {uid:user.uid,email:user.email,name:"",contact:""};
+  }
+  setMemberText();
+  fillMemberToForms();
+  renderMemberPanel();
+}
+function bindMemberUI(){
+  document.getElementById("memberOpenBtn")?.addEventListener("click", openMemberModal);
+  document.getElementById("memberCloseBtn")?.addEventListener("click", closeMemberModal);
+  document.getElementById("loginTabBtn")?.addEventListener("click", ()=>showMemberTab("login"));
+  document.getElementById("signupTabBtn")?.addEventListener("click", ()=>showMemberTab("signup"));
+  document.getElementById("signupMemberBtn")?.addEventListener("click", async()=>{try{await signupMember();}catch(e){alert("회원가입 실패: "+e.message);}});
+  document.getElementById("loginMemberBtn")?.addEventListener("click", async()=>{try{await loginMember();}catch(e){alert("로그인 실패: 이메일 또는 비밀번호를 확인해 주세요.");}});
+  document.getElementById("logoutMemberBtn")?.addEventListener("click", logoutMember);
+  onAuthStateChanged(auth, loadMemberProfile);
 }
 
 init();

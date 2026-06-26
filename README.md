@@ -1,17 +1,10 @@
-# 천율도령 홈페이지: 공지/상품/후기 관리형
+# 천명신당 | 천율도령 Firebase 상담 홈페이지
 
-## 관리자 페이지
-- 주소: admin.html
-- 임시 비밀번호: cheonyul2026
+업로드 파일:
+index.html, admin.html, style.css, firebase-config.js, app.js, admin.js
 
-## 가능한 것
-- 상품 추가/수정용 JSON 생성
-- 공지사항 등록용 JSON 생성
-- 후기 등록용 JSON 생성
-- 고객 후기 남기기 버튼
-- 구매하기 주문 양식 생성
-- 카카오톡 오픈프로필 연결
+관리자 주소:
+https://4639541.github.io/cheonyuldoryeong.github.io/admin.html
 
-## 중요한 안내
-GitHub Pages는 정적 홈페이지라서 방문자가 쓴 후기가 자동 저장되지는 않습니다.
-고객이 후기 양식을 작성하면 카카오톡으로 전송하고, 관리자가 admin.html에서 reviews.json에 반영하는 방식입니다.
+기능:
+상품 구매 삭제, 관리자 로그인, 공지 등록/삭제, 고객 후기 등록 요청, 후기 승인/삭제, 카카오톡 상담 신청.

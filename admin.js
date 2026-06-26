@@ -1,0 +1,18 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { firebaseConfig } from "./firebase-config.js";
+const app=initializeApp(firebaseConfig); const auth=getAuth(app); const db=getFirestore(app);
+window.adminLogin=async()=>{try{await signInWithEmailAndPassword(auth,adminEmail.value.trim(),adminPassword.value)}catch(e){alert("로그인 실패: 이메일 또는 비밀번호를 확인해 주세요.")}};
+window.adminLogout=async()=>signOut(auth);
+onAuthStateChanged(auth,u=>{if(u){loginBox.classList.add("hidden");adminPanel.classList.remove("hidden");loadAdminData()}else{loginBox.classList.remove("hidden");adminPanel.classList.add("hidden")}});
+window.addNotice=async()=>{const tag=noticeTag.value.trim()||"공지",title=noticeTitle.value.trim(),body=noticeBody.value.trim(); if(!title||!body)return alert("제목과 내용을 입력해 주세요."); await addDoc(collection(db,"notices"),{tag,title,body,createdAt:serverTimestamp()}); noticeTag.value="";noticeTitle.value="";noticeBody.value="";alert("공지사항이 등록되었습니다.");loadAdminData()};
+window.addDirectReview=async()=>{const name=directReviewName.value.trim(),category=directReviewCategory.value.trim(),stars=directReviewStars.value,body=directReviewBody.value.trim(); if(!name||!category||!body)return alert("이름, 분야, 내용을 입력해 주세요."); await addDoc(collection(db,"reviews"),{name,category,stars,body,approved:true,createdAt:serverTimestamp()}); directReviewName.value="";directReviewCategory.value="";directReviewBody.value="";alert("후기가 공개 등록되었습니다.");loadAdminData()};
+async function loadAdminData(){await loadNotices();await loadPending();await loadApproved()}
+function dt(ts){try{return ts&&ts.toDate?ts.toDate().toLocaleDateString("ko-KR"):""}catch(e){return ""}}
+async function loadNotices(){const snap=await getDocs(query(collection(db,"notices"),orderBy("createdAt","desc")));adminNoticeList.innerHTML=snap.docs.map(d=>{const n=d.data();return `<div class="admin-item"><b>[${n.tag||"공지"}] ${n.title||""}</b><p>${n.body||""}</p><small>${dt(n.createdAt)}</small><button onclick="deleteNotice('${d.id}')">삭제</button></div>`}).join("")||"<p>등록된 공지사항이 없습니다.</p>"}
+async function loadPending(){const snap=await getDocs(query(collection(db,"reviews"),where("approved","==",false),orderBy("createdAt","desc")));pendingReviewList.innerHTML=snap.docs.map(d=>{const r=d.data();return `<div class="admin-item"><b>${r.stars||""} ${r.name||"익명"} · ${r.category||""}</b><p>${r.body||""}</p><button onclick="approveReview('${d.id}')">승인</button><button onclick="deleteReview('${d.id}')">삭제</button></div>`}).join("")||"<p>승인 대기 후기가 없습니다.</p>"}
+async function loadApproved(){const snap=await getDocs(query(collection(db,"reviews"),where("approved","==",true),orderBy("createdAt","desc")));adminReviewList.innerHTML=snap.docs.map(d=>{const r=d.data();return `<div class="admin-item"><b>${r.stars||""} ${r.name||"익명"} · ${r.category||""}</b><p>${r.body||""}</p><button onclick="deleteReview('${d.id}')">삭제</button></div>`}).join("")||"<p>공개 후기가 없습니다.</p>"}
+window.approveReview=async(id)=>{await updateDoc(doc(db,"reviews",id),{approved:true});alert("후기가 승인되었습니다.");loadAdminData()};
+window.deleteReview=async(id)=>{if(confirm("후기를 삭제할까요?")){await deleteDoc(doc(db,"reviews",id));loadAdminData()}};
+window.deleteNotice=async(id)=>{if(confirm("공지사항을 삭제할까요?")){await deleteDoc(doc(db,"notices",id));loadAdminData()}};

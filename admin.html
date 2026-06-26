@@ -1,21 +1,9 @@
-<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>천명신당 관리자 도우미</title><link rel="stylesheet" href="style.css"></head>
-<body><header class="topbar"><div class="wrap nav"><a class="logo" href="index.html">천명신당 관리자</a></div></header>
-<section class="section wrap"><p class="kicker">ADMIN HELPER</p><h1>관리자 도우미</h1><p class="desc">비밀번호는 임시로 <b>cheonyul2026</b> 입니다. 이 페이지는 JSON 파일을 쉽게 만드는 도우미입니다. 저장 후 나온 내용을 GitHub의 products.json, notices.json, reviews.json에 붙여넣으면 됩니다.</p>
-<div id="login" class="guide-box"><input id="pw" placeholder="비밀번호"><button onclick="login()">로그인</button></div>
-<div id="admin" style="display:none">
-<h2>상품 추가/수정</h2><div class="guide-box"><input id="pname" placeholder="상품명"><input id="pprice" placeholder="가격"><input id="pstock" placeholder="재고/판매상태"><input id="pimage" placeholder="이미지 경로 예: products/product7.png"><textarea id="pdesc" placeholder="상품 설명"></textarea><button onclick="addProduct()">상품 추가</button></div><pre id="productsOut"></pre><button onclick="copyOut('productsOut')">products.json 복사</button>
-<h2>공지사항 등록</h2><div class="guide-box"><input id="ntag" placeholder="태그"><input id="ndate" placeholder="날짜"><input id="ntitle" placeholder="제목"><textarea id="nbody" placeholder="내용"></textarea><button onclick="addNotice()">공지 추가</button></div><pre id="noticesOut"></pre><button onclick="copyOut('noticesOut')">notices.json 복사</button>
-<h2>후기 등록</h2><div class="guide-box"><input id="rname" placeholder="이름/닉네임"><input id="rcategory" placeholder="상담/상품명"><input id="rstars" placeholder="★★★★★"><textarea id="rbody" placeholder="후기 내용"></textarea><button onclick="addReview()">후기 추가</button></div><pre id="reviewsOut"></pre><button onclick="copyOut('reviewsOut')">reviews.json 복사</button>
-</div></section>
-<script>
-let products=[], notices=[], reviews=[];
-function login(){if(document.getElementById('pw').value==='cheonyul2026'){document.getElementById('login').style.display='none';document.getElementById('admin').style.display='block';load();}else alert('비밀번호가 다릅니다.');}
-async function get(file){try{return await (await fetch(file+'?v='+Date.now())).json()}catch(e){return []}}
-async function load(){products=await get('products.json');notices=await get('notices.json');reviews=await get('reviews.json');render();}
-function render(){productsOut.textContent=JSON.stringify(products,null,2);noticesOut.textContent=JSON.stringify(notices,null,2);reviewsOut.textContent=JSON.stringify(reviews,null,2);}
-function addProduct(){products.push({id:Date.now(),name:pname.value,price:pprice.value,stock:pstock.value,image:pimage.value,desc:pdesc.value});render();}
-function addNotice(){notices.unshift({date:ndate.value,tag:ntag.value,title:ntitle.value,body:nbody.value});render();}
-function addReview(){reviews.unshift({name:rname.value,category:rcategory.value,stars:rstars.value||'★★★★★',body:rbody.value});render();}
-function copyOut(id){const t=document.getElementById(id).textContent;navigator.clipboard.writeText(t);alert('복사되었습니다. GitHub JSON 파일에 붙여넣으세요.');}
-</script></body></html>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천명신당 관리자</title><link rel="stylesheet" href="style.css"></head><body>
+<header class="topbar"><div class="wrap nav"><a class="logo" href="index.html">천명신당 관리자</a><nav><a href="index.html">홈으로</a></nav></div></header>
+<main class="section wrap admin-page"><p class="kicker">ADMIN LOGIN</p><h1>관리자 로그인</h1>
+<section id="loginBox" class="admin-box"><input id="adminEmail" type="email" placeholder="관리자 이메일"><input id="adminPassword" type="password" placeholder="비밀번호"><button onclick="adminLogin()">로그인</button><p class="tiny">Firebase Authentication에 등록한 이메일/비밀번호로 로그인하세요.</p></section>
+<section id="adminPanel" class="admin-panel hidden"><div class="admin-head"><h2>관리자 페이지</h2><button onclick="adminLogout()">로그아웃</button></div>
+<div class="admin-grid"><article class="admin-box"><h3>공지사항 등록</h3><input id="noticeTag" placeholder="태그 예: 필독"><input id="noticeTitle" placeholder="공지 제목"><textarea id="noticeBody" placeholder="공지 내용"></textarea><button onclick="addNotice()">공지 등록</button></article>
+<article class="admin-box"><h3>상담 후기 직접 등록</h3><input id="directReviewName" placeholder="이름/닉네임"><input id="directReviewCategory" placeholder="상담 분야"><select id="directReviewStars"><option value="★★★★★">★★★★★</option><option value="★★★★☆">★★★★☆</option><option value="★★★☆☆">★★★☆☆</option></select><textarea id="directReviewBody" placeholder="후기 내용"></textarea><button onclick="addDirectReview()">후기 공개 등록</button></article></div>
+<section class="admin-box"><h3>공지사항 목록</h3><div id="adminNoticeList"></div></section><section class="admin-box"><h3>승인 대기 후기</h3><div id="pendingReviewList"></div></section><section class="admin-box"><h3>공개 후기</h3><div id="adminReviewList"></div></section></section></main>
+<script type="module" src="admin.js"></script></body></html>

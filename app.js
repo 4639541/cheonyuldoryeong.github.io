@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
 import { firebaseConfig } from "./firebase-config.js";
 
@@ -9,6 +9,8 @@ const storage = getStorage(app);
 
 let products = [];
 let paymentInfo = null;
+let couponDiscount = 0;
+let couponInfo = null;
 let cart = JSON.parse(localStorage.getItem("cheonyulCart") || "[]");
 
 const defaults = {
@@ -143,19 +145,83 @@ window.openCart=()=>{ renderCart(); renderPayment(); document.getElementById("ca
 window.closeCart=()=>document.getElementById("cartModal").style.display="none";
 function renderCart(){
   document.getElementById("cartItems").innerHTML=cart.map((i,idx)=>`<div class="cartRow"><b>${i.name}</b><span>${i.price} × ${i.qty}</span><button onclick="removeCart(${idx})">삭제</button></div>`).join("") || `<p>장바구니가 비어 있습니다.</p>`;
-  document.getElementById("cartTotal").textContent = cart.reduce((a,b)=>a+wonNum(b.price)*(Number(b.qty)||1),0).toLocaleString()+"원";
+  document.getElementById("cartTotal").textContent = finalTotal().toLocaleString()+"원";
+  if(couponDiscount){
+    document.getElementById("cartTotal").textContent += ` (쿠폰 ${couponDiscount.toLocaleString()}원 할인)`;
+  }
 }
 window.removeCart=(idx)=>{ cart.splice(idx,1); saveCart(); renderCart(); };
 function orderText(){
   return `[천명신당 주문 신청]\n${cart.map(i=>`- ${i.name} / ${i.price} / ${i.qty}개`).join("\n")}\n합계: ${document.getElementById("cartTotal").textContent}\n주문자: ${orderName.value}\n연락처: ${orderContact.value}\n주소: ${orderAddress.value}\n요청: ${orderMemo.value}`;
 }
 window.copyOrder=async()=>{ await navigator.clipboard.writeText(orderText()); alert("주문 내용이 복사되었습니다."); };
+
+function makeOrderNo(){
+  const d=new Date();
+  const y=String(d.getFullYear()).slice(2), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
+  return `CY${y}${m}${day}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
+}
+async function getCoupon(code){
+  if(!code) return null;
+  const snap=await getDocs(collection(db,"coupons"));
+  const found=snap.docs.map(d=>({id:d.id,...d.data()})).find(c=>(c.code||"").toUpperCase()===code.toUpperCase());
+  return found || null;
+}
+window.applyCoupon=async()=>{
+  const code=document.getElementById("couponCode")?.value?.trim();
+  if(!code) return alert("쿠폰 코드를 입력해 주세요.");
+  const c=await getCoupon(code);
+  if(!c) return alert("사용 가능한 쿠폰이 없습니다.");
+  couponInfo=c;
+  couponDiscount=Number(String(c.discount||"").replace(/[^\d]/g,""))||0;
+  alert(`${c.code} 쿠폰이 적용되었습니다.`);
+  renderCart();
+};
+function subtotal(){
+  return cart.reduce((a,b)=>a+wonNum(b.price)*(Number(b.qty)||1),0);
+}
+function finalTotal(){
+  return Math.max(0, subtotal() - couponDiscount);
+}
+async function decreaseStock(){
+  for(const item of cart){
+    const p=products.find(x=>x.id===item.id);
+    if(!p || !p.stock) continue;
+    const n=parseInt(String(p.stock).replace(/[^\d]/g,""),10);
+    if(Number.isFinite(n)){
+      const next=Math.max(0,n-(Number(item.qty)||1));
+      try{ await updateDoc(doc(db,"products",p.id),{stock: next===0 ? "품절" : `${next}개`}); }catch(e){}
+    }
+  }
+}
+
 window.submitOrder=async()=>{
   if(!cart.length) return alert("장바구니가 비어 있습니다.");
   if(!orderName.value||!orderContact.value) return alert("주문자와 연락처를 입력해 주세요.");
-  await addDoc(collection(db,"orders"),{items:cart,total:document.getElementById("cartTotal").textContent,name:orderName.value,contact:orderContact.value,address:orderAddress.value,memo:orderMemo.value,status:"입금대기",payment:"카카오페이 송금",createdAt:serverTimestamp()});
-  cart=[]; saveCart(); alert("주문 신청이 접수되었습니다. 카카오톡으로 결제 안내를 받으세요."); closeCart();
+  const orderNo=makeOrderNo();
+  await decreaseStock();
+  await addDoc(collection(db,"orders"),{orderNo,items:cart,subtotal:subtotal().toLocaleString()+"원",discount:couponDiscount,total:finalTotal().toLocaleString()+"원",coupon:couponInfo?.code||"",name:orderName.value,contact:orderContact.value,address:orderAddress.value,memo:orderMemo.value,status:"입금대기",payment:"카카오페이 송금",trackingCompany:"",trackingNo:"",createdAt:serverTimestamp()});
+  cart=[]; saveCart(); alert(`주문 신청이 접수되었습니다.\n주문번호: ${orderNo}\n카카오톡으로 결제 안내를 받으세요.`); couponDiscount=0; couponInfo=null; closeCart();
 };
+
+async function getAvailableTimes(){
+  try{
+    const s=await getDocs(collection(db,"settings"));
+    let times=null;
+    s.docs.forEach(d=>{ if(d.id==="bookingTimes") times=d.data().times; });
+    return Array.isArray(times)&&times.length?times:["오전","오후","저녁","상담 후 조율"];
+  }catch(e){ return ["오전","오후","저녁","상담 후 조율"]; }
+}
+window.loadAvailableTimes=async()=>{
+  const times=await getAvailableTimes();
+  const el=document.getElementById("bookTime");
+  if(el) el.innerHTML=times.map(t=>`<option>${t}</option>`).join("");
+};
+setTimeout(()=>{ 
+  const d=document.getElementById("bookDate");
+  if(d) d.min=new Date().toISOString().slice(0,10);
+  window.loadAvailableTimes?.();
+},500);
 window.submitBooking=async()=>{
   if(!bookName.value||!bookContact.value||!bookBody.value) return alert("이름, 연락처, 상담 내용을 입력해 주세요.");
   await addDoc(collection(db,"bookings"),{name:bookName.value,contact:bookContact.value,type:bookType.value,date:bookDate.value,time:bookTime.value,body:bookBody.value,status:"대기",createdAt:serverTimestamp()});
@@ -167,12 +233,21 @@ async function uploadOne(file,folder){
   await uploadBytes(r,file);
   return await getDownloadURL(r);
 }
+async function uploadFiles(fileList,folder){
+  const urls=[];
+  for(const file of Array.from(fileList||[])){
+    const r=ref(storage,`${folder}/${Date.now()}_${file.name}`);
+    await uploadBytes(r,file);
+    urls.push(await getDownloadURL(r));
+  }
+  return urls;
+}
 window.openReviewModal=()=>document.getElementById("reviewModal").style.display="flex";
 window.closeReviewModal=()=>document.getElementById("reviewModal").style.display="none";
 window.submitReview=async()=>{
   if(!reviewName.value||!reviewBody.value) return alert("이름과 후기 내용을 입력해 주세요.");
-  const image=await uploadOne(reviewImage.files[0],"reviews");
-  await addDoc(collection(db,"reviews"),{name:reviewName.value,category:reviewCategory.value,stars:reviewStars.value,body:reviewBody.value,image,approved:false,createdAt:serverTimestamp()});
+  const images=await uploadFiles(reviewImage.files,"reviews");
+  await addDoc(collection(db,"reviews"),{name:reviewName.value,category:reviewCategory.value,stars:reviewStars.value,body:reviewBody.value,image:images[0]||"",images,approved:false,createdAt:serverTimestamp()});
   alert("후기 등록 요청이 완료되었습니다."); closeReviewModal();
 };
 init();

@@ -36,7 +36,7 @@ async function adminLogout(){ await signOut(auth); }
 onAuthStateChanged(auth, (user)=>{
   $("loginBox")?.classList.toggle("hidden", !!user);
   $("adminPanel")?.classList.toggle("hidden", !user);
-  if(user){ loadPaymentSetting(); loadAll(); }
+  if(user){ loadPaymentSetting(); loadTimes(); loadAll(); }
 });
 
 async function uploadFiles(fileList, folder){
@@ -208,8 +208,42 @@ async function fill(colName, boxId, html){
   }
 }
 
+
+async function saveTimes(){
+  const times=val("availableTimesInput").split("\n").map(x=>x.trim()).filter(Boolean);
+  await setDoc(doc(db,"settings","bookingTimes"),{times,updatedAt:serverTimestamp()},{merge:true});
+  alert("예약 가능 시간이 저장되었습니다.");
+}
+async function loadTimes(){
+  try{
+    const s=await getDocs(collection(db,"settings"));
+    s.docs.forEach(d=>{ if(d.id==="bookingTimes") setVal("availableTimesInput",(d.data().times||[]).join("\n")); });
+  }catch(e){}
+}
+async function addCoupon(){
+  if(!val("couponCodeAdmin")||!val("couponDiscount")) return alert("쿠폰 코드와 할인금액을 입력해 주세요.");
+  await addDoc(collection(db,"coupons"),{code:val("couponCodeAdmin").toUpperCase(),discount:val("couponDiscount"),desc:val("couponDesc"),createdAt:serverTimestamp()});
+  setVal("couponCodeAdmin"); setVal("couponDiscount"); setVal("couponDesc");
+  alert("쿠폰이 등록되었습니다.");
+  await loadAll();
+}
+window.saveTracking=async(id)=>{
+  const company=prompt("택배사 또는 배송방법을 입력하세요.");
+  if(company===null) return;
+  const no=prompt("송장번호/배송메모를 입력하세요.");
+  if(no===null) return;
+  await updateDoc(doc(db,"orders",id),{trackingCompany:company,trackingNo:no,status:"배송중"});
+  await loadAll();
+};
+window.copySms=async(orderNo,name,total,status)=>{
+  const msg=`[천율도령 공식 신점 상담]\\n${name}님, 주문번호 ${orderNo} ${status} 처리되었습니다.\\n금액: ${total}\\n문의는 카카오톡으로 부탁드립니다.`;
+  await navigator.clipboard.writeText(msg);
+  alert("문자 안내 문구가 복사되었습니다. 문자/카카오톡에 붙여넣어 보내세요.");
+};
+
 async function loadAll(){
-  const orderCount = await fill("orders","orderAdminList", o=>`<div class="adminItem"><b>${o.name||""} · ${o.total||""}</b><p>${(o.items||[]).map(i=>`${i.name||""} ${i.qty||1}개`).join("<br>")}<br>연락처: ${o.contact||""}<br>주소: ${o.address||""}<br>결제: ${o.payment||"카카오페이 송금"}<br><span class="status">${o.status||"신규"}</span></p><div class="actions"><button onclick="setStatus('orders','${o.id}','입금완료')">입금완료</button><button onclick="setStatus('orders','${o.id}','진행중')">진행중</button><button onclick="setStatus('orders','${o.id}','완료')">완료</button><button onclick="del('orders','${o.id}')">삭제</button></div></div>`);
+  const orderCount = await fill("orders","orderAdminList", o=>`<div class="adminItem"><b>${o.orderNo||o.id} · ${o.name||""} · ${o.total||""}</b><p>${(o.items||[]).map(i=>`${i.name||""} ${i.qty||1}개`).join("<br>")}<br>연락처: ${o.contact||""}<br>주소: ${o.address||""}<br>결제: ${o.payment||"카카오페이 송금"}<br>쿠폰: ${o.coupon||"-"} / 할인: ${o.discount||0}원<br>배송: ${o.trackingCompany||"-"} ${o.trackingNo||""}<br><span class="status">${o.status||"신규"}</span></p><div class="actions"><button onclick="setStatus('orders','${o.id}','입금완료')">입금완료</button><button onclick="setStatus('orders','${o.id}','진행중')">진행중</button><button onclick="setStatus('orders','${o.id}','완료')">완료</button><button onclick="saveTracking('${o.id}')">배송조회 입력</button><button onclick="copySms('${o.orderNo||o.id}','${o.name||""}','${o.total||""}','${o.status||"입금대기"}')">문자문구 복사</button><button onclick="del('orders','${o.id}')">삭제</button></div></div>`);
+  await fill("coupons","couponAdminList", c=>`<div class="adminItem"><b>${c.code||""} · ${c.discount||""}원 할인</b><p>${c.desc||""}</p><button class="danger" onclick="del('coupons','${c.id}')">삭제</button></div>`);
   const bookingCount = await fill("bookings","bookingAdminList", b=>`<div class="adminItem"><b>${b.name||""} · ${b.type||""}</b><p>${b.contact||""}<br>${b.date||""} ${b.time||""}<br>${b.body||""}<br><span class="status">${b.status||"대기"}</span></p><div class="actions"><button onclick="setStatus('bookings','${b.id}','확정')">확정</button><button onclick="setStatus('bookings','${b.id}','완료')">완료</button><button onclick="del('bookings','${b.id}')">삭제</button></div></div>`);
   const productCount = await fill("products","productAdminList", p=>`<div class="adminItem"><b>${p.name||""} · ${p.price||""}</b><p>${p.category||""} / ${p.stock||""}<br>${p.desc||""}</p>${imgs(p)}<div class="actions"><button onclick="del('products','${p.id}')">삭제</button></div></div>`);
   await fill("consultPrices","consultAdminList", c=>`<div class="adminItem"><b>${c.title||""} · ${c.price||""}</b><p><span class="badge">${c.badge||"상담"}</span><br>${c.desc||""}</p><div class="actions"><button onclick="editConsult('${c.id}', '${String(c.title||"").replaceAll("'","\\'")}', '${String(c.price||"").replaceAll("'","\\'")}', '${String(c.badge||"").replaceAll("'","\\'")}', '${String(c.desc||"").replaceAll("'","\\'")}')">수정</button><button class="danger" onclick="del('consultPrices','${c.id}')">삭제</button></div></div>`);
@@ -238,7 +272,7 @@ async function loadAll(){
         <div class="adminItem">
           <b>${r.name||"익명"} · ${r.category||""} · ${r.stars||"★★★★★"}</b>
           <p>${r.body||""}</p>
-          ${r.image?`<img class="thumb" src="${r.image}">`:""}
+          ${(r.images&&r.images.length)?`<div class="multiThumbs">${r.images.map(i=>`<img src="${i}">`).join("")}</div>`:(r.image?`<img class="thumb" src="${r.image}">`:"")}
           <div class="actions">
             <button onclick="approveReview('${r.id}')">승인</button>
             <button class="danger" onclick="del('reviews','${r.id}')">삭제</button>
@@ -253,7 +287,7 @@ async function loadAll(){
         <div class="adminItem">
           <b>${r.name||"익명"} · ${r.category||""} · ${r.stars||"★★★★★"}</b>
           <p>${r.body||""}</p>
-          ${r.image?`<img class="thumb" src="${r.image}">`:""}
+          ${(r.images&&r.images.length)?`<div class="multiThumbs">${r.images.map(i=>`<img src="${i}">`).join("")}</div>`:(r.image?`<img class="thumb" src="${r.image}">`:"")}
           <div class="actions">
             <button onclick="unapproveReview('${r.id}')">승인 취소</button>
             <button class="danger" onclick="del('reviews','${r.id}')">삭제</button>
@@ -292,6 +326,8 @@ window.del = async (colName,id)=>{ if(confirm("삭제할까요?")){ await delete
 document.addEventListener("DOMContentLoaded", ()=>{
   bind("loginBtn", adminLogin);
   bind("logoutBtn", adminLogout);
+  bind("saveTimesBtn", saveTimes);
+  bind("addCouponBtn", addCoupon);
   bind("savePaymentBtn", savePayment);
   bind("addConsultBtn", saveConsult);
   bind("resetConsultBtn", resetConsultForm);

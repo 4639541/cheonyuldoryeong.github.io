@@ -5,3 +5,8 @@
 .payBox h3{margin:0 0 8px;color:#f2c66d}
 .payQr{width:180px;height:180px;object-fit:cover;border-radius:16px;background:#fff;padding:8px;display:block;margin:10px 0}
 .copyLine{background:#14100b;border:1px solid rgba(227,183,94,.22);border-radius:14px;padding:10px;margin:8px 0;word-break:break-all}
+
+.dashboardNotice{background:#0b0805;border:1px solid rgba(227,183,94,.26);border-radius:18px;padding:14px;margin:12px 0}
+.smallBtn{padding:8px 12px;font-size:13px}
+.multiThumbs{display:flex;gap:8px;overflow-x:auto;margin:8px 0}
+.multiThumbs img{min-width:120px;width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid rgba(227,183,94,.22)}

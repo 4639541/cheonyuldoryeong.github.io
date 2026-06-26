@@ -20,13 +20,14 @@
   <section id="loginBox" class="formBox">
     <input id="adminEmail" type="email" placeholder="관리자 이메일">
     <input id="adminPassword" type="password" placeholder="비밀번호">
-    <button class="btn primary" onclick="adminLogin()">로그인</button>
+    <button id="loginBtn" class="btn primary" type="button">로그인</button>
+    <div id="loginError"></div>
   </section>
 
   <section id="adminPanel" class="hidden">
     <div class="dashHead">
       <h2>관리자 대시보드</h2>
-      <button class="btn secondary" onclick="adminLogout()">로그아웃</button>
+      <button id="logoutBtn" class="btn secondary" type="button">로그아웃</button>
     </div>
 
     <div class="statsGrid">
@@ -46,8 +47,8 @@
         <input id="pStock" placeholder="재고 예: 10개 / 품절 / 주문 가능">
         <input id="pImages" type="file" accept="image/*" multiple>
         <textarea id="pDesc" placeholder="상품 설명"></textarea>
-        <label><input id="pBest" type="checkbox"> 베스트 상품</label>
-        <button onclick="addProduct()">상품 등록</button>
+        <label class="tiny"><input id="pBest" type="checkbox"> 베스트 상품</label>
+        <button id="addProductBtn" type="button">상품 등록</button>
         <p id="productStatus" class="tiny"></p>
       </article>
 
@@ -56,7 +57,7 @@
         <input id="postTitle" placeholder="글 제목">
         <input id="postImages" type="file" accept="image/*" multiple>
         <textarea id="postBody" placeholder="글 내용"></textarea>
-        <button onclick="addPost()">게시글 등록</button>
+        <button id="addPostBtn" type="button">게시글 등록</button>
         <p id="postStatus" class="tiny"></p>
       </article>
 
@@ -64,7 +65,7 @@
         <h3>상담 분야 등록</h3>
         <input id="fieldTitle" placeholder="상담 분야명">
         <textarea id="fieldBody" placeholder="상담 분야 설명"></textarea>
-        <button onclick="addField()">상담 분야 등록</button>
+        <button id="addFieldBtn" type="button">상담 분야 등록</button>
       </article>
 
       <article class="formBox">
@@ -72,17 +73,17 @@
         <input id="noticeTag" placeholder="태그">
         <input id="noticeTitle" placeholder="공지 제목">
         <textarea id="noticeBody" placeholder="공지 내용"></textarea>
-        <button onclick="addNotice()">공지 등록</button>
+        <button id="addNoticeBtn" type="button">공지 등록</button>
       </article>
 
       <article class="formBox">
         <h3>후기 직접 등록</h3>
         <input id="reviewDirectName" placeholder="이름/닉네임">
         <input id="reviewDirectCategory" placeholder="분야">
-        <select id="reviewDirectStars"><option>★★★★★</option><option>★★★★☆</option></select>
+        <select id="reviewDirectStars"><option>★★★★★</option><option>★★★★☆</option><option>★★★☆☆</option></select>
         <input id="reviewDirectImage" type="file" accept="image/*">
         <textarea id="reviewDirectBody" placeholder="후기 내용"></textarea>
-        <button onclick="addDirectReview()">후기 공개 등록</button>
+        <button id="addDirectReviewBtn" type="button">후기 공개 등록</button>
       </article>
     </div>
 

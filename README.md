@@ -1,12 +1,19 @@
-# 천명신당 Firebase 확장 홈페이지
+# 천명신당 이미지 업로드 + 게시판 버전
 
-추가 기능:
-- 상품/상담 서비스 등록
-- 상담 분야 등록
-- 예약하기 폼
-- 예약 요청 관리자 확인
-- 공지사항 등록/삭제
-- 후기 승인/삭제
+추가:
+- 상품 등록 시 이미지 파일 직접 업로드
+- 게시판 글 등록
+- 게시판 이미지 파일 업로드
+- Firebase Storage 사용
 
-업로드 파일:
-index.html, admin.html, style.css, firebase-config.js, app.js, admin.js
+중요:
+Firebase 콘솔에서 Storage를 만들어야 이미지 업로드가 됩니다.
+Storage 규칙은 테스트 단계에서 아래처럼 설정하면 됩니다.
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}

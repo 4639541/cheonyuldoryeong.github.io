@@ -95,8 +95,8 @@
       <input id="bookName" placeholder="이름/닉네임">
       <input id="bookContact" placeholder="연락처 또는 카카오톡 ID">
       <select id="bookType"></select>
-      <label class="dateLabel">상담 희망 날짜</label>
-      <input id="bookDate" type="date" lang="ko" placeholder="연도-월-일">
+      <label class="dateLabel">📅 상담 희망 날짜</label>
+      <input id="bookDate" type="date" lang="ko" aria-label="상담 희망 날짜">
       <select id="bookTime"></select>
       <p id="bookedNotice" class="hint"></p>
       <textarea id="bookBody" placeholder="상담 받고 싶은 내용"></textarea>
@@ -154,7 +154,16 @@
   </div>
 </div>
 
-<footer>천율도령 공식 신점 상담</footer>
+<footer>
+<div class="inner">
+<h3>천율도령 공식 신점 상담</h3>
+<p>대표 : 천율도령</p>
+<p>상담문의 : 카카오톡 오픈프로필 '천율도령'</p>
+<p>사업자등록번호 : 관리자에서 입력 예정</p>
+<p>통신판매업신고 : 관리자에서 입력 예정</p>
+<p>© 천율도령 공식 신점 상담. All Rights Reserved.</p>
+</div>
+</footer>
 <script type="module" src="app.js?v=350"></script>
 </body>
 </html>

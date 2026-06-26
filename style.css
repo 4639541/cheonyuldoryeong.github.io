@@ -18,3 +18,5 @@ input[type="date"]::-webkit-calendar-picker-indicator{
   opacity:.9;
   cursor:pointer;
 }
+
+footer .inner{text-align:center}footer h3{color:#e6ba60;margin:0 0 10px}footer p{margin:4px 0;color:#d8ccb2}

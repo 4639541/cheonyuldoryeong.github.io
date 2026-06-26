@@ -2,166 +2,150 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>천율도령 모바일 관리자</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=350">
 </head>
 <body>
-<header class="siteHeader">
-  <div class="container headerInner">
-    <a class="brand" href="index.html">천율도령 모바일 관리자</a>
-    <a class="adminHome" href="index.html">홈</a>
+<header class="top">
+  <div class="inner">
+    <a class="logo" href="index.html">천율도령 모바일 관리자</a>
+    <a class="btn line small" href="index.html">홈</a>
   </div>
 </header>
 
-<main class="section container adminPage">
-  <section id="loginBox" class="formCard">
-    <p class="eyebrow">ADMIN LOGIN</p>
+<main class="sec inner admin">
+  <section id="loginBox" class="form">
+    <p class="tag">ADMIN LOGIN</p>
     <h1>관리자 로그인</h1>
     <input id="adminEmail" type="email" placeholder="관리자 이메일">
     <input id="adminPassword" type="password" placeholder="비밀번호">
-    <button class="btn primary full" id="loginBtn" type="button">로그인</button>
+    <button class="btn gold full" id="loginBtn" type="button">로그인</button>
     <div id="loginError"></div>
   </section>
 
   <section id="adminPanel" class="hidden">
-    <div class="adminTop">
+    <div class="adminHead">
       <div>
-        <p class="eyebrow">MOBILE ADMIN</p>
+        <p class="tag">MOBILE ADMIN</p>
         <h1>모바일 관리자</h1>
       </div>
-      <button class="btn ghost" id="logoutBtn" type="button">로그아웃</button>
+      <button class="btn line" id="logoutBtn" type="button">로그아웃</button>
     </div>
 
-    <nav class="adminTabs">
-      <a href="#dashboard">대시보드</a>
-      <a href="#orders">주문</a>
-      <a href="#bookings">예약</a>
-      <a href="#products">상품</a>
-      <a href="#reviews">후기</a>
-      <a href="#settings">설정</a>
+    <nav class="tabs">
+      <a href="#dashboard">대시보드</a><a href="#orders">주문</a><a href="#bookings">예약</a>
+      <a href="#products">상품</a><a href="#reviewsAdmin">후기</a><a href="#settings">설정</a>
     </nav>
 
-    <section id="dashboard" class="statGrid">
+    <section id="dashboard" class="stats">
       <article><b id="statOrders">0</b><span>주문</span></article>
       <article><b id="statBookings">0</b><span>예약</span></article>
       <article><b id="statProducts">0</b><span>상품</span></article>
       <article><b id="statReviews">0</b><span>후기</span></article>
     </section>
 
-    <section id="settings" class="adminBlock">
+    <section id="settings" class="block">
       <h2>결제 설정</h2>
-      <div class="formCard">
+      <div class="form">
         <input id="payName" placeholder="받는 사람/상호 예: 천율도령">
         <input id="payAccount" placeholder="카카오페이/페이머니 번호">
         <input id="payLink" placeholder="카카오페이 송금 링크 선택 입력">
-        <input id="bankName" placeholder="은행명 예: 농협">
+        <input id="bankName" placeholder="은행명">
         <input id="bankOwner" placeholder="예금주">
         <input id="bankAccount" placeholder="계좌번호">
         <input id="payQr" type="file" accept="image/*">
         <textarea id="payGuide" placeholder="결제 안내 문구"></textarea>
-        <button class="btn primary full" id="savePaymentBtn" type="button">결제 정보 저장</button>
+        <button class="btn gold full" id="savePaymentBtn" type="button">결제 정보 저장</button>
       </div>
-
       <h2>예약 가능 시간</h2>
-      <div class="formCard">
+      <div class="form">
         <textarea id="timesInput" placeholder="오전 10시&#10;오후 2시&#10;저녁 8시"></textarea>
-        <button class="btn primary full" id="saveTimesBtn" type="button">예약 시간 저장</button>
+        <button class="btn gold full" id="saveTimesBtn" type="button">예약 시간 저장</button>
       </div>
     </section>
 
-    <section id="coupons" class="adminBlock">
+    <section class="block">
       <h2>쿠폰 등록</h2>
-      <div class="formCard">
+      <div class="form">
         <input id="couponCodeAdmin" placeholder="쿠폰 코드 예: FIRST5000">
         <input id="couponDiscount" placeholder="할인금액 예: 5000">
         <input id="couponDesc" placeholder="쿠폰 설명">
-        <button class="btn primary full" id="couponAddBtn" type="button">쿠폰 등록</button>
+        <button class="btn gold full" id="couponAddBtn" type="button">쿠폰 등록</button>
       </div>
-      <div id="couponList" class="adminList"></div>
+      <div id="couponList" class="list"></div>
     </section>
 
-    <section id="prices" class="adminBlock">
+    <section class="block">
       <h2>상담 가격 관리</h2>
-      <div class="formCard">
+      <div class="form">
         <input id="priceId" type="hidden">
         <input id="priceTitle" placeholder="상담명">
         <input id="priceAmount" placeholder="가격 예: 20,000원">
         <input id="priceBadge" placeholder="태그 예: 추천">
         <textarea id="priceDesc" placeholder="상담 설명"></textarea>
-        <button class="btn primary full" id="priceSaveBtn" type="button">상담 가격 저장</button>
-        <button class="btn ghost full" id="priceResetBtn" type="button">새로 등록</button>
+        <button class="btn gold full" id="priceSaveBtn" type="button">상담 가격 저장</button>
+        <button class="btn line full" id="priceResetBtn" type="button">새로 등록</button>
       </div>
-      <div id="priceAdminList" class="adminList"></div>
+      <div id="priceAdminList" class="list"></div>
     </section>
 
-    <section id="products" class="adminBlock">
+    <section id="products" class="block">
       <h2>상품 등록</h2>
-      <div class="formCard">
+      <div class="form">
         <input id="pName" placeholder="상품명">
-        <input id="pCategory" placeholder="카테고리 예: 염주 / 부적 / 상담">
+        <input id="pCategory" placeholder="카테고리">
         <input id="pPrice" placeholder="판매가 예: 25,000원">
         <input id="pSale" placeholder="할인가 선택 입력">
         <input id="pStock" placeholder="재고 예: 10개 / 품절 / 주문 가능">
         <input id="pImages" type="file" accept="image/*" multiple>
         <textarea id="pDesc" placeholder="상품 설명"></textarea>
-        <label class="checkLine"><input id="pBest" type="checkbox"> 베스트 상품</label>
-        <button class="btn primary full" id="productAddBtn" type="button">상품 등록</button>
+        <label class="check"><input id="pBest" type="checkbox"> 베스트 상품</label>
+        <button class="btn gold full" id="productAddBtn" type="button">상품 등록</button>
       </div>
-      <div id="productAdminList" class="adminList"></div>
+      <div id="productAdminList" class="list"></div>
     </section>
 
-    <section id="notices" class="adminBlock">
+    <section class="block">
       <h2>공지 등록</h2>
-      <div class="formCard">
+      <div class="form">
         <input id="noticeTag" placeholder="태그">
         <input id="noticeTitle" placeholder="공지 제목">
         <textarea id="noticeBody" placeholder="공지 내용"></textarea>
-        <button class="btn primary full" id="noticeAddBtn" type="button">공지 등록</button>
+        <button class="btn gold full" id="noticeAddBtn" type="button">공지 등록</button>
       </div>
-      <div id="noticeAdminList" class="adminList"></div>
+      <div id="noticeAdminList" class="list"></div>
     </section>
 
-    <section id="boardAdmin" class="adminBlock">
+    <section class="block">
       <h2>게시판 글 등록</h2>
-      <div class="formCard">
+      <div class="form">
         <input id="postTitle" placeholder="글 제목">
         <input id="postImages" type="file" accept="image/*" multiple>
         <textarea id="postBody" placeholder="글 내용"></textarea>
-        <button class="btn primary full" id="postAddBtn" type="button">게시글 등록</button>
+        <button class="btn gold full" id="postAddBtn" type="button">게시글 등록</button>
       </div>
-      <div id="postAdminList" class="adminList"></div>
+      <div id="postAdminList" class="list"></div>
     </section>
 
-    <section id="fields" class="adminBlock">
-      <h2>상담 분야 등록</h2>
-      <div class="formCard">
-        <input id="fieldTitle" placeholder="상담 분야명">
-        <textarea id="fieldBody" placeholder="상담 분야 설명"></textarea>
-        <button class="btn primary full" id="fieldAddBtn" type="button">상담 분야 등록</button>
-      </div>
-      <div id="fieldAdminList" class="adminList"></div>
-    </section>
-
-    <section id="orders" class="adminBlock">
+    <section id="orders" class="block">
       <h2>주문 관리</h2>
-      <div id="orderList" class="adminList"></div>
+      <div id="orderList" class="list"></div>
     </section>
 
-    <section id="bookings" class="adminBlock">
+    <section id="bookings" class="block">
       <h2>예약 관리</h2>
-      <div id="bookingList" class="adminList"></div>
+      <div id="bookingList" class="list"></div>
     </section>
 
-    <section id="reviews" class="adminBlock">
+    <section id="reviewsAdmin" class="block">
       <h2>승인 대기 후기</h2>
-      <div id="pendingReviewList" class="adminList"></div>
+      <div id="pendingReviewList" class="list"></div>
       <h2>공개 후기</h2>
-      <div id="approvedReviewList" class="adminList"></div>
+      <div id="approvedReviewList" class="list"></div>
     </section>
   </section>
 </main>
-
-<script type="module" src="admin.js"></script>
+<script type="module" src="admin.js?v=350"></script>
 </body>
 </html>

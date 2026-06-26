@@ -35,7 +35,7 @@ function finalTotal(){return Math.max(0,subtotal()-couponDiscount)}
 function imgGallery(arr=[]){return arr.length?`<div class="gallery">${arr.map(i=>`<img src="${i}" alt="">`).join("")}</div>`:""}
 
 async function init(){
-  $("menuBtn")?.addEventListener("click",()=>$("navMenu").classList.toggle("show"));
+  $("menuBtn")?.addEventListener("click",()=>$("nav").classList.toggle("show"));
   bindButtons();
   const notices=await list("notices",defaults.notices);
   $("noticeList").innerHTML=notices.map(n=>`<article class="card"><span class="badge">${esc(n.tag||"공지")}</span><h3>${esc(n.title)}</h3><p>${esc(n.body)}</p></article>`).join("");

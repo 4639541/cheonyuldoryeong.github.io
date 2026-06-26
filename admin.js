@@ -281,3 +281,55 @@ setTimeout(()=>{
   document.getElementById("saveBusinessBtn")?.addEventListener("click", window.saveBusiness);
   loadBusinessFinal();
 }, 500);
+
+
+window.savePaymentFinal = async ()=>{
+  try{
+    let qr = "";
+    const fileInput = document.getElementById("payQr");
+    if(fileInput && fileInput.files && fileInput.files[0]){
+      const urls = await uploadFiles(fileInput.files, "payment");
+      qr = urls[0] || "";
+    }
+    const data = {
+      name: val("payName") || "천율도령",
+      account: val("payAccount") || "02002407816",
+      link: val("payLink"),
+      bankName: val("bankName"),
+      bankOwner: val("bankOwner"),
+      bankAccount: val("bankAccount"),
+      guide: val("payGuide") || "송금 후 주문 신청을 눌러주세요.",
+      updatedAt: serverTimestamp()
+    };
+    if(qr) data.qr = qr;
+    await setDoc(doc(db,"settings","payment"), data, {merge:true});
+    alert("결제 정보가 저장되었습니다.");
+    await loadPaymentFinal();
+  }catch(e){
+    alert("결제 정보 저장 실패: " + e.message);
+  }
+};
+
+async function loadPaymentFinal(){
+  try{
+    const settings = await list("settings");
+    const p = settings.find(x=>x.id==="payment") || {};
+    setVal("payName", p.name || "천율도령");
+    setVal("payAccount", p.account || "02002407816");
+    setVal("payLink", p.link || "");
+    setVal("bankName", p.bankName || "");
+    setVal("bankOwner", p.bankOwner || "");
+    setVal("bankAccount", p.bankAccount || "");
+    setVal("payGuide", p.guide || "송금 후 주문 신청을 눌러주세요.");
+  }catch(e){
+    console.warn("결제 정보 로딩 실패", e);
+  }
+}
+
+setTimeout(()=>{
+  const btn = document.getElementById("savePaymentBtn");
+  if(btn){
+    btn.onclick = (e)=>{e.preventDefault(); window.savePaymentFinal();};
+  }
+  loadPaymentFinal();
+}, 700);

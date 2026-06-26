@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>천율도령 모바일 관리자</title>
-  <link rel="stylesheet" href="style.css?v=470">
+  <link rel="stylesheet" href="style.css?v=480">
 </head>
 <body>
 <header class="top">
@@ -64,21 +64,20 @@
         <p class="hint">저장 후 홈페이지를 새로고침하면 하단 사업자 정보에 반영됩니다.</p>
       </div>
 
-
-
-
       <h2>결제 설정</h2>
-      <div class="form">
+      <div class="form paymentAdminForm">
         <input id="payName" placeholder="받는 사람/상호 예: 천율도령">
-        <input id="payAccount" placeholder="카카오페이/페이머니 번호">
+        <input id="payAccount" placeholder="카카오페이/페이머니 번호 예: 02002407816">
         <input id="payLink" placeholder="카카오페이 송금 링크 선택 입력">
-        <input id="bankName" placeholder="은행명">
-        <input id="bankOwner" placeholder="예금주">
+        <input id="bankName" placeholder="은행명 예: 농협">
+        <input id="bankOwner" placeholder="예금주 예: 정세진">
         <input id="bankAccount" placeholder="계좌번호">
         <input id="payQr" type="file" accept="image/*">
         <textarea id="payGuide" placeholder="결제 안내 문구"></textarea>
         <button class="btn gold full" id="savePaymentBtn" type="button">결제 정보 저장</button>
+        <p class="hint">저장 후 상품 구매 → 장바구니에서 결제 정보가 표시됩니다.</p>
       </div>
+
       <h2>예약 가능 시간</h2>
       <div class="form">
         <textarea id="timesInput" placeholder="오전 10시&#10;오후 2시&#10;저녁 8시"></textarea>
@@ -171,6 +170,6 @@
     </section>
   </section>
 </main>
-<script type="module" src="admin.js?v=470"></script>
+<script type="module" src="admin.js?v=480"></script>
 </body>
 </html>

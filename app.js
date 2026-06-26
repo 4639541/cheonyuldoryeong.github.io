@@ -121,24 +121,8 @@ function renderCart(){
   $("cartTotal").textContent = formatWon(finalTotal()) + (couponDiscount ? ` (쿠폰 ${formatWon(couponDiscount)} 할인)` : "");
 }
 function openCart(){renderCart(); renderPayment(); $("cartModal").classList.add("show");}
-async function getPayment(){
-  const settings = await list("settings", []);
-  return settings.find(s=>s.id==="payment") || {name:"천율도령",account:"02002407816",bankName:"",bankOwner:"",bankAccount:"",guide:"송금 후 주문 신청을 눌러주세요."};
-}
-function renderPayment(){
-  $("paymentInfo").innerHTML = `
-    ${payment.qr?`<img class="payQr" src="${payment.qr}" alt="카카오페이 QR">`:""}
-    <div class="copy"><b>카카오페이</b><br>${esc(payment.name||"천율도령")}<br>${esc(payment.account||"")}</div>
-    ${payment.bankAccount?`<div class="copy"><b>계좌이체</b><br>${esc(payment.bankName)} ${esc(payment.bankAccount)}<br>예금주: ${esc(payment.bankOwner)}</div>`:""}
-    ${payment.link?`<a class="btn gold full" target="_blank" href="${payment.link}">카카오페이 송금하기</a>`:""}
-    <button class="btn line full" id="copyPaymentBtn" type="button">계좌/번호 복사</button>
-    <p class="hint">${esc(payment.guide||"송금 후 주문 신청을 눌러주세요.")}</p>
-  `;
-  $("copyPaymentBtn")?.addEventListener("click", async()=>{
-    await navigator.clipboard.writeText(payment.bankAccount || payment.account || "");
-    alert("복사되었습니다.");
-  });
-}
+
+
 async function applyCoupon(){
   const code = $("couponInput").value.trim().toUpperCase();
   if(!code) return alert("쿠폰 코드를 입력해 주세요.");
@@ -273,6 +257,47 @@ async function submitReview(){
 
 
 
+
+
+async function getPayment(){
+  try{
+    const snap = await getDocs(collection(db,"settings"));
+    let found = null;
+    snap.docs.forEach(d=>{
+      if(d.id === "payment") found = {id:d.id, ...d.data()};
+    });
+    return found || {
+      name:"천율도령",
+      account:"02002407816",
+      link:"",
+      bankName:"",
+      bankOwner:"",
+      bankAccount:"",
+      guide:"송금 후 주문 신청을 눌러주세요."
+    };
+  }catch(e){
+    console.warn("결제 정보 불러오기 실패", e);
+    return {name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청을 눌러주세요."};
+  }
+}
+
+function renderPayment(){
+  const box = document.getElementById("paymentInfo");
+  if(!box) return;
+  const p = payment || {};
+  box.innerHTML = `
+    ${p.qr ? `<img class="payQr" src="${p.qr}" alt="카카오페이 QR">` : ""}
+    <div class="copy"><b>카카오페이 송금</b><br>받는 사람: ${p.name || "천율도령"}<br>${p.account || "02002407816"}</div>
+    ${p.bankAccount ? `<div class="copy"><b>계좌이체</b><br>${p.bankName || ""} ${p.bankAccount || ""}<br>예금주: ${p.bankOwner || ""}</div>` : ""}
+    ${p.link ? `<a class="btn gold full" target="_blank" href="${p.link}">카카오페이 송금하기</a>` : ""}
+    <button class="btn line full" id="copyPaymentBtn" type="button">계좌/번호 복사</button>
+    <p class="hint">${p.guide || "송금 후 주문 신청을 눌러주세요."}</p>
+  `;
+  document.getElementById("copyPaymentBtn")?.addEventListener("click", async()=>{
+    await navigator.clipboard.writeText(p.bankAccount || p.account || "");
+    alert("결제 번호/계좌번호가 복사되었습니다.");
+  });
+}
 
 init();
 

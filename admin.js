@@ -106,6 +106,8 @@ async function saveBusiness(){
 
 bind("saveBusinessBtn",saveBusiness);
 
+
+bind("saveBusinessBtn", window.saveBusiness);
 window.saveBusiness = async ()=>{
   await setDoc(doc(db,"settings","business"),{
     footerName:"천율도령 공식 신점 상담",
@@ -122,6 +124,7 @@ window.saveBusiness = async ()=>{
     updatedAt:serverTimestamp()
   },{merge:true});
   alert("사업자 정보가 저장되었습니다.");
+  await loadSettings();
 };
 
 bind("saveBusinessBtn", window.saveBusiness);

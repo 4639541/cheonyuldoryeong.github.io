@@ -89,6 +89,7 @@ function bindUI(){
   $("reviewOpenBtn")?.addEventListener("click", ()=>$("reviewModal").classList.add("show"));
   $("reviewCloseBtn")?.addEventListener("click", ()=>$("reviewModal").classList.remove("show"));
   $("reviewSubmitBtn")?.addEventListener("click", submitReview);
+  $("trackBtn")?.addEventListener("click", trackOrder);
 }
 function renderCategories(){
   const cats = [...new Set(products.map(p=>p.category).filter(Boolean))];
@@ -268,6 +269,7 @@ async function submitReview(){
   $("reviewModal").classList.remove("show");
   alert("후기 등록 요청이 완료되었습니다.");
 }
+
 async function loadBusinessInfo(){
   try{
     const settings = await list("settings", []);
@@ -287,7 +289,30 @@ async function loadBusinessInfo(){
       const el = document.getElementById(id);
       if(el) el.textContent = value;
     });
-  }catch(e){}
+  }catch(e){
+    console.warn("business info load failed", e);
+  }
+}
+
+async function trackOrder(){
+  const no = document.getElementById("trackOrderNo")?.value?.trim();
+  const contact = document.getElementById("trackContact")?.value?.trim();
+  const box = document.getElementById("trackingResult");
+  if(!no || !contact) return alert("주문번호와 연락처를 입력해 주세요.");
+  const orders = await list("orders", []);
+  const found = orders.find(o => String(o.orderNo||"").trim() === no && String(o.contact||"").trim() === contact);
+  if(!found){
+    box.innerHTML = `<div class="card">일치하는 주문을 찾지 못했습니다.<br>주문번호와 연락처를 다시 확인해 주세요.</div>`;
+    return;
+  }
+  box.innerHTML = `<div class="card">
+    <h3>주문번호 ${found.orderNo||found.id}</h3>
+    <p>주문자 : ${found.name||""}</p>
+    <p>주문상태 : <b>${found.status||"입금대기"}</b></p>
+    <p>배송방법/택배사 : ${found.trackingCompany||"등록 전"}</p>
+    <p>송장번호/배송메모 : ${found.trackingNo||"등록 전"}</p>
+    <p>총 결제금액 : ${found.total||""}</p>
+  </div>`;
 }
 
 init();

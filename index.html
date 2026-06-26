@@ -20,7 +20,7 @@
       <a href="#shop">상품</a>
       <a href="#booking">예약</a>
       <a href="#reviews">후기</a>
-      <a href="#board">게시판</a>
+      <a href="#tracking">배송조회</a><a href="#board">게시판</a>
       <a href="admin.html">관리자</a>
     </nav>
   </div>
@@ -56,6 +56,7 @@
       <a href="#price">🔮 상담 가격</a>
       <a href="#shop">🛍 상품 구매</a>
       <a href="#reviews">⭐ 후기 작성</a>
+      <a href="#tracking">🚚 배송 조회</a>
       <a target="_blank" href="https://open.kakao.com/me/cpwls9541">💬 카카오톡 문의</a>
       <a href="admin.html">🔐 관리자</a>
     </div>
@@ -110,6 +111,20 @@
       <h2>상담 후기</h2>
       <button class="btn gold" id="reviewOpenBtn" type="button">후기 남기기</button>
       <div id="reviewList" class="cards gap"></div>
+    </div>
+  </section>
+
+
+  <section id="tracking" class="sec band">
+    <div class="inner">
+      <p class="tag">DELIVERY</p>
+      <h2>배송 조회</h2>
+      <div class="form">
+        <input id="trackOrderNo" placeholder="주문번호 예: CY260626-ABCDE">
+        <input id="trackContact" placeholder="주문 시 입력한 연락처 또는 카카오톡 ID">
+        <button class="btn gold full" id="trackBtn" type="button">배송 조회</button>
+        <div id="trackingResult" class="trackResult"></div>
+      </div>
     </div>
   </section>
 

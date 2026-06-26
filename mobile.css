@@ -57,3 +57,15 @@
 .syncStatus.ok{color:#a9f5bd;border-color:rgba(90,220,120,.45)}
 .syncStatus.bad{color:#ffb7ad;border-color:rgba(255,80,60,.45)}
 .modalOpen{overflow:hidden}
+
+.businessMobile{
+  padding-top:0;
+}
+#businessInfoHome p{
+  margin:5px 0;
+  color:#d9c9a8;
+}
+.adminTab h2{
+  color:#e6ba60;
+  margin-top:18px;
+}

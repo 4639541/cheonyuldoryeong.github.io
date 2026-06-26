@@ -21,6 +21,47 @@ let favorites=JSON.parse(localStorage.cyFavorites||"[]");
 let recentViewed=JSON.parse(localStorage.cyRecentViewed||"[]");
 let started=false;
 
+
+// ===== 4.5 complete sync additions =====
+function getBusiness(){
+  const b=state.settings.find(s=>s.id==="business")||{};
+  return {
+    name:b.name||"천율도령", owner:b.owner||"정세진", number:b.number||"570-76-00713",
+    address:b.address||"경상북도 구미시 상모로12길 49, 101동 102호",
+    type:b.type||"협회 및 단체, 수리 및 기타 개인서비스업", item:b.item||"점술 및 유사 서비스업",
+    contact:b.contact||"카카오톡 오픈프로필 천율도령", mailOrder:b.mailOrder||"신고 예정"
+  };
+}
+function renderBusiness(){
+  const box=$("businessInfoHome"); if(!box) return;
+  const b=getBusiness();
+  box.innerHTML=`<p>상호: ${esc(b.name)}</p><p>대표자: ${esc(b.owner)}</p><p>사업자등록번호: ${esc(b.number)}</p><p>주소: ${esc(b.address)}</p><p>업태: ${esc(b.type)}</p><p>종목: ${esc(b.item)}</p><p>고객문의: ${esc(b.contact)}</p><p>통신판매업신고: ${esc(b.mailOrder)}</p>`;
+}
+function couponValid(c){
+  if(c.minOrder && subtotal() < money(c.minOrder)) return `최소 주문금액 ${won(money(c.minOrder))} 이상 사용 가능합니다.`;
+  if(c.expiresAt){
+    const exp = String(c.expiresAt);
+    const today = new Date().toISOString().slice(0,10);
+    if(exp < today) return "만료된 쿠폰입니다.";
+  }
+  if(c.useLimit && Number(c.usedCount||0) >= Number(c.useLimit)) return "사용 가능 횟수를 초과한 쿠폰입니다.";
+  return "";
+}
+async function decreaseStockAfterOrder(){
+  for(const item of cart){
+    if(item.type!=="product") continue;
+    const p=state.products.find(x=>x.id===item.id);
+    if(!p) continue;
+    const stock = Number(String(p.stock||"").replace(/[^\d]/g,""));
+    if(Number.isFinite(stock) && stock > 0){
+      await updateDoc(doc(db,"products",p.id),{stock:String(Math.max(0,stock-item.qty)),updatedAt:serverTimestamp()});
+    }
+  }
+}
+function isBooked(date,time){
+  return state.bookings.some(b=>b.date===date && b.time===time && !String(b.status||"").includes("취소"));
+}
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
@@ -50,6 +91,7 @@ function renderAll(){
   renderReviews();
   renderBenefits();
   renderMember();
+  renderBusiness();
   saveCart();
 }
 function renderHome(){
@@ -110,12 +152,14 @@ async function order(){
   if(!$("orderName").value||!$("orderContact").value)return alert("이름과 연락처를 입력하세요.");
   const no=orderNo();
   await addDoc(collection(db,"orders"),{orderNo:no,items:cart,subtotal:won(subtotal()),discount:couponDiscount,coupon:coupon?.code||"",total:won(total()),name:$("orderName").value,contact:$("orderContact").value,address:$("orderAddress").value,memo:$("orderMemo").value,memberUid:member?.uid||member?.id||"",memberEmail:member?.email||"",status:"입금대기",createdAt:serverTimestamp()});
-  if(coupon?.id)try{await updateDoc(doc(db,"coupons",coupon.id),{used:true,usedAt:serverTimestamp()})}catch(e){}
+  await decreaseStockAfterOrder();
+  if(coupon?.id)try{await updateDoc(doc(db,"coupons",coupon.id),{used:true,usedAt:serverTimestamp(),usedCount:Number(coupon.usedCount||0)+1})}catch(e){}
   cart=[]; coupon=null; couponDiscount=0; saveCart(); close("cartModal"); alert("주문 완료\n주문번호: "+no);
 }
 function renderTimes(){const d=$("bookDate")?.value, blocked=state.booking.blockedDates.includes(d); if($("bookTime")) $("bookTime").innerHTML=blocked?"<option>예약 마감</option>":state.booking.times.map(t=>`<option>${t}</option>`).join("")}
 async function book(){
   if(!$("bookName").value||!$("bookContact").value||!$("bookDate").value)return alert("예약 정보를 입력하세요.");
+  if(isBooked($("bookDate").value,$("bookTime").value)) return alert("이미 예약된 시간입니다. 다른 시간을 선택해 주세요.");
   await addDoc(collection(db,"bookings"),{name:$("bookName").value,contact:$("bookContact").value,type:$("bookType").value,date:$("bookDate").value,time:$("bookTime").value,body:$("bookBody").value,memberUid:member?.uid||member?.id||"",memberEmail:member?.email||"",status:"대기",createdAt:serverTimestamp()});
   alert("예약 신청 완료");
 }

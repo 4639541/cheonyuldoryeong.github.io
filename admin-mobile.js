@@ -203,6 +203,10 @@ function bind(){
       code:(val("couponCode")||code()).toUpperCase(),
       discount:val("couponDiscount"),
       desc:val("couponDesc"),
+      minOrder:val("couponMinOrder"),
+      expiresAt:val("couponExpire"),
+      useLimit:val("couponLimit")||"1",
+      usedCount:0,
       used:false,
       memberUid:sel?.value||"",
       memberEmail:opt?.dataset.email||"",
@@ -298,3 +302,29 @@ bind();
 
 // 완전 연동 4.4: 관리자 변경 즉시 홈페이지 반영 안내 및 강제 새로고침 없는 동기화
 setInterval(()=>{ const el=document.getElementById("adminSyncStatus"); if(el){el.textContent="실시간 연동중"; el.className="syncStatus ok";}},2000);
+
+// ===== 4.5 complete admin sync additions =====
+function csvDownload(filename, rows){
+  const csv = rows.map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
+  const blob = new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=filename; a.click(); URL.revokeObjectURL(a.href);
+}
+function fillBusiness(settings){
+  const b=settings.find(s=>s.id==="business")||{};
+  [["bizName","name"],["bizOwner","owner"],["bizNumber","number"],["bizAddress","address"],["bizType","type"],["bizItem","item"],["bizContact","contact"],["bizMailOrder","mailOrder"]].forEach(([id,k])=>{if($(id))$(id).value=b[k]||""});
+}
+function renderReviewAdmin(reviews){
+  if($("pendingReviewList")) $("pendingReviewList").innerHTML=reviews.filter(r=>!r.approved).map(r=>card(`${r.name||"익명"} · ${r.stars||""}`,`${r.category||""}<br>${r.body||""}`,`<button class="secondary" onclick="approveReview('${r.id}',true)">승인</button><button class="secondary" onclick="del('reviews','${r.id}')">삭제</button>`)).join("")||"<p>승인 대기 후기가 없습니다.</p>";
+  if($("approvedReviewList")) $("approvedReviewList").innerHTML=reviews.filter(r=>r.approved).map(r=>card(`${r.name||"익명"} · ${r.stars||""}`,`${r.category||""}<br>${r.body||""}`,`<button class="secondary" onclick="approveReview('${r.id}',false)">승인취소</button><button class="secondary" onclick="del('reviews','${r.id}')">삭제</button>`)).join("")||"<p>공개 후기가 없습니다.</p>";
+}
+window.approveReview=async(id,approved)=>{await updateDoc(doc(db,"reviews",id),{approved,updatedAt:serverTimestamp()});await adminLog(approved?"후기 승인":"후기 승인취소");load();};
+setTimeout(()=>{
+  $("saveBusiness")?.addEventListener("click",async()=>{
+    await setDoc(doc(db,"settings","business"),{name:val("bizName"),owner:val("bizOwner"),number:val("bizNumber"),address:val("bizAddress"),type:val("bizType"),item:val("bizItem"),contact:val("bizContact"),mailOrder:val("bizMailOrder"),updatedAt:serverTimestamp()},{merge:true});
+    await adminLog("사업자 정보 저장"); alert("사업자 정보가 홈페이지에 반영되었습니다.");
+  });
+  $("exportOrders")?.addEventListener("click",async()=>{const rows=await list("orders");csvDownload("orders.csv",[["주문번호","이름","연락처","금액","상태"],...rows.map(o=>[o.orderNo,o.name,o.contact,o.total,o.status])]);});
+  $("exportMembers")?.addEventListener("click",async()=>{const rows=await list("members");csvDownload("members.csv",[["이름","이메일","연락처","포인트"],...rows.map(m=>[m.name,m.email,m.contact,m.points])]);});
+  $("exportBookings")?.addEventListener("click",async()=>{const rows=await list("bookings");csvDownload("bookings.csv",[["이름","연락처","상담","날짜","시간","상태"],...rows.map(b=>[b.name,b.contact,b.type,b.date,b.time,b.status])]);});
+},700);

@@ -293,7 +293,7 @@ onAuthStateChanged(auth,(u)=>{
   }
 });
 
-["orders","bookings","members","coupons","products","consultPrices","settings","visits","adminLogs","banners","benefits"].forEach(c=>{
+["orders","bookings","members","coupons","products","consultPrices","settings","visits","adminLogs","banners","benefits","consultRecords","spiritualRequests","allowedAdmins"].forEach(c=>{
   try{onSnapshot(collection(db,c),()=>{if(!$("adminPanel")?.classList.contains("hide")) load();});}catch(e){}
 });
 
@@ -328,3 +328,56 @@ setTimeout(()=>{
   $("exportMembers")?.addEventListener("click",async()=>{const rows=await list("members");csvDownload("members.csv",[["이름","이메일","연락처","포인트"],...rows.map(m=>[m.name,m.email,m.contact,m.points])]);});
   $("exportBookings")?.addEventListener("click",async()=>{const rows=await list("bookings");csvDownload("bookings.csv",[["이름","연락처","상담","날짜","시간","상태"],...rows.map(b=>[b.name,b.contact,b.type,b.date,b.time,b.status])]);});
 },700);
+
+// ===== 4.6 operation admin additions =====
+async function ensureAllowedAdmin(){
+  try{
+    const rows=await list("allowedAdmins");
+    const current=auth.currentUser?.email||"";
+    if(!rows.length && current){
+      await addDoc(collection(db,"allowedAdmins"),{email:current,createdAt:serverTimestamp()});
+      return true;
+    }
+    return rows.some(a=>String(a.email||"").toLowerCase()===current.toLowerCase());
+  }catch(e){return true;}
+}
+async function loadOps(){
+  try{
+    const [members,records,spirituals,orders,bookings,allowed] = await Promise.all(["members","consultRecords","spiritualRequests","orders","bookings","allowedAdmins"].map(list));
+    if($("recordMemberSelect")) $("recordMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
+    if($("consultRecordList")) $("consultRecordList").innerHTML=records.map(r=>card(r.title||"상담 이력",`${r.memberName||r.memberEmail||""}<br>${r.date||""}<br>${r.memo||""}<br>${r.nextDate?`재상담: ${r.nextDate}`:""}`,`<button class="secondary" onclick="del('consultRecords','${r.id}')">삭제</button>`)).join("")||"<p>상담 이력이 없습니다.</p>";
+    if($("spiritualList")) $("spiritualList").innerHTML=spirituals.map(s=>card(`${s.type||"신청"} · ${s.name||""}`,`${s.contact||""}<br>${s.amount||""}<br>${s.body||""}<br>상태: ${s.status||""}`,`<button class="secondary" onclick="st('spiritualRequests','${s.id}','진행중')">진행중</button><button class="secondary" onclick="st('spiritualRequests','${s.id}','완료')">완료</button><button class="secondary" onclick="del('spiritualRequests','${s.id}')">삭제</button>`)).join("")||"<p>신청 내역이 없습니다.</p>";
+    const refunds=[...orders.filter(o=>String(o.status||"").includes("환불")||String(o.status||"").includes("취소")), ...bookings.filter(b=>String(b.status||"").includes("환불")||String(b.status||"").includes("취소"))];
+    if($("refundList")) $("refundList").innerHTML=refunds.map(x=>card(`${x.orderNo||x.type||"요청"} · ${x.name||""}`,`${x.contact||""}<br>상태: ${x.status||""}<br>사유: ${x.refundReason||x.cancelReason||"-"}`,`<button class="secondary" onclick="refundDone('${x.orderNo?'orders':'bookings'}','${x.id}')">환불완료</button><button class="secondary" onclick="refundReject('${x.orderNo?'orders':'bookings'}','${x.id}')">반려</button>`)).join("")||"<p>취소/환불 요청이 없습니다.</p>";
+    if($("allowedAdminList")) $("allowedAdminList").innerHTML=allowed.map(a=>card(a.email||"", "허용됨", `<button class="secondary" onclick="del('allowedAdmins','${a.id}')">삭제</button>`)).join("")||"<p>허용 관리자 이메일이 없습니다.</p>";
+  }catch(e){console.warn(e)}
+}
+window.refundDone=async(col,id)=>{await updateDoc(doc(db,col,id),{status:"환불완료",refundDoneAt:serverTimestamp()});await adminLog("환불 완료");load();loadOps();};
+window.refundReject=async(col,id)=>{await updateDoc(doc(db,col,id),{status:"환불반려",refundRejectedAt:serverTimestamp()});await adminLog("환불 반려");load();loadOps();};
+
+setTimeout(()=>{
+  $("saveRecord")?.addEventListener("click",async()=>{
+    const sel=$("recordMemberSelect"), opt=sel.options[sel.selectedIndex];
+    if(!sel.value)return alert("회원을 선택해 주세요.");
+    await addDoc(collection(db,"consultRecords"),{
+      memberUid:sel.value, memberEmail:opt.dataset.email, memberName:opt.dataset.name,
+      title:val("recordTitle"), date:val("recordDate"), memo:val("recordMemo"), nextDate:val("recordNextDate"),
+      createdAt:serverTimestamp()
+    });
+    await adminLog("상담 이력 저장"); alert("상담 이력이 회원 페이지에 반영되었습니다."); loadOps();
+  });
+  $("addSpiritualAdmin")?.addEventListener("click",async()=>{
+    await addDoc(collection(db,"spiritualRequests"),{
+      name:val("spAdminName"),contact:val("spAdminContact"),type:val("spAdminType"),amount:val("spAdminAmount"),body:val("spAdminBody"),
+      status:"관리자등록",createdAt:serverTimestamp()
+    });
+    await adminLog("부적/초발원 직접 등록"); alert("등록 완료"); loadOps();
+  });
+  $("addAllowedAdmin")?.addEventListener("click",async()=>{
+    if(!val("allowedAdminEmail")) return alert("이메일을 입력해 주세요.");
+    await addDoc(collection(db,"allowedAdmins"),{email:val("allowedAdminEmail"),createdAt:serverTimestamp()});
+    await adminLog("관리자 이메일 허용"); alert("허용 관리자 추가 완료"); loadOps();
+  });
+  loadOps();
+},900);
+setInterval(loadOps,4000);

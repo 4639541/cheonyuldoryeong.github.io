@@ -11,7 +11,7 @@ const money=v=>Number(String(v||"").replace(/[^\d]/g,""))||0;
 const won=n=>(Number(n)||0).toLocaleString()+"원";
 
 let state={
-  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[],
+  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[],
   payment:{name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청"},
   booking:{times:["오전 10시","오후 2시","오후 7시"],blockedDates:[]}
 };
@@ -62,6 +62,32 @@ function isBooked(date,time){
   return state.bookings.some(b=>b.date===date && b.time===time && !String(b.status||"").includes("취소"));
 }
 
+
+// ===== 4.6 operation complete additions =====
+async function submitSpiritual(){
+  if(!$("spName").value || !$("spContact").value) return alert("이름과 연락처를 입력해 주세요.");
+  await addDoc(collection(db,"spiritualRequests"),{
+    name:$("spName").value, contact:$("spContact").value, type:$("spType").value,
+    amount:$("spAmount").value, body:$("spBody").value,
+    memberUid:member?.uid||member?.id||"", memberEmail:member?.email||"",
+    status:"신청접수", createdAt:serverTimestamp()
+  });
+  alert("신청이 접수되었습니다.");
+}
+function renderConsultRecords(){
+  const box=$("myConsultRecords"); if(!box) return;
+  if(!member){box.innerHTML="<p>로그인 후 상담 이력을 확인할 수 있습니다.</p>"; return;}
+  const uid=member.uid||member.id;
+  const rows=(state.consultRecords||[]).filter(r=>r.memberUid===uid || r.memberEmail===member.email);
+  box.innerHTML=rows.length?rows.map(r=>`<article class="card"><h3>${esc(r.title||"상담 이력")}</h3><p>${esc(r.date||"")}</p><p>${esc(r.memo||"")}</p>${r.nextDate?`<p>재상담 예정: ${esc(r.nextDate)}</p>`:""}</article>`).join(""):"<p>등록된 상담 이력이 없습니다.</p>";
+}
+async function requestRefund(col,id){
+  const reason=prompt("환불/취소 사유를 입력해 주세요.");
+  if(reason===null)return;
+  await updateDoc(doc(db,col,id),{status:"환불요청",refundReason:reason,refundRequestedAt:serverTimestamp()});
+  alert("환불/취소 요청이 접수되었습니다.");
+}
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
@@ -92,6 +118,7 @@ function renderAll(){
   renderBenefits();
   renderMember();
   renderBusiness();
+  renderConsultRecords();
   saveCart();
 }
 function renderHome(){
@@ -199,9 +226,11 @@ function loadMyCoupons(){
 function loadHistory(){
   const uid=member.uid||member.id;
   const myO=state.orders.filter(o=>o.memberUid===uid||o.contact===member.contact), myB=state.bookings.filter(b=>b.memberUid===uid||b.contact===member.contact);
-  if($("myHistory"))$("myHistory").innerHTML=(myO.map(o=>`<div class="myCoupon"><b>${o.orderNo}</b><p>${o.total} / ${o.status}</p><button class="secondary cancelOrder" data-id="${o.id}">주문취소 요청</button></div>`).join("")+myB.map(b=>`<div class="myCoupon"><b>${b.type}</b><p>${b.date} ${b.time} / ${b.status}</p><button class="secondary cancelBook" data-id="${b.id}">상담취소 요청</button></div>`).join(""))||"<p>내역이 없습니다.</p>";
+  if($("myHistory"))$("myHistory").innerHTML=(myO.map(o=>`<div class="myCoupon"><b>${o.orderNo}</b><p>${o.total} / ${o.status}</p><button class="secondary cancelOrder" data-id="${o.id}">취소 요청</button><button class="secondary refundOrder" data-id="${o.id}">환불 요청</button></div>`).join("")+myB.map(b=>`<div class="myCoupon"><b>${b.type}</b><p>${b.date} ${b.time} / ${b.status}</p><button class="secondary cancelBook" data-id="${b.id}">상담취소 요청</button><button class="secondary refundBook" data-id="${b.id}">환불 요청</button></div>`).join(""))||"<p>내역이 없습니다.</p>";
   document.querySelectorAll(".cancelOrder").forEach(b=>b.onclick=()=>cancel("orders",b.dataset.id));
   document.querySelectorAll(".cancelBook").forEach(b=>b.onclick=()=>cancel("bookings",b.dataset.id));
+  document.querySelectorAll(".refundOrder").forEach(b=>b.onclick=()=>requestRefund("orders",b.dataset.id));
+  document.querySelectorAll(".refundBook").forEach(b=>b.onclick=()=>requestRefund("bookings",b.dataset.id));
 }
 async function cancel(col,id){let r=prompt("취소 사유");if(r===null)return;await updateDoc(doc(db,col,id),{status:"취소요청",cancelReason:r,updatedAt:serverTimestamp()});alert("취소 요청 완료")}
 function fill(){if(!member)return;[["orderName",member.name],["orderContact",member.contact],["bookName",member.name],["bookContact",member.contact]].forEach(([id,v])=>{if($(id)&&!$(id).value)$(id).value=v||""})}
@@ -214,11 +243,11 @@ function bind(){
   $("loginOpen").onclick=()=>member?go("mypage"):open("authModal");
   $("loginTab").onclick=()=>{$("loginTab").classList.add("on");$("joinTab").classList.remove("on");$("loginPanel").classList.remove("hide");$("joinPanel").classList.add("hide")};
   $("joinTab").onclick=()=>{$("joinTab").classList.add("on");$("loginTab").classList.remove("on");$("joinPanel").classList.remove("hide");$("loginPanel").classList.add("hide")};
-  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review;
+  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
 }
 function startSync(){
   if(started)return; started=true;
-  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members"};
+  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests"};
   Object.entries(map).forEach(([col,key])=>listen(col,key));
 }
 bind(); hydrate(); renderAll(); startSync(); recordVisit(); onAuthStateChanged(auth,loadMember);

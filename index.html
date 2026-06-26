@@ -6,7 +6,7 @@
 <title>천율도령 모바일</title>
 <meta name="theme-color" content="#050403">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=450">
+<link rel="stylesheet" href="mobile.css?v=460">
 </head>
 <body>
 <header class="appTop">
@@ -34,6 +34,7 @@
       <button data-go="mypage">🎫 내 쿠폰</button>
       <button data-go="benefits">💎 혜택</button>
       <button data-go="tracking">🚚 배송</button>
+      <button data-go="spiritualApply">🧧 부적/초발원</button>
     </div>
 
     <h2>오늘의 안내</h2>
@@ -105,6 +106,28 @@
     <div id="recentList" class="cards"></div>
   </section>
 
+  <section id="spiritualApply" class="page">
+    <h1>부적 · 초발원 신청</h1>
+    <div class="formCard">
+      <input id="spName" placeholder="이름/닉네임">
+      <input id="spContact" placeholder="연락처 또는 카카오톡 ID">
+      <select id="spType">
+        <option>부적 제작</option>
+        <option>초발원</option>
+        <option>기도 신청</option>
+        <option>기타 의뢰</option>
+      </select>
+      <input id="spAmount" placeholder="예상 금액 또는 상담 후 조율">
+      <textarea id="spBody" placeholder="신청 내용"></textarea>
+      <button id="spSubmit" class="primary" type="button">신청하기</button>
+    </div>
+  </section>
+
+  <section id="records" class="page">
+    <h1>상담 이력</h1>
+    <div id="myConsultRecords" class="cards"></div>
+  </section>
+
   <section id="reviews" class="page">
     <h1>후기</h1>
     <button id="reviewOpen" class="primary" type="button">후기 작성</button>
@@ -123,6 +146,7 @@
   <button data-go="shop">상품</button>
   <button data-go="reviews">후기</button>
   <button data-go="benefits">혜택</button>
+  <button data-go="records">이력</button>
   <button data-go="mypage">마이</button>
 </nav>
 
@@ -182,6 +206,6 @@
   </div>
 </div>
 
-<script type="module" src="mobile.js?v=450"></script>
+<script type="module" src="mobile.js?v=460"></script>
 </body>
 </html>

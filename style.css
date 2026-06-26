@@ -84,3 +84,85 @@ footer .inner{text-align:center}footer h3{color:#e6ba60;margin:0 0 10px}footer p
   z-index:999;
   pointer-events:auto!important;
 }
+
+/* 5.1 payment and coupon complete */
+.payBox,.pay{
+  overflow:visible!important;
+}
+#paymentInfo{
+  display:grid!important;
+  gap:14px!important;
+}
+.payCard{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  padding:18px!important;
+  border:1px solid rgba(230,186,96,.28)!important;
+  border-radius:20px!important;
+  background:#070504!important;
+}
+.payCard h4{
+  margin:0!important;
+  color:#fff3d8!important;
+  font-size:20px!important;
+}
+.payCard p{
+  margin:0!important;
+}
+.payCard strong{
+  display:block!important;
+  font-size:22px!important;
+  color:#fff3d8!important;
+  word-break:break-all!important;
+}
+.payButtons{
+  display:grid!important;
+  gap:8px!important;
+}
+.payBtn,.payCopyBtn,#couponBtn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:52px!important;
+  position:relative!important;
+  z-index:9999!important;
+  pointer-events:auto!important;
+  margin:0!important;
+}
+.cartItem{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  border:1px solid rgba(230,186,96,.22)!important;
+  border-radius:16px!important;
+  padding:12px!important;
+  margin:8px 0!important;
+}
+.cartItem p{margin:4px 0 0!important}
+.totalLine{
+  display:flex!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  padding:8px 0!important;
+  border-bottom:1px solid rgba(230,186,96,.14)!important;
+}
+.totalLine.final{
+  font-size:22px!important;
+  color:#e6ba60!important;
+  border-bottom:0!important;
+}
+.couponOk{
+  color:#e6ba60!important;
+  font-weight:900!important;
+}
+.couponTitle{
+  margin:18px 0 6px!important;
+  color:#e6ba60!important;
+}
+@media(max-width:700px){
+  .cartItem{align-items:flex-start!important;flex-direction:column!important}
+  .cartItem .btn{width:100%!important}
+}

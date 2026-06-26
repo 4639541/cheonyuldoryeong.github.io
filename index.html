@@ -6,7 +6,7 @@
 <title>천율도령 공식 신점 상담</title>
 <meta property="og:title" content="천율도령 공식 신점 상담">
 <meta property="og:description" content="신점 상담·상품 구매·예약·회원 쿠폰">
-<link rel="stylesheet" href="style.css?v=600">
+<link rel="stylesheet" href="style.css?v=610">
 </head>
 <body>
 <header class="top">
@@ -84,19 +84,19 @@
 
 <div id="memberModal" class="modal">
   <div class="box">
-    <button class="x" id="memberClose" type="button">×</button><h2>회원</h2>
+    <button class="x" id="memberClose" type="button" aria-label="닫기">×</button><h2>회원</h2>
     <div id="guestPanels">
       <div class="tabs"><button id="loginTab" class="active" type="button">로그인</button><button id="signupTab" type="button">회원가입</button></div>
       <div id="loginPanel"><input id="loginEmail" type="email" placeholder="이메일"><input id="loginPw" type="password" placeholder="비밀번호"><button id="loginBtn" class="btn gold full" type="button">로그인</button></div>
       <div id="signupPanel" class="hide"><input id="signupName" placeholder="이름/닉네임"><input id="signupContact" placeholder="연락처/카카오톡 ID"><input id="signupEmail" type="email" placeholder="이메일"><input id="signupPw" type="password" placeholder="비밀번호 6자리 이상"><button id="signupBtn" class="btn gold full" type="button">회원가입</button></div>
     </div>
-    <div id="memberPanel" class="hide"><h3>내 정보</h3><p id="memberInfo"></p><h3>내 쿠폰</h3><div id="myCoupons"></div><button id="logoutBtn" class="btn line full" type="button">로그아웃</button></div>
+    <div id="memberPanel" class="hide"><h3>내 정보</h3><p id="memberInfo"></p><h3>내 쿠폰</h3><div id="myCoupons"></div><h3>내 주문/예약</h3><div id="myHistory"></div><button id="logoutBtn" class="btn line full" type="button">로그아웃</button></div>
   </div>
 </div>
 
 <div id="cartModal" class="modal">
   <div class="box payBox">
-    <button class="x" id="cartClose" type="button">×</button><h2>주문 · 결제</h2>
+    <button class="x" id="cartClose" type="button" aria-label="닫기">×</button><h2>주문 · 결제</h2>
     <section class="paySection"><h3>선택 상품/상담</h3><div id="cartItems"></div></section>
     <section class="paySection"><h3>결제 안내</h3><div id="paymentInfo"></div></section>
     <section class="paySection"><h3>쿠폰 등록</h3><div class="couponRow"><input id="couponInput" placeholder="쿠폰 코드"><button id="couponApply" class="btn gold" type="button">쿠폰 적용</button></div><p id="couponText" class="hint">적용된 쿠폰이 없습니다.</p></section>
@@ -105,8 +105,8 @@
   </div>
 </div>
 
-<div id="reviewModal" class="modal"><div class="box"><button class="x" id="reviewClose" type="button">×</button><h2>후기 남기기</h2><input id="reviewName" placeholder="이름"><input id="reviewCategory" placeholder="분야"><select id="reviewStars"><option>★★★★★</option><option>★★★★☆</option><option>★★★☆☆</option></select><input id="reviewImages" type="file" accept="image/*" multiple><textarea id="reviewBody" placeholder="후기 내용"></textarea><button id="reviewSubmit" class="btn gold full" type="button">후기 등록 요청</button></div></div>
+<div id="reviewModal" class="modal"><div class="box"><button class="x" id="reviewClose" type="button" aria-label="닫기">×</button><h2>후기 남기기</h2><input id="reviewName" placeholder="이름"><input id="reviewCategory" placeholder="분야"><select id="reviewStars"><option>★★★★★</option><option>★★★★☆</option><option>★★★☆☆</option></select><input id="reviewImages" type="file" accept="image/*" multiple><textarea id="reviewBody" placeholder="후기 내용"></textarea><button id="reviewSubmit" class="btn gold full" type="button">후기 등록 요청</button></div></div>
 
 <footer><div class="wrap business"><h3 id="bizFooterName">천율도령 공식 신점 상담</h3><p>상호 : <span id="bizName">천율도령</span></p><p>대표자 : <span id="bizOwner">정세진</span></p><p>사업자등록번호 : <span id="bizNumber">570-76-00713</span></p><p>주소 : <span id="bizAddress">경상북도 구미시 상모로12길 49, 101동 102호</span></p><p>업태 : <span id="bizType">협회 및 단체, 수리 및 기타 개인서비스업</span></p><p>종목 : <span id="bizItem">점술 및 유사 서비스업</span></p><p>고객문의 : <span id="bizContact">카카오톡 오픈프로필 '천율도령'</span></p><p>통신판매업신고 : <span id="bizMailOrder">신고 예정</span></p></div></footer>
-<script type="module" src="app.js?v=600"></script>
+<script type="module" src="app.js?v=610"></script>
 </body></html>

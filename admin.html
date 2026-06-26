@@ -1,10 +1,10 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천율도령 관리자</title><link rel="stylesheet" href="style.css?v=600"></head>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천율도령 관리자</title><link rel="stylesheet" href="style.css?v=610"></head>
 <body><header class="top"><div class="wrap nav"><a class="logo" href="admin.html">천율도령 관리자</a><a class="btn line small" href="index.html">홈</a></div></header>
 <main class="section wrap admin">
 <section id="loginBox" class="form"><p class="tag">ADMIN</p><h1>관리자 로그인</h1><input id="adminEmail" type="email" placeholder="관리자 이메일"><input id="adminPw" type="password" placeholder="비밀번호"><button id="adminLogin" class="btn gold full" type="button">로그인</button><p id="adminErr" class="hint"></p></section>
 <section id="adminPanel" class="hide">
 <div class="adminHead"><div><p class="tag">DASHBOARD</p><h1>모바일 관리자</h1></div><button id="adminLogout" class="btn line" type="button">로그아웃</button></div>
-<nav class="adminTabs"><a href="#dash">대시보드</a><a href="#orders">주문</a><a href="#bookings">예약</a><a href="#members">회원</a><a href="#memberCoupon">회원쿠폰</a><a href="#coupons">쿠폰</a><a href="#products">상품</a><a href="#settings">설정</a></nav>
+<nav class="adminTabs"><a href="#dash">대시보드</a><a href="#orders">주문</a><a href="#cancelManage">취소관리</a><a href="#bookings">예약</a><a href="#members">회원</a><a href="#memberCoupon">회원쿠폰</a><a href="#coupons">쿠폰</a><a href="#products">상품</a><a href="#settings">설정</a></nav>
 <section id="dash" class="stats"><article><b id="statOrders">0</b><span>주문</span></article><article><b id="statBookings">0</b><span>예약</span></article><article><b id="statMembers">0</b><span>회원</span></article><article><b id="statSales">0원</b><span>매출</span></article></section>
 
 <section id="settings" class="block"><h2>사업자 정보</h2><div class="form"><input id="bizNameAdmin" placeholder="상호"><input id="bizOwnerAdmin" placeholder="대표자"><input id="bizNumberAdmin" placeholder="사업자등록번호"><input id="bizAddressAdmin" placeholder="주소"><input id="bizTypeAdmin" placeholder="업태"><input id="bizItemAdmin" placeholder="종목"><input id="bizContactAdmin" placeholder="고객문의"><input id="bizMailOrderAdmin" placeholder="통신판매업신고"><button id="saveBiz" class="btn gold full" type="button">사업자 정보 저장</button></div>
@@ -20,9 +20,16 @@
 <section id="members" class="block"><h2>회원 관리</h2><div id="memberList" class="list"></div></section>
 <section id="memberCoupon" class="block"><h2>회원별 쿠폰 발급</h2><div class="form"><select id="memberSelect"><option value="">회원 선택</option></select><input id="mCouponCode" placeholder="쿠폰 코드 비우면 자동"><input id="mCouponDiscount" placeholder="할인금액"><input id="mCouponDesc" placeholder="설명"><button id="issueMemberCoupon" class="btn gold full" type="button">선택 회원에게 쿠폰 발급</button></div><div id="memberCouponList" class="list"></div></section>
 
+
+<section id="cancelManage" class="block">
+  <h2>취소 관리</h2>
+  <p class="hint">상품 주문 취소, 상담 예약 취소를 한 곳에서 관리합니다.</p>
+  <div id="cancelList" class="list"></div>
+</section>
+
 <section id="orders" class="block"><h2>주문 관리</h2><div id="orderList" class="list"></div></section>
 <section id="bookings" class="block"><h2>예약 관리</h2><div id="bookingList" class="list"></div></section>
 <section class="block"><h2>공지</h2><div class="form"><input id="noticeTag" placeholder="태그"><input id="noticeTitle" placeholder="제목"><textarea id="noticeBody" placeholder="내용"></textarea><button id="addNotice" class="btn gold full" type="button">공지 등록</button></div><div id="noticeAdminList" class="list"></div></section>
 <section class="block"><h2>게시판</h2><div class="form"><input id="postTitle" placeholder="제목"><input id="postImages" type="file" accept="image/*" multiple><textarea id="postBody" placeholder="내용"></textarea><button id="addPost" class="btn gold full" type="button">게시글 등록</button></div><div id="postAdminList" class="list"></div></section>
 <section class="block"><h2>후기</h2><h3>승인 대기</h3><div id="pendingReviews" class="list"></div><h3>공개 후기</h3><div id="approvedReviews" class="list"></div></section>
-</section></main><script type="module" src="admin.js?v=600"></script></body></html>
+</section></main><script type="module" src="admin.js?v=610"></script></body></html>

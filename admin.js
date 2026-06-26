@@ -8,7 +8,32 @@ const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app)
 const $=id=>document.getElementById(id); const val=id=>($(id)?.value||"").trim(); const setVal=(id,v="")=>{if($(id))$(id).value=v};
 function bind(id,fn){$(id)?.addEventListener("click",async e=>{e.preventDefault();try{await fn()}catch(err){console.error(err);alert("오류: "+(err.message||err))}})}
 async function list(col){const s=await getDocs(collection(db,col));return s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0))}
-async function uploadFiles(files,folder){const urls=[];for(const f of Array.from(files||[])){const r=ref(storage,`${folder}/${Date.now()}_${f.name}`);await uploadBytes(r,f);urls.push(await getDownloadURL(r))}return urls}
+async function optimizeImage(file,max=1600,quality=.82){
+  if(!file || !file.type.startsWith("image/")) return file;
+  const img = await new Promise((resolve,reject)=>{
+    const i = new Image();
+    i.onload=()=>resolve(i);
+    i.onerror=reject;
+    i.src=URL.createObjectURL(file);
+  });
+  const scale = Math.min(1, max / Math.max(img.width,img.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(img.width * scale);
+  canvas.height = Math.round(img.height * scale);
+  canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+  const blob = await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",quality));
+  return new File([blob], file.name.replace(/\.[^.]+$/,"") + ".jpg", {type:"image/jpeg"});
+}
+async function uploadFiles(files,folder){
+  const urls=[];
+  for(const f of Array.from(files||[])){
+    const file=await optimizeImage(f);
+    const r=ref(storage,`${folder}/${Date.now()}_${file.name}`);
+    await uploadBytes(r,file);
+    urls.push(await getDownloadURL(r));
+  }
+  return urls;
+}
 function gallery(x){const a=x.images||(x.image?[x.image]:[]);return a.length?`<div class="multiThumbs">${a.map(i=>`<img src="${i}">`).join("")}</div>`:""}
 
 bind("loginBtn",async()=>{try{await signInWithEmailAndPassword(auth,val("adminEmail"),val("adminPassword"))}catch(e){$("loginError").innerHTML=`<p class="hint">로그인 실패</p>`}});

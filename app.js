@@ -119,7 +119,10 @@ async function submitOrder(){
 async function decreaseStock(){
   for(const item of cart){
     const p=products.find(x=>x.id===item.id); const n=parseInt(String(p?.stock||"").replace(/[^\d]/g,""),10);
-    if(Number.isFinite(n))try{await updateDoc(doc(db,"products",p.id),{stock:Math.max(0,n-item.qty)||"품절"})}catch(e){}
+    if(Number.isFinite(n))try{
+      const next = Math.max(0,n-item.qty);
+      await updateDoc(doc(db,"products",p.id),{stock: next<=0 ? "품절" : `${next}개`});
+    }catch(e){}
   }
 }
 async function getTimes(){const s=await list("settings",[]);return s.find(x=>x.id==="bookingTimes")?.times||["오전","오후","저녁","상담 후 조율"]}
@@ -128,8 +131,31 @@ async function submitBooking(){
   await addDoc(collection(db,"bookings"),{name:$("bookName").value,contact:$("bookContact").value,type:$("bookType").value,date:$("bookDate").value,time:$("bookTime").value,body:$("bookBody").value,status:"대기",createdAt:serverTimestamp()});
   alert("예약 신청이 접수되었습니다.");
 }
+async function optimizeImage(file,max=1600,quality=.82){
+  if(!file || !file.type.startsWith("image/")) return file;
+  const img = await new Promise((resolve,reject)=>{
+    const i = new Image();
+    i.onload=()=>resolve(i);
+    i.onerror=reject;
+    i.src=URL.createObjectURL(file);
+  });
+  const scale = Math.min(1, max / Math.max(img.width,img.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(img.width * scale);
+  canvas.height = Math.round(img.height * scale);
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  const blob = await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",quality));
+  return new File([blob], file.name.replace(/\.[^.]+$/,"") + ".jpg", {type:"image/jpeg"});
+}
 async function uploadFiles(fileList,folder){
-  const urls=[]; for(const f of Array.from(fileList||[])){const r=ref(storage,`${folder}/${Date.now()}_${f.name}`);await uploadBytes(r,f);urls.push(await getDownloadURL(r))}
+  const urls=[];
+  for(const f of Array.from(fileList||[])){
+    const file = await optimizeImage(f);
+    const r=ref(storage,`${folder}/${Date.now()}_${file.name}`);
+    await uploadBytes(r,file);
+    urls.push(await getDownloadURL(r));
+  }
   return urls;
 }
 async function submitReview(){

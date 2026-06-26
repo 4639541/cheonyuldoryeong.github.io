@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>천율도령 모바일 관리자</title>
-  <link rel="stylesheet" href="style.css?v=350">
+  <link rel="stylesheet" href="style.css?v=470">
 </head>
 <body>
 <header class="top">
@@ -49,19 +49,21 @@
     <section id="settings" class="block">
 
       <h2>사업자 정보 설정</h2>
-      <div class="form">
-        <input id="bizNameAdmin" placeholder="상호 예: 천율도령">
-        <input id="bizOwnerAdmin" placeholder="대표자 예: 정세진">
-        <input id="bizNumberAdmin" placeholder="사업자등록번호 예: 570-76-00713">
-        <input id="bizAddressAdmin" placeholder="사업장 주소">
-        <input id="bizTypeAdmin" placeholder="업태">
-        <input id="bizItemAdmin" placeholder="종목">
-        <input id="bizContactAdmin" placeholder="고객문의">
-        <input id="bizMailOrderAdmin" placeholder="통신판매업신고번호">
+      <div class="form businessAdminForm">
+        <input id="bizNameAdmin" placeholder="상호" value="천율도령">
+        <input id="bizOwnerAdmin" placeholder="대표자" value="정세진">
+        <input id="bizNumberAdmin" placeholder="사업자등록번호" value="570-76-00713">
+        <input id="bizAddressAdmin" placeholder="사업장 주소" value="경상북도 구미시 상모로12길 49, 101동 102호">
+        <input id="bizTypeAdmin" placeholder="업태" value="협회 및 단체, 수리 및 기타 개인서비스업">
+        <input id="bizItemAdmin" placeholder="종목" value="점술 및 유사 서비스업">
+        <input id="bizContactAdmin" placeholder="고객문의" value="카카오톡 오픈프로필 '천율도령'">
+        <input id="bizMailOrderAdmin" placeholder="통신판매업신고번호" value="신고 예정">
         <input id="bizEmailAdmin" placeholder="이메일 선택 입력">
         <input id="bizKakaoAdmin" placeholder="카카오톡 문의 링크 선택 입력">
         <button class="btn gold full" id="saveBusinessBtn" type="button">사업자 정보 저장</button>
+        <p class="hint">저장 후 홈페이지를 새로고침하면 하단 사업자 정보에 반영됩니다.</p>
       </div>
+
 
 
 
@@ -169,6 +171,6 @@
     </section>
   </section>
 </main>
-<script type="module" src="admin.js?v=350"></script>
+<script type="module" src="admin.js?v=470"></script>
 </body>
 </html>

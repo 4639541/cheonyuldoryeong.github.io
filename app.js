@@ -270,6 +270,13 @@ async function submitReview(){
   alert("후기 등록 요청이 완료되었습니다.");
 }
 
+
+
+
+
+init();
+
+
 async function loadBusinessInfo(){
   try{
     const settings = await list("settings", []);
@@ -285,12 +292,12 @@ async function loadBusinessInfo(){
       bizContact: biz.contact || "카카오톡 오픈프로필 '천율도령'",
       bizMailOrder: biz.mailOrder || "신고 예정"
     };
-    Object.entries(data).forEach(([id,value])=>{
+    for(const [id,value] of Object.entries(data)){
       const el = document.getElementById(id);
       if(el) el.textContent = value;
-    });
+    }
   }catch(e){
-    console.warn("business info load failed", e);
+    console.warn("사업자 정보 불러오기 실패", e);
   }
 }
 
@@ -315,4 +322,7 @@ async function trackOrder(){
   </div>`;
 }
 
-init();
+setTimeout(()=>{
+  loadBusinessInfo();
+  document.getElementById("trackBtn")?.addEventListener("click", trackOrder);
+}, 300);

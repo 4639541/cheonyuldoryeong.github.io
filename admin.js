@@ -108,24 +108,7 @@ bind("saveBusinessBtn",saveBusiness);
 
 
 bind("saveBusinessBtn", window.saveBusiness);
-window.saveBusiness = async ()=>{
-  await setDoc(doc(db,"settings","business"),{
-    footerName:"천율도령 공식 신점 상담",
-    name:val("bizNameAdmin") || "천율도령",
-    owner:val("bizOwnerAdmin") || "정세진",
-    number:val("bizNumberAdmin") || "570-76-00713",
-    address:val("bizAddressAdmin") || "경상북도 구미시 상모로12길 49, 101동 102호",
-    type:val("bizTypeAdmin") || "협회 및 단체, 수리 및 기타 개인서비스업",
-    item:val("bizItemAdmin") || "점술 및 유사 서비스업",
-    contact:val("bizContactAdmin") || "카카오톡 오픈프로필 '천율도령'",
-    mailOrder:val("bizMailOrderAdmin") || "신고 예정",
-    email:val("bizEmailAdmin"),
-    kakao:val("bizKakaoAdmin"),
-    updatedAt:serverTimestamp()
-  },{merge:true});
-  alert("사업자 정보가 저장되었습니다.");
-  await loadSettings();
-};
+
 
 bind("saveBusinessBtn", window.saveBusiness);
 bind("savePaymentBtn",async()=>{
@@ -250,3 +233,51 @@ window.copyMsg=async(no,name,total)=>{
   await navigator.clipboard.writeText(`[천율도령 공식 신점 상담]\n${name}님 주문번호 ${no} 접수되었습니다.\n금액: ${total}\n입금 확인 후 진행됩니다.`);
   alert("문자/카카오톡 문구가 복사되었습니다.");
 };
+
+
+window.saveBusiness = async ()=>{
+  try{
+    await setDoc(doc(db,"settings","business"),{
+      footerName:"천율도령 공식 신점 상담",
+      name:val("bizNameAdmin") || "천율도령",
+      owner:val("bizOwnerAdmin") || "정세진",
+      number:val("bizNumberAdmin") || "570-76-00713",
+      address:val("bizAddressAdmin") || "경상북도 구미시 상모로12길 49, 101동 102호",
+      type:val("bizTypeAdmin") || "협회 및 단체, 수리 및 기타 개인서비스업",
+      item:val("bizItemAdmin") || "점술 및 유사 서비스업",
+      contact:val("bizContactAdmin") || "카카오톡 오픈프로필 '천율도령'",
+      mailOrder:val("bizMailOrderAdmin") || "신고 예정",
+      email:val("bizEmailAdmin"),
+      kakao:val("bizKakaoAdmin"),
+      updatedAt:serverTimestamp()
+    },{merge:true});
+    alert("사업자 정보가 저장되었습니다.");
+    await loadBusinessFinal();
+  }catch(e){
+    alert("사업자 정보 저장 실패: " + e.message);
+  }
+};
+
+async function loadBusinessFinal(){
+  try{
+    const settings = await list("settings");
+    const biz = settings.find(x=>x.id==="business") || {};
+    setVal("bizNameAdmin", biz.name || "천율도령");
+    setVal("bizOwnerAdmin", biz.owner || "정세진");
+    setVal("bizNumberAdmin", biz.number || "570-76-00713");
+    setVal("bizAddressAdmin", biz.address || "경상북도 구미시 상모로12길 49, 101동 102호");
+    setVal("bizTypeAdmin", biz.type || "협회 및 단체, 수리 및 기타 개인서비스업");
+    setVal("bizItemAdmin", biz.item || "점술 및 유사 서비스업");
+    setVal("bizContactAdmin", biz.contact || "카카오톡 오픈프로필 '천율도령'");
+    setVal("bizMailOrderAdmin", biz.mailOrder || "신고 예정");
+    setVal("bizEmailAdmin", biz.email || "");
+    setVal("bizKakaoAdmin", biz.kakao || "");
+  }catch(e){
+    console.warn("사업자 정보 로딩 실패", e);
+  }
+}
+
+setTimeout(()=>{
+  document.getElementById("saveBusinessBtn")?.addEventListener("click", window.saveBusiness);
+  loadBusinessFinal();
+}, 500);

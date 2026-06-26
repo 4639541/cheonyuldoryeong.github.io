@@ -8,17 +8,17 @@ async function list(c){let s=await getDocs(collection(db,c));return s.docs.map(d
 async function upload(fs,folder){let u=[];for(let f of Array.from(fs||[])){let r=ref(storage,`${folder}/${Date.now()}_${f.name}`);await uploadBytes(r,f);u.push(await getDownloadURL(r))}return u}
 function code(){return"CY-"+Math.random().toString(36).slice(2,8).toUpperCase()}function card(t,b,a=""){return`<div class="card"><h3>${t}</h3><p>${b||""}</p>${a}</div>`}
 function goTab(id){document.querySelectorAll(".adminTab").forEach(x=>x.classList.add("hide"));$(id).classList.remove("hide")}
-async function load(){let [orders,bookings,members,coupons,products,prices,settings]=await Promise.all(["orders","bookings","members","coupons","products","consultPrices","settings"].map(list));$("statOrders").textContent=orders.length;$("statBookings").textContent=bookings.length;$("statMembers").textContent=members.length;$("statSales").textContent=orders.reduce((s,o)=>s+money(o.total),0).toLocaleString()+"원";$("memberSelect").innerHTML=`<option value="">공용 쿠폰</option>`+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");$("orderList").innerHTML=orders.map(o=>card(o.orderNo||o.id,`${o.name||""}<br>${o.total||""}<br>${o.status||""}`,`<button class="secondary" onclick="st('orders','${o.id}','입금완료')">입금완료</button><button class="secondary" onclick="tr('${o.id}')">배송입력</button><button class="secondary" onclick="st('orders','${o.id}','취소완료')">취소</button>`)).join("");$("bookingList").innerHTML=bookings.map(b=>card(b.name||"",`${b.type||""}<br>${b.date||""} ${b.time||""}<br>${b.status||""}`,`<button class="secondary" onclick="st('bookings','${b.id}','확정')">확정</button><button class="secondary" onclick="st('bookings','${b.id}','취소완료')">취소</button>`)).join("");$("memberList").innerHTML=members.map(m=>card(m.name||"회원",`${m.email||""}<br>${m.contact||""}`)).join("");$("couponList").innerHTML=coupons.map(c=>card(c.code,`${c.discount}원<br>${c.memberName||"공용"}<br>${c.used?"사용완료":"사용가능"}`)).join("");$("productListAdmin").innerHTML=products.map(p=>card(p.name,`${p.price}<br>${p.stock||""}`,`<button class="secondary" onclick="del('products','${p.id}')">삭제</button>`)).join("");$("priceListAdmin").innerHTML=prices.map(p=>card(p.title,`${p.price}<br>${p.desc||""}`,`<button class="secondary" onclick="del('consultPrices','${p.id}')">삭제</button>`)).join("");let pay=settings.find(s=>s.id=="payment")||{},time=settings.find(s=>s.id=="bookingTimes")||{};$("payAccount").value=pay.account||"";$("payLink").value=pay.link||"";$("bankName").value=pay.bankName||"";$("bankOwner").value=pay.bankOwner||"";$("bankAccount").value=pay.bankAccount||"";$("payGuide").value=pay.guide||"";$("timeInput").value=(time.times||[]).join("\n");$("blockInput").value=(time.blockedDates||[]).join("\n")}
+async function load(){let [orders,bookings,members,coupons,products,prices,settings]=await Promise.all(["orders","bookings","members","coupons","products","consultPrices","settings","banners","benefits"].map(list));$("statOrders").textContent=orders.length;$("statBookings").textContent=bookings.length;$("statMembers").textContent=members.length;$("statSales").textContent=orders.reduce((s,o)=>s+money(o.total),0).toLocaleString()+"원";$("memberSelect").innerHTML=`<option value="">공용 쿠폰</option>`+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");$("orderList").innerHTML=orders.map(o=>card(o.orderNo||o.id,`${o.name||""}<br>${o.total||""}<br>${o.status||""}`,`<button class="secondary" onclick="st('orders','${o.id}','입금완료')">입금완료</button><button class="secondary" onclick="tr('${o.id}')">배송입력</button><button class="secondary" onclick="st('orders','${o.id}','취소완료')">취소</button>`)).join("");$("bookingList").innerHTML=bookings.map(b=>card(b.name||"",`${b.type||""}<br>${b.date||""} ${b.time||""}<br>${b.status||""}`,`<button class="secondary" onclick="st('bookings','${b.id}','확정')">확정</button><button class="secondary" onclick="st('bookings','${b.id}','취소완료')">취소</button>`)).join("");$("memberList").innerHTML=members.map(m=>card(m.name||"회원",`${m.email||""}<br>${m.contact||""}`)).join("");$("couponList").innerHTML=coupons.map(c=>card(c.code,`${c.discount}원<br>${c.memberName||"공용"}<br>${c.used?"사용완료":"사용가능"}`)).join("");$("productListAdmin").innerHTML=products.map(p=>card(p.name,`${p.price}<br>${p.stock||""}`,`<button class="secondary" onclick="del('products','${p.id}')">삭제</button>`)).join("");$("priceListAdmin").innerHTML=prices.map(p=>card(p.title,`${p.price}<br>${p.desc||""}`,`<button class="secondary" onclick="del('consultPrices','${p.id}')">삭제</button>`)).join("");let pay=settings.find(s=>s.id=="payment")||{},time=settings.find(s=>s.id=="bookingTimes")||{};$("payAccount").value=pay.account||"";$("payLink").value=pay.link||"";$("bankName").value=pay.bankName||"";$("bankOwner").value=pay.bankOwner||"";$("bankAccount").value=pay.bankAccount||"";$("payGuide").value=pay.guide||"";$("timeInput").value=(time.times||[]).join("\n");$("blockInput").value=(time.blockedDates||[]).join("\n")}
 async function bind(){document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>goTab(b.dataset.tab));$("adminLogin").onclick=()=>signInWithEmailAndPassword(auth,val("adminEmail"),val("adminPw")).catch(e=>alert("로그인 실패"));$("adminLogout").onclick=()=>signOut(auth);$("addCoupon").onclick=async()=>{let sel=$("memberSelect"),uid=sel.value,opt=sel.options[sel.selectedIndex];await addDoc(collection(db,"coupons"),{code:(val("couponCode")||code()).toUpperCase(),discount:val("couponDiscount"),desc:val("couponDesc"),used:false,memberUid:uid||"",memberEmail:opt?.dataset.email||"",memberName:opt?.dataset.name||"",createdAt:serverTimestamp()});adminLog("쿠폰 발급");load()};$("addProduct").onclick=async()=>{let imgs=await upload($("pImages").files,"products");await addDoc(collection(db,"products"),{name:val("pName"),price:val("pPrice"),stock:val("pStock"),desc:val("pDesc"),images:imgs,createdAt:serverTimestamp()});adminLog("상품 등록");load()};$("addPrice").onclick=async()=>{await addDoc(collection(db,"consultPrices"),{title:val("priceTitle"),price:val("priceAmount"),desc:val("priceDesc"),createdAt:serverTimestamp()});adminLog("상담가격 등록");load()};$("savePay").onclick=()=>setDoc(doc(db,"settings","payment"),{account:val("payAccount"),link:val("payLink"),bankName:val("bankName"),bankOwner:val("bankOwner"),bankAccount:val("bankAccount"),guide:val("payGuide"),updatedAt:serverTimestamp()},{merge:true}).then(()=>adminLog("설정 저장");alert("저장 완료"));$("saveBooking").onclick=()=>setDoc(doc(db,"settings","bookingTimes"),{times:val("timeInput").split("\n").map(x=>x.trim()).filter(Boolean),blockedDates:val("blockInput").split("\n").map(x=>x.trim()).filter(Boolean),updatedAt:serverTimestamp()},{merge:true}).then(()=>adminLog("설정 저장");alert("저장 완료"))}
 window.st=async(c,id,s)=>{await updateDoc(doc(db,c,id),{status:s,updatedAt:serverTimestamp()});load()};window.tr=async(id)=>{let trackingCompany=prompt("택배사"),trackingNo=prompt("송장번호");await updateDoc(doc(db,"orders",id),{trackingCompany,trackingNo,status:"배송중"});load()};window.del=async(c,id)=>{if(confirm("삭제?")){await deleteDoc(doc(db,c,id));load()}};
-onAuthStateChanged(auth,u=>{$("adminLoginBox").classList.toggle("hide",!!u);$("adminPanel").classList.toggle("hide",!u);if(u)load()});["orders","bookings","members","coupons","products","consultPrices","settings"].forEach(c=>onSnapshot(collection(db,c),()=>{if(!$("adminPanel").classList.contains("hide"))load()}));bind();
+onAuthStateChanged(auth,u=>{$("adminLoginBox").classList.toggle("hide",!!u);$("adminPanel").classList.toggle("hide",!u);if(u)load()});["orders","bookings","members","coupons","products","consultPrices","settings","banners","benefits"].forEach(c=>onSnapshot(collection(db,c),()=>{if(!$("adminPanel").classList.contains("hide"))load()}));bind();
 // ===== Admin Mobile 4.0 Plus =====
 async function adminLog(action){
   try{await addDoc(collection(db,"adminLogs"),{action,createdAt:serverTimestamp()});}catch(e){}
 }
 async function loadPlus(){
   try{
-    const [visits,orders,bookings,coupons,logs,banners] = await Promise.all(["visits","orders","bookings","coupons","adminLogs","banners"].map(list));
+    const [visits,orders,bookings,coupons,logs,banners,benefits] = await Promise.all(["visits","orders","bookings","coupons","adminLogs","banners","benefits"].map(list));
     const today = new Date().toISOString().slice(0,10);
     if($("statVisits")) $("statVisits").textContent = visits.length;
     if($("statTodayOrders")) $("statTodayOrders").textContent = orders.filter(o=>String(o.createdAt?.toDate?.()||"").includes(today) || o.orderNo?.includes(today.slice(2).replaceAll("-",""))).length;
@@ -34,3 +34,39 @@ setTimeout(loadPlus,1000);
 setTimeout(()=>{
   if($("saveBanner")) $("saveBanner").onclick=async()=>{await addDoc(collection(db,"banners"),{title:val("bannerTitle"),body:val("bannerBody"),createdAt:serverTimestamp()});await adminLog("공지 팝업 저장");loadPlus();alert("팝업 저장 완료")};
 },500);
+
+
+async function loadHomeManage(){
+  try{
+    const [banners, benefits] = await Promise.all([list("banners"), list("benefits")]);
+    const box = $("homeManageList");
+    if(box){
+      box.innerHTML = `
+        <h2>등록된 홈 배너</h2>
+        ${banners.length ? banners.map(b=>card(b.title||"배너", b.body||"", `<button class="secondary" onclick="del('banners','${b.id}')">삭제</button>`)).join("") : "<p>등록된 홈 배너가 없습니다.</p>"}
+        <h2>등록된 회원 혜택</h2>
+        ${benefits.length ? benefits.map(b=>card(b.title||"혜택", b.body||"", `<button class="secondary" onclick="del('benefits','${b.id}')">삭제</button>`)).join("") : "<p>등록된 혜택이 없습니다.</p>"}
+      `;
+    }
+  }catch(e){}
+}
+setTimeout(()=>{
+  if($("addHomeBanner")){
+    $("addHomeBanner").onclick = async()=>{
+      await addDoc(collection(db,"banners"),{title:val("homeBannerTitle"),body:val("homeBannerBody"),createdAt:serverTimestamp()});
+      if(typeof adminLog === "function") await adminLog("홈 배너 등록");
+      $("homeBannerTitle").value=""; $("homeBannerBody").value="";
+      loadHomeManage(); alert("홈 배너가 홈페이지에 반영되었습니다.");
+    };
+  }
+  if($("addBenefit")){
+    $("addBenefit").onclick = async()=>{
+      await addDoc(collection(db,"benefits"),{title:val("benefitTitle"),body:val("benefitBody"),createdAt:serverTimestamp()});
+      if(typeof adminLog === "function") await adminLog("회원 혜택 등록");
+      $("benefitTitle").value=""; $("benefitBody").value="";
+      loadHomeManage(); alert("회원 혜택이 홈페이지에 반영되었습니다.");
+    };
+  }
+  loadHomeManage();
+},700);
+setInterval(loadHomeManage,4000);

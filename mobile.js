@@ -10,7 +10,7 @@ async function list(c,f=[]){try{let s=await getDocs(collection(db,c));let a=s.do
 function go(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".bottomNav button").forEach(b=>b.classList.toggle("on",b.dataset.go==id));window.scrollTo(0,0)}
 function open(id){$(id).classList.add("show")}function close(id){$(id).classList.remove("show")}
 function subtotal(){return cart.reduce((s,i)=>s+money(i.price)*i.qty,0)}function total(){return Math.max(0,subtotal()-couponDiscount)}function saveCart(){localStorage.cyMobileCart=JSON.stringify(cart);$("cartCount").textContent=cart.reduce((s,i)=>s+i.qty,0)}
-async function load(){let defaultsP=[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}];prices=await list("consultPrices",defaultsP);products=await list("products",[]);let notices=await list("notices",[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]);let reviews=(await list("reviews",[])).filter(r=>r.approved);let settings=await list("settings",[]);payment=settings.find(s=>s.id=="payment")||{name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청"};let t=settings.find(s=>s.id=="bookingTimes");if(t)booking={times:t.times||booking.times,blockedDates:t.blockedDates||[]};$("priceList").innerHTML=prices.map(p=>`<article class="card"><h3>${esc(p.title)}</h3><p>${esc(p.desc)}</p><div class="price">${esc(p.price)}</div><button class="primary addConsult" data-name="${esc(p.title)}" data-price="${esc(p.price)}">상담 담기</button></article>`).join("");document.querySelectorAll(".addConsult").forEach(b=>b.onclick=()=>add({id:"c-"+b.dataset.name,name:b.dataset.name,price:b.dataset.price,qty:1}));$("bookType").innerHTML=prices.map(p=>`<option>${esc(p.title)} ${esc(p.price)}</option>`).join("");$("noticeList").innerHTML=notices.map(n=>`<article class="card"><h3>${esc(n.title)}</h3><p>${esc(n.body)}</p></article>`).join("");$("reviewList").innerHTML=reviews.map(r=>`<article class="card"><h3>${esc(r.stars)} ${esc(r.name)}</h3><p>${esc(r.body)}</p></article>`).join("")||"<p>승인된 후기가 없습니다.</p>";renderProducts();renderTimes();saveCart();if(member){loadMyCoupons();loadHistory();renderBenefits()}else{renderBenefits()}}
+async function load(){let defaultsP=[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}];prices=await list("consultPrices",defaultsP);products=await list("products",[]);let notices=await list("notices",[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]);let reviews=(await list("reviews",[])).filter(r=>r.approved);let settings=await list("settings",[]);payment=settings.find(s=>s.id=="payment")||{name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청"};let t=settings.find(s=>s.id=="bookingTimes");if(t)booking={times:t.times||booking.times,blockedDates:t.blockedDates||[]};$("priceList").innerHTML=prices.map(p=>`<article class="card"><h3>${esc(p.title)}</h3><p>${esc(p.desc)}</p><div class="price">${esc(p.price)}</div><button class="primary addConsult" data-name="${esc(p.title)}" data-price="${esc(p.price)}">상담 담기</button></article>`).join("");document.querySelectorAll(".addConsult").forEach(b=>b.onclick=()=>add({id:"c-"+b.dataset.name,name:b.dataset.name,price:b.dataset.price,qty:1}));$("bookType").innerHTML=prices.map(p=>`<option>${esc(p.title)} ${esc(p.price)}</option>`).join("");$("noticeList").innerHTML=notices.map(n=>`<article class="card"><h3>${esc(n.title)}</h3><p>${esc(n.body)}</p></article>`).join("");$("reviewList").innerHTML=reviews.map(r=>`<article class="card"><h3>${esc(r.stars)} ${esc(r.name)}</h3><p>${esc(r.body)}</p></article>`).join("")||"<p>승인된 후기가 없습니다.</p>";renderProducts();renderTimes();saveCart();renderHomeExtras();if(member){loadMyCoupons();loadHistory();renderBenefits()}else{renderBenefits()}}
 function renderProducts(){let q=$("search").value.toLowerCase();$("productList").innerHTML=products.filter(p=>!q||`${p.name} ${p.desc}`.toLowerCase().includes(q)).map(p=>`<article class="card">${p.images?.[0]?`<img class="productImg" src="${p.images[0]}">`:""}<h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p><div class="price">${esc(p.sale||p.price)}</div><button class="primary addProduct" data-id="${p.id}">담기</button><button class="secondary favProduct" data-id="${p.id}">즐겨찾기</button></article>`).join("")||"<p>등록된 상품이 없습니다.</p>";document.querySelectorAll(".addProduct").forEach(b=>b.onclick=()=>{let p=products.find(x=>x.id==b.dataset.id);addRecentProduct(p);add({id:p.id,name:p.name,price:p.sale||p.price,qty:1})});
 document.querySelectorAll(".favProduct").forEach(b=>b.onclick=()=>{let p=products.find(x=>x.id==b.dataset.id);toggleFavoriteProduct(p);alert("즐겨찾기에 반영되었습니다.")})}
 function add(i){let f=cart.find(x=>x.id==i.id);f?f.qty++:cart.push(i);saveCart();alert("담았습니다.")}
@@ -27,14 +27,14 @@ async function review(){let imgs=await upload($("reviewImages").files,"reviews")
 async function join(){try{let cr=await createUserWithEmailAndPassword(auth,$("joinEmail").value.trim(),$("joinPw").value);await setDoc(doc(db,"members",cr.user.uid),{uid:cr.user.uid,name:$("joinName").value,contact:$("joinContact").value,email:$("joinEmail").value.trim(),createdAt:serverTimestamp()},{merge:true});alert("회원가입 완료");close("authModal")}catch(e){alert(e.code=="auth/email-already-in-use"?"이미 가입된 이메일입니다. 로그인해 주세요.":"회원가입 실패: "+e.message)}}
 async function login(){try{await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPw").value);alert("로그인 완료");close("authModal")}catch(e){alert("로그인 실패")}}
 async function loadMember(u){user=u;if(!u){member=null;renderMember();return}let ms=await list("members",[]);member=ms.find(m=>m.id==u.uid)||{uid:u.uid,email:u.email};renderMember();fill()}
-function renderMember(){$("loginOpen").textContent=member?"내 정보":"로그인";$("memberBox").innerHTML=member?`<b>${esc(member.name||"회원")}</b><p>${esc(member.email)}</p><button id="logout" class="secondary">로그아웃</button>`:"<p>로그인하면 내 쿠폰과 주문/예약을 확인할 수 있습니다.</p><button class='primary' onclick='document.getElementById(\"authModal\").classList.add(\"show\")'>로그인/회원가입</button>";if($("logout"))$("logout").onclick=()=>signOut(auth);if(member){loadMyCoupons();loadHistory();renderBenefits()}else{renderBenefits()}}
+function renderMember(){$("loginOpen").textContent=member?"내 정보":"로그인";$("memberBox").innerHTML=member?`<b>${esc(member.name||"회원")}</b><p>${esc(member.email)}</p><button id="logout" class="secondary">로그아웃</button>`:"<p>로그인하면 내 쿠폰과 주문/예약을 확인할 수 있습니다.</p><button class='primary' onclick='document.getElementById(\"authModal\").classList.add(\"show\")'>로그인/회원가입</button>";if($("logout"))$("logout").onclick=()=>signOut(auth);renderHomeExtras();if(member){loadMyCoupons();loadHistory();renderBenefits()}else{renderBenefits()}}
 async function loadMyCoupons(){let cs=await list("coupons",[]),uid=member.uid||member.id,my=cs.filter(c=>c.memberUid==uid||c.memberEmail==member.email);$("myCoupons").innerHTML=my.map(c=>`<div class="myCoupon ${c.used?"used":""}"><b>${c.code}</b><p>${won(money(c.discount))} 할인 / ${c.used?"사용완료":"사용가능"}</p>${!c.used?`<button class="secondary useCoupon" data-code="${c.code}">사용하기</button>`:""}</div>`).join("")||"<p>발급된 쿠폰이 없습니다.</p>";document.querySelectorAll(".useCoupon").forEach(b=>b.onclick=()=>{$("couponInput").value=b.dataset.code;openCart()})}
 async function loadHistory(){let [os,bs]=await Promise.all([list("orders",[]),list("bookings",[])]),uid=member.uid||member.id;let myO=os.filter(o=>o.memberUid==uid||o.contact==member.contact),myB=bs.filter(b=>b.memberUid==uid||b.contact==member.contact);$("myHistory").innerHTML=myO.map(o=>`<div class="myCoupon"><b>${o.orderNo}</b><p>${o.total} / ${o.status}</p><button class="secondary cancelOrder" data-id="${o.id}">주문취소 요청</button></div>`).join("")+myB.map(b=>`<div class="myCoupon"><b>${b.type}</b><p>${b.date} ${b.time} / ${b.status}</p><button class="secondary cancelBook" data-id="${b.id}">상담취소 요청</button></div>`).join("")||"<p>내역이 없습니다.</p>";document.querySelectorAll(".cancelOrder").forEach(b=>b.onclick=()=>cancel("orders",b.dataset.id));document.querySelectorAll(".cancelBook").forEach(b=>b.onclick=()=>cancel("bookings",b.dataset.id))}
 async function cancel(col,id){let r=prompt("취소 사유");if(r===null)return;await updateDoc(doc(db,col,id),{status:"취소요청",cancelReason:r,updatedAt:serverTimestamp()});alert("취소 요청 완료")}
 function fill(){if(!member)return;[["orderName",member.name],["orderContact",member.contact],["bookName",member.name],["bookContact",member.contact]].forEach(([id,v])=>{if($(id)&&!$(id).value)$(id).value=v||""})}
 function openCart(){fill();renderCart();renderPay();open("cartModal")}
 function bind(){document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>close(b.dataset.close));document.querySelectorAll(".modal").forEach(m=>m.onclick=e=>{if(e.target==m)close(m.id)});$("loginOpen").onclick=()=>member?go("mypage"):open("authModal");$("loginTab").onclick=()=>{$("loginTab").classList.add("on");$("joinTab").classList.remove("on");$("loginPanel").classList.remove("hide");$("joinPanel").classList.add("hide")};$("joinTab").onclick=()=>{$("joinTab").classList.add("on");$("loginTab").classList.remove("on");$("joinPanel").classList.remove("hide");$("loginPanel").classList.add("hide")};$("joinBtn").onclick=join;$("loginBtn").onclick=login;$("cartOpen").onclick=openCart;$("search").oninput=renderProducts;$("couponApply").onclick=applyCoupon;$("orderBtn").onclick=order;$("bookBtn").onclick=book;$("bookDate").onchange=renderTimes;$("trackBtn").onclick=track;$("reviewOpen").onclick=()=>open("reviewModal");$("reviewSubmit").onclick=review}
-function realtime(){["products","consultPrices","notices","reviews","settings","coupons","orders","bookings"].forEach(c=>onSnapshot(collection(db,c),load))}
+function realtime(){["products","consultPrices","notices","reviews","settings","coupons","orders","bookings","banners","benefits"].forEach(c=>onSnapshot(collection(db,c),load))}
 
 // ===== Mobile 4.0 Plus Features =====
 let favorites = JSON.parse(localStorage.cyFavorites || "[]");
@@ -64,6 +64,31 @@ function memberGrade(){
   if(pts >= 10000) return "SILVER";
   return "일반";
 }
+
+async function renderHomeExtras(){
+  try{
+    const [banners, benefits] = await Promise.all([list("banners",[]), list("benefits",[])]);
+    const bannerBox = $("homeBannerList");
+    if(bannerBox){
+      bannerBox.innerHTML = banners.length ? banners.slice(0,3).map(b=>`
+        <article class="card highlightCard">
+          <h3>${esc(b.title||"공지")}</h3>
+          <p>${esc(b.body||"")}</p>
+        </article>
+      `).join("") : `<article class="card"><h3>천율도령 공식 안내</h3><p>관리자에서 홈 배너를 등록하면 여기에 표시됩니다.</p></article>`;
+    }
+    const benefitBox = $("homeBenefitList");
+    if(benefitBox){
+      benefitBox.innerHTML = benefits.length ? benefits.slice(0,3).map(b=>`
+        <article class="card benefitCard">
+          <h3>${esc(b.title||"회원 혜택")}</h3>
+          <p>${esc(b.body||"")}</p>
+        </article>
+      `).join("") : `<article class="card"><h3>회원 전용 쿠폰</h3><p>로그인 후 내 쿠폰과 혜택을 확인할 수 있습니다.</p></article>`;
+    }
+  }catch(e){}
+}
+
 function renderBenefits(){
   const gradeBox = $("memberGradeBox");
   if(gradeBox){

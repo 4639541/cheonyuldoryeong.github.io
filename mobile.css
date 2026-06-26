@@ -2,3 +2,14 @@
 .favProduct{margin-top:8px;width:100%}
 #benefits .card b{color:#e6ba60}
 .adminTab .formCard + .formCard{margin-top:12px}
+
+.highlightCard{
+  border-color:rgba(230,186,96,.55);
+  background:linear-gradient(135deg,#1d1308,#080604);
+}
+.benefitCard{
+  border-left:4px solid #e6ba60;
+}
+#homeManageList h2{
+  margin-top:18px;
+}

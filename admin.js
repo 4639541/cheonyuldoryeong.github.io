@@ -209,34 +209,84 @@ async function fill(colName, boxId, html){
 }
 
 async function loadAll(){
-  await fill("consultPrices","consultAdminList", c=>`<div class="adminItem"><b>${c.title||""} · ${c.price||""}</b><p><span class="badge">${c.badge||"상담"}</span><br>${c.desc||""}</p><div class="actions"><button onclick="editConsult('${c.id}', '${String(c.title||"").replaceAll("'","\\'")}', '${String(c.price||"").replaceAll("'","\\'")}', '${String(c.badge||"").replaceAll("'","\\'")}', '${String(c.desc||"").replaceAll("'","\\'")}')">수정</button><button class="danger" onclick="del('consultPrices','${c.id}')">삭제</button></div></div>`);
   const orderCount = await fill("orders","orderAdminList", o=>`<div class="adminItem"><b>${o.name||""} · ${o.total||""}</b><p>${(o.items||[]).map(i=>`${i.name||""} ${i.qty||1}개`).join("<br>")}<br>연락처: ${o.contact||""}<br>주소: ${o.address||""}<br>결제: ${o.payment||"카카오페이 송금"}<br><span class="status">${o.status||"신규"}</span></p><div class="actions"><button onclick="setStatus('orders','${o.id}','입금완료')">입금완료</button><button onclick="setStatus('orders','${o.id}','진행중')">진행중</button><button onclick="setStatus('orders','${o.id}','완료')">완료</button><button onclick="del('orders','${o.id}')">삭제</button></div></div>`);
   const bookingCount = await fill("bookings","bookingAdminList", b=>`<div class="adminItem"><b>${b.name||""} · ${b.type||""}</b><p>${b.contact||""}<br>${b.date||""} ${b.time||""}<br>${b.body||""}<br><span class="status">${b.status||"대기"}</span></p><div class="actions"><button onclick="setStatus('bookings','${b.id}','확정')">확정</button><button onclick="setStatus('bookings','${b.id}','완료')">완료</button><button onclick="del('bookings','${b.id}')">삭제</button></div></div>`);
   const productCount = await fill("products","productAdminList", p=>`<div class="adminItem"><b>${p.name||""} · ${p.price||""}</b><p>${p.category||""} / ${p.stock||""}<br>${p.desc||""}</p>${imgs(p)}<div class="actions"><button onclick="del('products','${p.id}')">삭제</button></div></div>`);
+  await fill("consultPrices","consultAdminList", c=>`<div class="adminItem"><b>${c.title||""} · ${c.price||""}</b><p><span class="badge">${c.badge||"상담"}</span><br>${c.desc||""}</p><div class="actions"><button onclick="editConsult('${c.id}', '${String(c.title||"").replaceAll("'","\\'")}', '${String(c.price||"").replaceAll("'","\\'")}', '${String(c.badge||"").replaceAll("'","\\'")}', '${String(c.desc||"").replaceAll("'","\\'")}')">수정</button><button class="danger" onclick="del('consultPrices','${c.id}')">삭제</button></div></div>`);
   await fill("posts","postAdminList", p=>`<div class="adminItem"><b>${p.title||""}</b><p>${p.body||""}</p>${imgs(p)}<button onclick="del('posts','${p.id}')">삭제</button></div>`);
   await fill("fields","fieldAdminList", f=>`<div class="adminItem"><b>${f.title||""}</b><p>${f.body||""}</p><button onclick="del('fields','${f.id}')">삭제</button></div>`);
   await fill("notices","noticeAdminList", n=>`<div class="adminItem"><b>[${n.tag||"공지"}] ${n.title||""}</b><p>${n.body||""}</p><button onclick="del('notices','${n.id}')">삭제</button></div>`);
 
-  let pendingCount=0, approvedCount=0;
-  try{
-    const pending=await getDocs(collection(db,"reviews"));
-    pendingCount=pending.docs.length;
-    $("pendingReviewList").innerHTML = pending.docs.map(d=>{const r={id:d.id,...d.data()};return `<div class="adminItem"><b>${r.name||""} · ${r.category||""} · ${r.stars||""}</b><p>${r.body||""}</p>${r.image?`<img class="thumb" src="${r.image}">`:""}<div class="actions"><button onclick="approveReview('${r.id}')">승인</button><button onclick="del('reviews','${r.id}')">삭제</button></div></div>`}).join("") || "<p>승인 대기 후기가 없습니다.</p>";
-  }catch(e){ $("pendingReviewList").innerHTML=`<div class="errorBox">${e.message}</div>`; }
-  try{
-    const approved=await getDocs(collection(db,"reviews"));
-    approvedCount=approved.docs.length;
-    $("approvedReviewList").innerHTML = approved.docs.map(d=>{const r={id:d.id,...d.data()};return `<div class="adminItem"><b>${r.name||""} · ${r.category||""} · ${r.stars||""}</b><p>${r.body||""}</p>${r.image?`<img class="thumb" src="${r.image}">`:""}<button onclick="del('reviews','${r.id}')">삭제</button></div>`}).join("") || "<p>공개 후기가 없습니다.</p>";
-  }catch(e){ $("approvedReviewList").innerHTML=`<div class="errorBox">${e.message}</div>`; }
+  let pendingCount = 0;
+  let approvedCount = 0;
 
-  if($("statOrders")) $("statOrders").textContent=orderCount;
-  if($("statBookings")) $("statBookings").textContent=bookingCount;
-  if($("statProducts")) $("statProducts").textContent=productCount;
-  if($("statReviews")) $("statReviews").textContent=pendingCount+approvedCount;
+  try{
+    const reviewSnap = await getDocs(collection(db,"reviews"));
+    const reviews = reviewSnap.docs
+      .map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+
+    const pending = reviews.filter(r => r.approved !== true);
+    const approved = reviews.filter(r => r.approved === true);
+
+    pendingCount = pending.length;
+    approvedCount = approved.length;
+
+    const pendingBox = $("pendingReviewList");
+    if(pendingBox){
+      pendingBox.innerHTML = pending.map(r=>`
+        <div class="adminItem">
+          <b>${r.name||"익명"} · ${r.category||""} · ${r.stars||"★★★★★"}</b>
+          <p>${r.body||""}</p>
+          ${r.image?`<img class="thumb" src="${r.image}">`:""}
+          <div class="actions">
+            <button onclick="approveReview('${r.id}')">승인</button>
+            <button class="danger" onclick="del('reviews','${r.id}')">삭제</button>
+          </div>
+        </div>
+      `).join("") || "<p>승인 대기 후기가 없습니다.</p>";
+    }
+
+    const approvedBox = $("approvedReviewList");
+    if(approvedBox){
+      approvedBox.innerHTML = approved.map(r=>`
+        <div class="adminItem">
+          <b>${r.name||"익명"} · ${r.category||""} · ${r.stars||"★★★★★"}</b>
+          <p>${r.body||""}</p>
+          ${r.image?`<img class="thumb" src="${r.image}">`:""}
+          <div class="actions">
+            <button onclick="unapproveReview('${r.id}')">승인 취소</button>
+            <button class="danger" onclick="del('reviews','${r.id}')">삭제</button>
+          </div>
+        </div>
+      `).join("") || "<p>공개 후기가 없습니다.</p>";
+    }
+  }catch(e){
+    console.error(e);
+    if($("pendingReviewList")) $("pendingReviewList").innerHTML = `<div class="errorBox">후기 불러오기 오류: ${e.message}</div>`;
+    if($("approvedReviewList")) $("approvedReviewList").innerHTML = `<div class="errorBox">후기 불러오기 오류: ${e.message}</div>`;
+  }
+
+  if($("statOrders")) $("statOrders").textContent = orderCount;
+  if($("statBookings")) $("statBookings").textContent = bookingCount;
+  if($("statProducts")) $("statProducts").textContent = productCount;
+  if($("statReviews")) $("statReviews").textContent = pendingCount + approvedCount;
 }
 
 window.setStatus = async (colName,id,status)=>{ await updateDoc(doc(db,colName,id),{status}); await loadAll(); };
 window.approveReview = async (id)=>{ await updateDoc(doc(db,"reviews",id),{approved:true}); await loadAll(); };
+
+window.approveReview = async (id)=>{
+  await updateDoc(doc(db,"reviews",id),{approved:true});
+  alert("후기가 승인되었습니다.");
+  await loadAll();
+};
+window.unapproveReview = async (id)=>{
+  await updateDoc(doc(db,"reviews",id),{approved:false});
+  alert("후기 승인이 취소되었습니다.");
+  await loadAll();
+};
+
 window.del = async (colName,id)=>{ if(confirm("삭제할까요?")){ await deleteDoc(doc(db,colName,id)); await loadAll(); } };
 
 document.addEventListener("DOMContentLoaded", ()=>{

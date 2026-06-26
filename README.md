@@ -41,3 +41,9 @@ index.html, admin.html, style.css, firebase-config.js, app.js, admin.js
 - 승인 대기 후기 / 공개 후기 Firestore 복합 인덱스 오류 완전 제거
 - reviews 컬렉션은 전체를 불러온 뒤 브라우저에서 승인 여부를 필터링합니다.
 - 남은 복합 쿼리 체크: []
+
+
+후기 승인 기능 수정:
+- 승인 대기 후기 목록에 승인 버튼 표시
+- approved 값이 없거나 false인 후기는 모두 승인 대기로 표시
+- 공개 후기에는 승인 취소 버튼 추가

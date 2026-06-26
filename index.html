@@ -1,15 +1,169 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천명신당 | 천율도령</title><link rel="stylesheet" href="style.css"></head><body>
-<header class="topbar"><div class="wrap nav"><a class="logo" href="index.html">천명신당</a><nav><a href="#fields">상담분야</a><a href="#products">상품구매</a><a href="#board">게시판</a><a href="#notice">공지</a><a href="#reservation">예약</a><a href="#reviews">후기</a><a href="admin.html">관리자</a></nav></div></header>
-<section class="hero"><div class="wrap"><p class="kicker">천율도령 공식 신점 상담 홈페이지</p><h1>천명신당<br><span>천율도령</span></h1><p class="lead">연애 · 재회 · 속마음 · 금전운 · 사업운 · 취업운<br>현재 흐름과 앞으로의 방향을 함께 살펴드립니다.</p><a class="btn" href="#products">상품 구매</a><a class="btn secondary" href="#reservation">상담 예약</a></div></section>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>천명신당 | 천율도령 공식 홈페이지</title>
+  <meta name="description" content="천명신당 천율도령 공식 신점 상담·예약·상품 홈페이지">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap nav">
+    <a class="logo" href="index.html">천명신당</a>
+    <button class="menuBtn" onclick="toggleMenu()">☰</button>
+    <nav id="navMenu">
+      <a href="#shop">상품</a>
+      <a href="#booking">예약</a>
+      <a href="#board">게시판</a>
+      <a href="#reviews">후기</a>
+      <a href="#notice">공지</a>
+      <a href="admin.html">관리자</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap heroGrid">
+    <div>
+      <p class="kicker">천율도령 공식 신점 상담 홈페이지 2.0</p>
+      <h1>천명신당<br><span>천율도령</span></h1>
+      <p class="lead">연애 · 재회 · 속마음 · 금전운 · 사업운 · 취업운<br>현재 흐름과 앞으로의 방향을 함께 살펴드립니다.</p>
+      <div class="heroActions">
+        <a class="btn primary" href="#booking">상담 예약</a>
+        <a class="btn secondary" href="#shop">상품 구매</a>
+        <a class="btn secondary" target="_blank" href="https://open.kakao.com/me/cpwls9541">카카오톡 문의</a>
+      </div>
+    </div>
+    <div class="heroCard">
+      <b>오늘의 안내</b>
+      <h2>혼자 고민하지 마세요.</h2>
+      <p>상담 예약, 상품 구매, 후기 작성, 게시판 확인까지 한 곳에서 가능합니다.</p>
+      <div class="miniStats">
+        <span>예약제 상담</span><span>이미지 상품</span><span>관리자 승인 후기</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <main>
-<section class="section wrap"><h2>천율도령 소개</h2><div class="card"><p>천명신당은 현재의 흐름과 앞으로의 방향성을 함께 살펴보는 공식 상담 공간입니다.</p></div></section>
-<section id="fields" class="section dark"><div class="wrap"><p class="kicker">CONSULTING</p><h2>상담 분야</h2><div id="field-list" class="grid"></div></div></section>
-<section id="products" class="section wrap"><p class="kicker">SHOP</p><h2>상품 구매</h2><p class="tiny">구매 신청 후 카카오톡으로 결제 및 배송 안내가 진행됩니다.</p><div id="product-list" class="grid"></div></section>
-<section id="board" class="section dark"><div class="wrap"><p class="kicker">BOARD</p><h2>게시판</h2><div id="board-list" class="grid"></div></div></section>
-<section id="notice" class="section wrap"><p class="kicker">NOTICE</p><h2>공지사항</h2><div id="notice-list" class="grid"></div></section>
-<section id="reservation" class="section dark"><div class="wrap"><p class="kicker">RESERVATION</p><h2>상담 예약</h2><div class="admin-box form-grid"><input id="resName" placeholder="이름/닉네임"><input id="resPhone" placeholder="연락처 또는 카카오톡 ID"><select id="resField"><option>재회 상담</option><option>속마음 상담</option><option>금전운 상담</option><option>상품 문의</option><option>기타 상담</option></select><input id="resDate" placeholder="희망 날짜/시간"><textarea id="resBody" class="wide" placeholder="현재 상황과 질문"></textarea><button class="full-btn wide" onclick="submitReservation()">예약 요청하기</button></div></div></section>
-<section id="reviews" class="section wrap"><p class="kicker">REVIEWS</p><h2>상담 후기</h2><button class="write-review" onclick="openReviewModal()">후기 남기기</button><div id="review-list" class="grid"></div></section>
+<section class="section wrap">
+  <p class="kicker">QUICK MENU</p>
+  <h2>빠른 메뉴</h2>
+  <div class="quickGrid">
+    <a href="#shop">🛍️ 상품 구매</a>
+    <a href="#booking">📅 상담 예약</a>
+    <a href="#board">📝 게시판</a>
+    <a href="#reviews">⭐ 후기 작성</a>
+  </div>
+</section>
+
+<section id="notice" class="section dark">
+  <div class="wrap">
+    <p class="kicker">NOTICE</p>
+    <h2>공지사항</h2>
+    <div id="noticeList" class="cardGrid"></div>
+  </div>
+</section>
+
+<section id="fields" class="section wrap">
+  <p class="kicker">CONSULTING</p>
+  <h2>상담 분야</h2>
+  <div id="fieldList" class="cardGrid"></div>
+</section>
+
+<section id="shop" class="section dark">
+  <div class="wrap">
+    <p class="kicker">SHOP</p>
+    <h2>상품 구매</h2>
+    <div class="toolbar">
+      <input id="productSearch" placeholder="상품 검색" oninput="renderProducts()">
+      <select id="categoryFilter" onchange="renderProducts()"><option value="">전체 카테고리</option></select>
+      <button class="btn primary" onclick="openCart()">장바구니 보기 <span id="cartCount">0</span></button>
+    </div>
+    <div id="productList" class="productGrid"></div>
+  </div>
+</section>
+
+<section id="booking" class="section wrap">
+  <p class="kicker">RESERVATION</p>
+  <h2>상담 예약</h2>
+  <div class="formBox formGrid">
+    <input id="bookName" placeholder="이름/닉네임">
+    <input id="bookContact" placeholder="연락처 또는 카카오톡 ID">
+    <select id="bookType">
+      <option>재회 상담</option><option>속마음 상담</option><option>금전운 상담</option><option>사업운 상담</option><option>취업운 상담</option><option>상품 문의</option>
+    </select>
+    <input id="bookDate" type="date">
+    <select id="bookTime">
+      <option>오전</option><option>오후</option><option>저녁</option><option>상담 후 조율</option>
+    </select>
+    <textarea class="wide" id="bookBody" placeholder="상담 받고 싶은 내용"></textarea>
+    <button class="btn primary wide" onclick="submitBooking()">예약 신청</button>
+  </div>
+</section>
+
+<section id="board" class="section dark">
+  <div class="wrap">
+    <p class="kicker">BOARD</p>
+    <h2>게시판</h2>
+    <div id="postList" class="cardGrid"></div>
+  </div>
+</section>
+
+<section id="reviews" class="section wrap">
+  <p class="kicker">REVIEWS</p>
+  <h2>상담 후기</h2>
+  <button class="btn primary" onclick="openReviewModal()">후기 남기기</button>
+  <div id="reviewList" class="cardGrid mt"></div>
+</section>
+
+<section class="section dark">
+  <div class="wrap business">
+    <p class="kicker">BUSINESS</p>
+    <h2>사업자 정보</h2>
+    <p><b>상호</b> 천율도령</p>
+    <p><b>브랜드</b> 천명신당</p>
+    <p><b>대표자</b> 정세진</p>
+    <p><b>사업자등록번호</b> 570-76-00713</p>
+    <p><b>주소</b> 경상북도 구미시 상모로12길 49, 101동 102호</p>
+    <p><b>이메일</b> v4639541v@nate.com</p>
+  </div>
+</section>
 </main>
-<div id="buy-modal" class="modal"><div class="modal-card"><button class="close" onclick="closeBuyModal()">×</button><h2>구매 신청</h2><div id="buySummary" class="order-summary"></div><input id="buyerName" placeholder="이름/닉네임"><input id="buyerPhone" placeholder="연락처 또는 카카오톡 ID"><input id="buyerAddress" placeholder="배송 주소"><input id="buyerQty" type="number" min="1" value="1" placeholder="수량"><textarea id="buyerMemo" placeholder="요청사항"></textarea><button class="full-btn" onclick="submitOrder()">구매 신청 저장</button><button class="btn secondary" onclick="copyOrderText()">주문 내용 복사</button><a class="btn secondary" target="_blank" href="https://open.kakao.com/me/cpwls9541">카카오톡으로 보내기</a><p class="tiny">카카오톡 결제 안내 후 주문이 확정됩니다.</p></div></div>
-<div id="review-modal" class="modal"><div class="modal-card"><button class="close" onclick="closeReviewModal()">×</button><h2>후기 남기기</h2><input id="reviewName" placeholder="이름/닉네임"><input id="reviewCategory" placeholder="상담 분야"><select id="reviewStars"><option value="★★★★★">★★★★★</option><option value="★★★★☆">★★★★☆</option></select><textarea id="reviewBody" placeholder="후기 내용"></textarea><button class="full-btn" onclick="submitReview()">후기 등록 요청</button></div></div>
-<footer>천명신당 | 천율도령 공식 상담 · v4639541v@nate.com</footer><script type="module" src="app.js"></script></body></html>
+
+<div id="cartModal" class="modal">
+  <div class="modalCard">
+    <button class="close" onclick="closeCart()">×</button>
+    <h2>장바구니 / 주문</h2>
+    <div id="cartItems"></div>
+    <div class="orderTotal">합계: <b id="cartTotal">0원</b></div>
+    <input id="orderName" placeholder="주문자 이름">
+    <input id="orderContact" placeholder="연락처 또는 카카오톡 ID">
+    <input id="orderAddress" placeholder="배송 주소">
+    <textarea id="orderMemo" placeholder="요청사항"></textarea>
+    <button class="btn primary" onclick="submitOrder()">주문 신청</button>
+    <button class="btn secondary" onclick="copyOrder()">주문 내용 복사</button>
+    <a class="btn secondary" target="_blank" href="https://open.kakao.com/me/cpwls9541">카카오톡으로 보내기</a>
+    <p class="tiny">실제 결제는 카카오톡 안내 후 확정됩니다.</p>
+  </div>
+</div>
+
+<div id="reviewModal" class="modal">
+  <div class="modalCard">
+    <button class="close" onclick="closeReviewModal()">×</button>
+    <h2>후기 남기기</h2>
+    <input id="reviewName" placeholder="이름/닉네임">
+    <input id="reviewCategory" placeholder="상담/상품 분야">
+    <select id="reviewStars"><option>★★★★★</option><option>★★★★☆</option><option>★★★☆☆</option></select>
+    <input id="reviewImage" type="file" accept="image/*">
+    <textarea id="reviewBody" placeholder="후기 내용"></textarea>
+    <button class="btn primary" onclick="submitReview()">후기 등록 요청</button>
+    <p class="tiny">관리자 승인 후 공개됩니다.</p>
+  </div>
+</div>
+
+<footer>천명신당 | 천율도령 공식 홈페이지</footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>

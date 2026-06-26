@@ -10,3 +10,102 @@
 .smallBtn{padding:8px 12px;font-size:13px}
 .multiThumbs{display:flex;gap:8px;overflow-x:auto;margin:8px 0}
 .multiThumbs img{min-width:120px;width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid rgba(227,183,94,.22)}
+
+/* Mobile admin 4.0 */
+.mobileNotice{
+  background:linear-gradient(135deg,#24170a,#0c0905);
+  border:1px solid rgba(227,183,94,.35);
+  border-radius:18px;
+  padding:14px 16px;
+  color:#f9ecd1;
+  margin:12px 0 18px;
+  font-weight:800;
+}
+.mobileTabs{
+  position:sticky;
+  top:68px;
+  z-index:15;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:10px 0;
+  background:#050403;
+  border-bottom:1px solid rgba(227,183,94,.18);
+}
+.mobileTabs button{
+  white-space:nowrap;
+  padding:10px 14px;
+  border-radius:999px;
+  background:#19110a;
+  color:#f3d99c;
+  border:1px solid rgba(227,183,94,.3);
+}
+.mobileTabs button.active{
+  background:#e3b75e;
+  color:#120d07;
+}
+.adminItem{
+  word-break:break-word;
+}
+@media(max-width:700px){
+  body{font-size:15px}
+  .wrap{width:calc(100% - 24px)}
+  .topbar .nav{min-height:60px}
+  .logo{font-size:20px;line-height:1.25}
+  .section{padding:28px 0}
+  .section h1{font-size:32px;letter-spacing:-.06em}
+  .dashHead{gap:10px;align-items:flex-start}
+  .dashHead h2{font-size:28px;margin:0}
+  .statsGrid{
+    grid-template-columns:repeat(2,1fr)!important;
+    gap:10px!important;
+  }
+  .statsGrid div{padding:14px!important;border-radius:18px!important}
+  .statsGrid b{font-size:28px!important}
+  .adminGrid{
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+  }
+  .formBox,.adminList{
+    padding:18px!important;
+    border-radius:22px!important;
+  }
+  .formBox h3,.adminList h3{
+    font-size:24px;
+    margin-top:0;
+  }
+  input,select,textarea{
+    font-size:16px!important;
+    padding:15px!important;
+    border-radius:16px!important;
+  }
+  textarea{height:150px}
+  .formBox button,.adminItem button,.btn{
+    width:100%;
+    margin:6px 0!important;
+    padding:14px 16px!important;
+    font-size:16px!important;
+  }
+  .adminItem{
+    padding:16px!important;
+    border-radius:18px!important;
+  }
+  .adminItem .actions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .adminItem .actions button{
+    margin:0!important;
+  }
+  .thumb{height:180px!important}
+  .multiThumbs img{
+    min-width:100px!important;
+    width:100px!important;
+    height:100px!important;
+  }
+}
+@media(max-width:420px){
+  .adminItem .actions{grid-template-columns:1fr}
+  .statsGrid{grid-template-columns:1fr 1fr!important}
+}

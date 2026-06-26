@@ -10,6 +10,13 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 const $ = (id) => document.getElementById(id);
+window.goAdmin = (id)=>{
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+  document.querySelectorAll(".mobileTabs button").forEach(b=>b.classList.remove("active"));
+  const labels={dashboard:"대시보드",orders:"주문",bookings:"예약",products:"상품",reviews:"후기",settings:"설정"};
+  document.querySelectorAll(".mobileTabs button").forEach(b=>{ if(b.textContent.trim()===labels[id]) b.classList.add("active"); });
+};
 function val(id){ return ($(id)?.value || "").trim(); }
 function setVal(id,v=""){ if($(id)) $(id).value=v; }
 function showErr(id,msg){ if($(id)) $(id).innerHTML = msg ? `<div class="errorBox">${msg}</div>` : ""; }
@@ -238,7 +245,7 @@ window.saveTracking=async(id)=>{
 window.copySms=async(orderNo,name,total,status)=>{
   const msg=`[천율도령 공식 신점 상담]\\n${name}님, 주문번호 ${orderNo} ${status} 처리되었습니다.\\n금액: ${total}\\n문의는 카카오톡으로 부탁드립니다.`;
   await navigator.clipboard.writeText(msg);
-  alert("문자 안내 문구가 복사되었습니다. 문자/카카오톡에 붙여넣어 보내세요.");
+  alert("문자/카카오톡 안내 문구가 복사되었습니다. 휴대폰 문자 또는 카카오톡에 붙여넣어 보내세요.");
 };
 
 async function loadAll(){

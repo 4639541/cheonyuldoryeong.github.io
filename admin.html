@@ -15,8 +15,8 @@
 </header>
 
 <main class="section wrap">
-  <p class="kicker">ADMIN</p>
-  <h1>관리자 로그인</h1>
+  <p class="kicker">MOBILE ADMIN</p>
+  <h1>모바일 관리자 로그인</h1>
   <section id="loginBox" class="formBox">
     <input id="adminEmail" type="email" placeholder="관리자 이메일">
     <input id="adminPassword" type="password" placeholder="비밀번호">
@@ -25,12 +25,22 @@
   </section>
 
   <section id="adminPanel" class="hidden">
+    <div class="mobileNotice">휴대폰에서도 상품·예약·주문·후기·결제 정보를 관리할 수 있습니다.</div>
     <div class="dashHead">
-      <h2>관리자 대시보드</h2>
+      <h2>모바일 관리자</h2>
       <button id="logoutBtn" class="btn secondary" type="button">로그아웃</button>
     </div>
 
-    <div class="statsGrid">
+    <div class="mobileTabs">
+      <button type="button" onclick="goAdmin('dashboard')">대시보드</button>
+      <button type="button" onclick="goAdmin('orders')">주문</button>
+      <button type="button" onclick="goAdmin('bookings')">예약</button>
+      <button type="button" onclick="goAdmin('products')">상품</button>
+      <button type="button" onclick="goAdmin('reviews')">후기</button>
+      <button type="button" onclick="goAdmin('settings')">설정</button>
+    </div>
+
+    <div id="dashboard" class="statsGrid">
       <div><b id="statOrders">0</b><span>주문</span></div>
       <div><b id="statBookings">0</b><span>예약</span></div>
       <div><b id="statProducts">0</b><span>상품</span></div>
@@ -38,7 +48,7 @@
     </div>
 
     <div class="adminGrid">
-      <article class="formBox">
+      <article id="products" class="formBox">
         <h3>상품 등록</h3>
         <input id="pName" placeholder="상품명">
         <input id="pCategory" placeholder="카테고리 예: 염주 / 부적 / 상담">
@@ -111,13 +121,13 @@
     </div>
 
     <section class="adminList"><h3>상담 가격 관리</h3><div id="consultAdminList"></div></section>
-    <section class="adminList"><h3>주문 관리</h3><div id="orderAdminList"></div></section>
-    <section class="adminList"><h3>예약 관리</h3><div id="bookingAdminList"></div></section>
-    <section class="adminList"><h3>상품 관리</h3><div id="productAdminList"></div></section>
+    <section id="orders" class="adminList"><h3>주문 관리</h3><div id="orderAdminList"></div></section>
+    <section id="bookings" class="adminList"><h3>예약 관리</h3><div id="bookingAdminList"></div></section>
+    <section id="productManage" class="adminList"><h3>상품 관리</h3><div id="productAdminList"></div></section>
     <section class="adminList"><h3>게시판 관리</h3><div id="postAdminList"></div></section>
     <section class="adminList"><h3>상담 분야 관리</h3><div id="fieldAdminList"></div></section>
     <section class="adminList"><h3>공지 관리</h3><div id="noticeAdminList"></div></section>
-    <section class="adminList"><h3>승인 대기 후기</h3><div id="pendingReviewList"></div></section>
+    <section id="reviews" class="adminList"><h3>승인 대기 후기</h3><div id="pendingReviewList"></div></section>
     <section class="adminList"><h3>공개 후기</h3><div id="approvedReviewList"></div></section>
   </section>
 </main>

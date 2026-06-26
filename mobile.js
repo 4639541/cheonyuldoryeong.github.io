@@ -11,7 +11,7 @@ const money=v=>Number(String(v||"").replace(/[^\d]/g,""))||0;
 const won=n=>(Number(n)||0).toLocaleString()+"원";
 
 let state={
-  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[],
+  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[],
   payment:{name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청"},
   booking:{times:["오전 10시","오후 2시","오후 7시"],blockedDates:[]}
 };
@@ -72,6 +72,7 @@ async function submitSpiritual(){
     memberUid:member?.uid||member?.id||"", memberEmail:member?.email||"",
     status:"신청접수", createdAt:serverTimestamp()
   });
+  await addDoc(collection(db,"notifications"),{target:"admin",title:"부적/초발원 신청 알림",body:`${$("spName").value} / ${$("spType").value}`,createdAt:serverTimestamp()});
   alert("신청이 접수되었습니다.");
 }
 function renderConsultRecords(){
@@ -86,6 +87,29 @@ async function requestRefund(col,id){
   if(reason===null)return;
   await updateDoc(doc(db,col,id),{status:"환불요청",refundReason:reason,refundRequestedAt:serverTimestamp()});
   alert("환불/취소 요청이 접수되었습니다.");
+}
+
+
+// ===== 4.7 CRM / Dashboard / Alerts additions =====
+function renderNotifications(){
+  const box=$("myNotifications"); if(!box) return;
+  if(!member){box.innerHTML="<p>로그인 후 알림을 확인할 수 있습니다.</p>";return;}
+  const uid=member.uid||member.id;
+  const rows=(state.notifications||[]).filter(n=>n.memberUid===uid || n.memberEmail===member.email || n.target==="all");
+  box.innerHTML=rows.length?rows.slice(0,10).map(n=>`<article class="card ${n.read?'':'highlightCard'}"><h3>${esc(n.title||"알림")}</h3><p>${esc(n.body||"")}</p><small>${n.createdAt?.seconds?new Date(n.createdAt.seconds*1000).toLocaleString():""}</small></article>`).join(""):"<p>새 알림이 없습니다.</p>";
+}
+function renderProgressCenter(){
+  const box=$("myProgressList"); if(!box) return;
+  if(!member){box.innerHTML="<p>로그인 후 진행 현황을 확인할 수 있습니다.</p>";return;}
+  const uid=member.uid||member.id;
+  const spirituals=(state.spiritualRequests||[]).filter(s=>s.memberUid===uid||s.memberEmail===member.email||s.contact===member.contact);
+  const orders=(state.orders||[]).filter(o=>o.memberUid===uid||o.memberEmail===member.email||o.contact===member.contact);
+  const bookings=(state.bookings||[]).filter(b=>b.memberUid===uid||b.memberEmail===member.email||b.contact===member.contact);
+  box.innerHTML=[
+    ...spirituals.map(s=>`<article class="card"><h3>${esc(s.type||"신청")}</h3><p>상태: ${esc(s.status||"접수")}</p><p>${esc(s.body||"")}</p></article>`),
+    ...orders.map(o=>`<article class="card"><h3>주문 ${esc(o.orderNo||"")}</h3><p>상태: ${esc(o.status||"")}</p><p>배송: ${esc(o.trackingCompany||"등록 전")} ${esc(o.trackingNo||"")}</p></article>`),
+    ...bookings.map(b=>`<article class="card"><h3>${esc(b.type||"상담 예약")}</h3><p>${esc(b.date)} ${esc(b.time)}</p><p>상태: ${esc(b.status||"")}</p></article>`)
+  ].join("") || "<p>진행 중인 내역이 없습니다.</p>";
 }
 
 const defaults={
@@ -119,6 +143,8 @@ function renderAll(){
   renderMember();
   renderBusiness();
   renderConsultRecords();
+  renderNotifications();
+  renderProgressCenter();
   saveCart();
 }
 function renderHome(){
@@ -180,6 +206,8 @@ async function order(){
   const no=orderNo();
   await addDoc(collection(db,"orders"),{orderNo:no,items:cart,subtotal:won(subtotal()),discount:couponDiscount,coupon:coupon?.code||"",total:won(total()),name:$("orderName").value,contact:$("orderContact").value,address:$("orderAddress").value,memo:$("orderMemo").value,memberUid:member?.uid||member?.id||"",memberEmail:member?.email||"",status:"입금대기",createdAt:serverTimestamp()});
   await decreaseStockAfterOrder();
+  await addDoc(collection(db,"notifications"),{target:"admin",title:"새 주문 접수",body:`${$("orderName").value} / ${won(total())}`,createdAt:serverTimestamp()});
+  await addDoc(collection(db,"notifications"),{memberUid:member?.uid||member?.id||"",memberEmail:member?.email||"",title:"주문 접수 알림",body:`주문번호 ${no} 접수 완료`,createdAt:serverTimestamp()});
   if(coupon?.id)try{await updateDoc(doc(db,"coupons",coupon.id),{used:true,usedAt:serverTimestamp(),usedCount:Number(coupon.usedCount||0)+1})}catch(e){}
   cart=[]; coupon=null; couponDiscount=0; saveCart(); close("cartModal"); alert("주문 완료\n주문번호: "+no);
 }
@@ -187,7 +215,10 @@ function renderTimes(){const d=$("bookDate")?.value, blocked=state.booking.block
 async function book(){
   if(!$("bookName").value||!$("bookContact").value||!$("bookDate").value)return alert("예약 정보를 입력하세요.");
   if(isBooked($("bookDate").value,$("bookTime").value)) return alert("이미 예약된 시간입니다. 다른 시간을 선택해 주세요.");
+  const bookingTitle=$("bookType").value;
   await addDoc(collection(db,"bookings"),{name:$("bookName").value,contact:$("bookContact").value,type:$("bookType").value,date:$("bookDate").value,time:$("bookTime").value,body:$("bookBody").value,memberUid:member?.uid||member?.id||"",memberEmail:member?.email||"",status:"대기",createdAt:serverTimestamp()});
+  await addDoc(collection(db,"notifications"),{target:"admin",title:"새 예약 접수",body:`${$("bookName").value} / ${bookingTitle}`,createdAt:serverTimestamp()});
+  await addDoc(collection(db,"notifications"),{memberUid:member?.uid||member?.id||"",memberEmail:member?.email||"",title:"예약 접수 알림",body:`${$("bookDate").value} ${$("bookTime").value} 예약 신청 완료`,createdAt:serverTimestamp()});
   alert("예약 신청 완료");
 }
 async function track(){
@@ -247,7 +278,7 @@ function bind(){
 }
 function startSync(){
   if(started)return; started=true;
-  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests"};
+  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules"};
   Object.entries(map).forEach(([col,key])=>listen(col,key));
 }
 bind(); hydrate(); renderAll(); startSync(); recordVisit(); onAuthStateChanged(auth,loadMember);

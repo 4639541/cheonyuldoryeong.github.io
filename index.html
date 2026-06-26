@@ -6,7 +6,7 @@
 <title>천율도령 모바일</title>
 <meta name="theme-color" content="#050403">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=460">
+<link rel="stylesheet" href="mobile.css?v=470">
 </head>
 <body>
 <header class="appTop">
@@ -91,6 +91,8 @@
     <div id="memberBox" class="formCard"></div>
     <h2>내 쿠폰</h2>
     <div id="myCoupons" class="cards"></div>
+    <h2>알림센터</h2>
+    <div id="myNotifications" class="cards"></div>
     <h2>내 주문/예약</h2>
     <div id="myHistory" class="cards"></div>
   </section>
@@ -123,6 +125,11 @@
     </div>
   </section>
 
+  <section id="progressCenter" class="page">
+    <h1>진행 현황</h1>
+    <div id="myProgressList" class="cards"></div>
+  </section>
+
   <section id="records" class="page">
     <h1>상담 이력</h1>
     <div id="myConsultRecords" class="cards"></div>
@@ -147,6 +154,7 @@
   <button data-go="reviews">후기</button>
   <button data-go="benefits">혜택</button>
   <button data-go="records">이력</button>
+  <button data-go="progressCenter">진행</button>
   <button data-go="mypage">마이</button>
 </nav>
 
@@ -206,6 +214,6 @@
   </div>
 </div>
 
-<script type="module" src="mobile.js?v=460"></script>
+<script type="module" src="mobile.js?v=470"></script>
 </body>
 </html>

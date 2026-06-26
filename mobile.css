@@ -73,3 +73,14 @@
 #spiritualApply textarea,#records textarea{min-height:120px}
 #consultRecordList .card,#spiritualList .card,#refundList .card{border-left:4px solid #e6ba60}
 .refundOrder,.refundBook{margin-top:8px;width:100%}
+
+#adminAlertList .card,#crmSummaryList .card,#scheduleList .card{
+  border-left:4px solid #e6ba60;
+}
+#myNotifications .highlightCard{
+  animation:pulseGlow 1.4s infinite alternate;
+}
+@keyframes pulseGlow{
+  from{box-shadow:0 0 0 rgba(230,186,96,0)}
+  to{box-shadow:0 0 18px rgba(230,186,96,.25)}
+}

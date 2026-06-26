@@ -1,19 +1,15 @@
-# 천명신당 이미지 업로드 + 게시판 버전
+# 천명신당 바로 구매 기능 추가 버전
 
-추가:
-- 상품 등록 시 이미지 파일 직접 업로드
-- 게시판 글 등록
-- 게시판 이미지 파일 업로드
-- Firebase Storage 사용
+추가 기능:
+- 상품 카드에 구매하기 버튼
+- 구매 신청 폼
+- 주문 내용 복사 후 카카오톡 전송
+- 관리자 페이지에서 구매 신청 목록 확인
+- 상품 이미지 직접 업로드
+- 게시판 이미지 업로드
 
 중요:
-Firebase 콘솔에서 Storage를 만들어야 이미지 업로드가 됩니다.
-Storage 규칙은 테스트 단계에서 아래처럼 설정하면 됩니다.
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if true;
-    }
-  }
-}
+실제 카드결제/계좌 자동결제는 PG사 또는 네이버 스마트스토어가 필요합니다.
+이 버전은 GitHub Pages + Firebase에서 가능한 '구매 신청 접수' 방식입니다.
+
+Firebase Storage를 켜야 이미지 업로드가 됩니다.

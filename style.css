@@ -54,3 +54,33 @@ footer .inner{text-align:center}footer h3{color:#e6ba60;margin:0 0 10px}footer p
 .pay .btn{
   pointer-events:auto!important;
 }
+
+.payCard{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.payCard strong{
+  font-size:22px;
+  color:#fff3d8;
+  word-break:break-all;
+}
+.payAction{
+  margin-top:6px;
+}
+.payCopyBtn{
+  position:relative!important;
+  z-index:999!important;
+  pointer-events:auto!important;
+  width:100%!important;
+  margin-top:6px!important;
+}
+.couponTitle{
+  margin:16px 0 6px;
+  color:#e6ba60;
+}
+#couponBtn{
+  position:relative;
+  z-index:999;
+  pointer-events:auto!important;
+}

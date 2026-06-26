@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>천율도령 모바일 관리자</title>
-  <link rel="stylesheet" href="style.css?v=480">
+  <link rel="stylesheet" href="style.css?v=500">
 </head>
 <body>
 <header class="top">
@@ -87,15 +87,15 @@
     </section>
 
     <section class="block">
-      <h2>쿠폰 등록</h2>
+      <h2>쿠폰 자동 발급/등록</h2>
       <div class="form">
         <input id="couponCodeAdmin" placeholder="쿠폰 코드 예: FIRST5000">
         <input id="couponDiscount" placeholder="할인금액 예: 5000">
         <input id="couponDesc" placeholder="쿠폰 설명">
         <input id="couponPrefix" placeholder="자동 코드 앞글자 예: CHEON">
         <input id="couponCount" placeholder="자동 발급 개수 예: 10">
-        <button class="btn line full" id="couponAutoBtn" type="button">쿠폰 코드 자동 발급</button>
-        <button class="btn gold full" id="couponAddBtn" type="button">쿠폰 등록</button>
+        <button class="btn line full" id="couponAutoBtn" type="button">자동 쿠폰 발급</button>
+        <button class="btn gold full" id="couponAddBtn" type="button">수동 쿠폰 등록</button>
       </div>
       <div id="couponList" class="list"></div>
     </section>
@@ -170,6 +170,6 @@
     </section>
   </section>
 </main>
-<script type="module" src="admin.js?v=480"></script>
+<script type="module" src="admin.js?v=500"></script>
 </body>
 </html>

@@ -123,22 +123,27 @@ function renderCart(){
 function openCart(){renderCart(); renderPayment(); $("cartModal").classList.add("show");}
 
 
-async function applyCoupon(){
-  const code = $("couponInput").value.trim().toUpperCase();
-  if(!code) return alert("쿠폰 코드를 입력해 주세요.");
-  const coupons = await list("coupons", []);
-  const c = coupons.find(x=>(x.code||"").toUpperCase() === code);
-  if(!c) return alert("사용 가능한 쿠폰이 없습니다.");
-  coupon = c;
-  couponDiscount = moneyNumber(c.discount);
-  alert("쿠폰이 적용되었습니다.");
-  renderCart();
-}
+
 function orderNo(){
   const d = new Date();
   const date = d.toISOString().slice(2,10).replaceAll("-","");
   return `CY${date}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
 }
+
+async function applyCoupon(){
+  const code = document.getElementById("couponInput").value.trim().toUpperCase();
+  if(!code) return alert("쿠폰 코드를 입력해 주세요.");
+  const coupons = await list("coupons", []);
+  const c = coupons.find(x => (x.code || "").toUpperCase() === code);
+  if(!c) return alert("등록되지 않은 쿠폰 코드입니다.");
+  if(c.used === true) return alert("이미 사용된 쿠폰입니다.");
+
+  coupon = c;
+  couponDiscount = moneyNumber(c.discount);
+  alert(`쿠폰이 등록되었습니다.\n할인금액: ${formatWon(couponDiscount)}`);
+  renderCart();
+}
+
 async function submitOrder(){
   if(!cart.length) return alert("장바구니가 비어 있습니다.");
   if(!$("orderName").value || !$("orderContact").value) return alert("주문자 이름과 연락처를 입력해 주세요.");
@@ -160,6 +165,7 @@ async function submitOrder(){
     trackingNo:"",
     createdAt:serverTimestamp()
   });
+  if(coupon?.id){try{await updateDoc(doc(db,"coupons",coupon.id),{used:true,usedAt:serverTimestamp()});}catch(e){}}
   await decreaseStock();
   cart=[]; coupon=null; couponDiscount=0; saveCart();
   $("cartModal").classList.remove("show");
@@ -284,57 +290,62 @@ async function getPayment(){
 
 
 
+
+
+
 function renderPayment(){
   const box = document.getElementById("paymentInfo");
   if(!box) return;
 
   const p = payment || {};
-  const accountToCopy = p.bankAccount || p.account || "";
+  const kakaoNo = p.account || "020-02-407816";
+  const bankNo = p.bankAccount || "";
 
   box.innerHTML = `
     ${p.qr ? `<img class="payQr" src="${p.qr}" alt="카카오페이 QR">` : ""}
-    <div class="copy">
-      <b>카카오페이</b><br>
-      ${p.name || "천율도령"}<br>
-      ${p.account || "020-02-407816"}
+    <div class="copy payCard">
+      <b>카카오페이</b>
+      <span>${p.name || "천율도령"}</span>
+      <strong>${kakaoNo}</strong>
+      ${p.link ? `<a class="btn gold full payAction" target="_blank" href="${p.link}">카카오페이 송금하기</a>` : ""}
+      <button class="btn line full payCopyBtn" type="button" data-copy="${kakaoNo}">카카오페이 번호 복사</button>
     </div>
-    ${p.bankAccount ? `
-      <div class="copy">
-        <b>계좌이체</b><br>
-        ${p.bankName || ""} ${p.bankAccount || ""}<br>
-        예금주: ${p.bankOwner || ""}
+
+    ${bankNo ? `
+      <div class="copy payCard">
+        <b>계좌이체</b>
+        <span>${p.bankName || ""}</span>
+        <strong>${bankNo}</strong>
+        <span>예금주: ${p.bankOwner || ""}</span>
+        <button class="btn line full payCopyBtn" type="button" data-copy="${bankNo}">계좌번호 복사</button>
       </div>
     ` : ""}
-    ${p.link ? `<a class="btn gold full" target="_blank" href="${p.link}">카카오페이 송금하기</a>` : ""}
-    <button class="btn line full accountCopyBtn" id="copyAccountBtn" type="button">계좌번호 복사</button>
+
     <p class="hint">${p.guide || "송금 후 주문 신청을 눌러주세요."}</p>
   `;
 
-  const copyBtn = document.getElementById("copyAccountBtn");
-  if(copyBtn){
-    copyBtn.onclick = async (e)=>{
+  document.querySelectorAll(".payCopyBtn").forEach(btn=>{
+    btn.onclick = async (e)=>{
       e.preventDefault();
       e.stopPropagation();
-
-      if(!accountToCopy){
-        alert("복사할 계좌번호가 없습니다.");
-        return;
-      }
-
+      const text = btn.dataset.copy || "";
+      if(!text) return alert("복사할 번호가 없습니다.");
       try{
-        await navigator.clipboard.writeText(accountToCopy);
-        alert("계좌번호가 복사되었습니다.");
+        await navigator.clipboard.writeText(text);
       }catch(err){
         const temp = document.createElement("textarea");
-        temp.value = accountToCopy;
+        temp.value = text;
+        temp.style.position = "fixed";
+        temp.style.left = "-9999px";
         document.body.appendChild(temp);
+        temp.focus();
         temp.select();
         document.execCommand("copy");
         document.body.removeChild(temp);
-        alert("계좌번호가 복사되었습니다.");
       }
+      alert(btn.textContent.trim().includes("계좌") ? "계좌번호가 복사되었습니다." : "카카오페이 번호가 복사되었습니다.");
     };
-  }
+  });
 }
 
 init();

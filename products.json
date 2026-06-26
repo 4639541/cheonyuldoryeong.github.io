@@ -1,0 +1,38 @@
+[
+  {
+    "name": "복의 길을 여는 두 가지 기운",
+    "price": "25,000원",
+    "image": "products/product1.png",
+    "desc": "금전 자명루와 건강 자명루, 두 가지 기운을 담은 주문 팔찌입니다."
+  },
+  {
+    "name": "초강력 신령비방",
+    "price": "230,000원",
+    "image": "products/product2.png",
+    "desc": "금전·사업·시험·건강·인연 등 여러 소원 기운을 담은 비방 상품입니다."
+  },
+  {
+    "name": "신장부 삼지창 호신 키홀더",
+    "price": "50,000원",
+    "image": "products/product3.png",
+    "desc": "용신·산신·옴·칠성의 의미를 담은 호신 키홀더입니다."
+  },
+  {
+    "name": "평안 염주",
+    "price": "25,000원",
+    "image": "products/product4.png",
+    "desc": "마음의 불안을 내려놓고 평안과 안정을 돕는 염주입니다."
+  },
+  {
+    "name": "청운 염주",
+    "price": "25,000원",
+    "image": "products/product5.png",
+    "desc": "맑은 기운이 머물고 좋은 흐름이 이어지길 바라는 염주입니다."
+  },
+  {
+    "name": "맑음의 빛 염주",
+    "price": "25,000원",
+    "image": "products/product6.png",
+    "desc": "맑은 기운으로 마음을 비우고 평온한 일상을 채우는 염주입니다."
+  }
+]

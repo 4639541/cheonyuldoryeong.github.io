@@ -1,12 +1,16 @@
-# 천율도령 공식 신점상담 홈페이지
+# 천율도령 직접 상품 등록형 홈페이지
 
-링크 연동, 상품 카드, 포스터 갤러리 기능이 포함된 최종 버전입니다.
+## 상품 직접 올리는 방법
+1. GitHub에서 products 폴더에 상품 이미지를 업로드합니다.
+2. products.json 파일을 수정합니다.
+3. 아래 형식으로 상품을 추가합니다.
 
-## 연결 링크
-- 카카오 채널: http://pf.kakao.com/_FgHVX
-- 오픈프로필: https://open.kakao.com/me/cpwls9541
-- 오픈채팅방: https://open.kakao.com/o/gfQaRSli
+{
+  "name": "상품명",
+  "price": "25,000원",
+  "image": "products/product7.png",
+  "desc": "상품 설명"
+}
 
-## 포스터 올리는 방법
-posters 폴더에 poster1.jpg, poster2.jpg, poster3.jpg 형식으로 이미지를 올리면 자동 표시됩니다.
-최대 poster12.jpg까지 표시됩니다.
+## 구매 기능
+구매하기 버튼을 누르면 주문 양식이 뜨고, 복사 후 카카오톡 오픈프로필로 보낼 수 있습니다.

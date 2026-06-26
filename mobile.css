@@ -40,3 +40,20 @@
   width:100%;
   margin-top:8px;
 }
+
+.syncStatus{
+  position:fixed;
+  top:6px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:9999;
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#17110b;
+  color:#e6ba60;
+  border:1px solid rgba(230,186,96,.35);
+}
+.syncStatus.ok{color:#a9f5bd;border-color:rgba(90,220,120,.45)}
+.syncStatus.bad{color:#ffb7ad;border-color:rgba(255,80,60,.45)}
+.modalOpen{overflow:hidden}

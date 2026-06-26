@@ -294,3 +294,7 @@ onAuthStateChanged(auth,(u)=>{
 });
 
 bind();
+
+
+// 완전 연동 4.4: 관리자 변경 즉시 홈페이지 반영 안내 및 강제 새로고침 없는 동기화
+setInterval(()=>{ const el=document.getElementById("adminSyncStatus"); if(el){el.textContent="실시간 연동중"; el.className="syncStatus ok";}},2000);

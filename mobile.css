@@ -826,3 +826,163 @@ body{
     font-size:24px;
   }
 }
+
+
+/* ===== 7.3 결제 안내/버튼 겹침 수정 ===== */
+.paymentBox,
+.paymentCard,
+.payBox,
+.payCard,
+.checkoutBox,
+.checkoutCard,
+#paymentInfo,
+#paymentGuide,
+#checkoutPage .card,
+#cartPage .card{
+  overflow:visible !important;
+}
+
+.payMethod,
+.pay-method,
+.paymentMethod,
+.kakaoPayBox,
+.bankPayBox,
+.accountBox,
+.copyBox{
+  display:block !important;
+  position:relative !important;
+  padding:20px !important;
+  border-radius:20px !important;
+  min-height:auto !important;
+  height:auto !important;
+}
+
+.kakaoPayBox,
+.kakao-pay,
+.kakaopay,
+[data-pay="kakao"]{
+  padding-bottom:26px !important;
+}
+
+.kakaoPayBox button,
+.kakao-pay button,
+.kakaopay button,
+.payBtn,
+.kakaoPayBtn,
+.copyPayBtn,
+.copyAccountBtn,
+.copyBtn,
+button[onclick*="copy"],
+button[id*="copy"],
+button[id*="Copy"]{
+  position:static !important;
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+  min-height:54px !important;
+  margin:12px 0 0 !important;
+  padding:14px 16px !important;
+  border-radius:18px !important;
+  line-height:1.25 !important;
+  white-space:normal !important;
+  text-align:center !important;
+  box-sizing:border-box !important;
+}
+
+.kakaoPayBox .primary,
+.kakao-pay .primary,
+.kakaopay .primary{
+  margin-top:16px !important;
+}
+
+.paymentBox h3,
+.paymentCard h3,
+.payBox h3,
+.checkoutBox h3,
+#paymentGuide h3{
+  margin-bottom:14px !important;
+}
+
+.paymentBox p,
+.paymentCard p,
+.payBox p,
+.checkoutBox p,
+#paymentGuide p,
+.accountBox p,
+.bankPayBox p{
+  word-break:keep-all !important;
+  overflow-wrap:anywhere !important;
+  line-height:1.65 !important;
+}
+
+.paymentNumber,
+.payNumber,
+.accountNumber,
+.kakaoNumber,
+.bankNumber{
+  display:block !important;
+  font-size:clamp(22px, 6vw, 34px) !important;
+  line-height:1.2 !important;
+  margin:8px 0 10px !important;
+  word-break:break-all !important;
+}
+
+.couponRow,
+.pointRow,
+.payButtonRow,
+.copyButtonRow{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+
+.couponRow input,
+.pointRow input{
+  width:100% !important;
+  min-height:58px !important;
+  box-sizing:border-box !important;
+}
+
+.couponRow button,
+.pointRow button{
+  width:100% !important;
+  min-height:58px !important;
+  margin:0 !important;
+}
+
+@media(min-width:520px){
+  .couponRow,
+  .pointRow{
+    grid-template-columns:1fr 140px !important;
+  }
+  .couponRow button,
+  .pointRow button{
+    margin:0 !important;
+  }
+}
+
+/* 하단 메뉴가 결제 박스 내용을 가리지 않도록 여백 확보 */
+.page,
+.screen,
+main{
+  padding-bottom:110px !important;
+}
+
+/* 결제 카드 내부 버튼이 위 텍스트 위로 떠오르는 현상 방지 */
+.card button,
+.formCard button{
+  transform:none !important;
+}
+
+/* 특정 프리미엄 버튼 스타일이 결제 복사 버튼에 과하게 적용되어 겹치는 것 방지 */
+.accountBox .primary,
+.accountBox .secondary,
+.bankPayBox .primary,
+.bankPayBox .secondary,
+.kakaoPayBox .primary,
+.kakaoPayBox .secondary{
+  border-radius:18px !important;
+  min-width:0 !important;
+  height:auto !important;
+}

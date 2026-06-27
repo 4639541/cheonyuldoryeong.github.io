@@ -549,6 +549,25 @@ async function referralReward(){
   $("marketingResult").innerHTML=`<article class="card"><h3>내 추천 코드</h3><p>${referralCode()}</p><p>친구가 가입 시 입력하면 보상이 지급됩니다.</p></article>`;
 }
 
+
+// ===== 7.3 payment layout safety =====
+function fixPaymentLayout(){
+  document.querySelectorAll("button").forEach(btn=>{
+    const txt=(btn.textContent||"").trim();
+    if(txt.includes("카카오페이 송금") || txt.includes("번호 복사") || txt.includes("계좌번호 복사")){
+      btn.style.position="static";
+      btn.style.width="100%";
+      btn.style.marginTop="12px";
+      btn.style.display="block";
+    }
+    if(txt === "카카오페이 번호 복사" || txt === "계좌/번호 복사"){
+      btn.textContent = txt.includes("계좌") ? "계좌번호 복사" : "카카오페이 번호 복사";
+    }
+  });
+}
+setInterval(fixPaymentLayout,1000);
+window.addEventListener("load",fixPaymentLayout);
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]

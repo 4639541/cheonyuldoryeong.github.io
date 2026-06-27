@@ -11,7 +11,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"천율도령 공식 신점 상담","description":"신점 상담, 부적, 초발원, 상담 예약 서비스"}</script>
 <meta name="theme-color" content="#050403">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=540">
+<link rel="stylesheet" href="mobile.css?v=600">
 </head>
 <body>
 <header class="appTop">
@@ -20,10 +20,31 @@
     <b>천율도령</b>
     <small>공식 신점 상담</small>
   </div>
-  <button id="loginOpen" class="pill" type="button">로그인</button>
+  <button id="themeToggle" class="pill" type="button">모드</button><button id="installPwaBtn" class="pill" type="button">앱설치</button><button id="loginOpen" class="pill" type="button">로그인</button>
 </header>
 
 <main class="screen">
+  <section id="globalSearchPage" class="page">
+    <h1>통합 검색</h1>
+    <input id="globalSearchInput" placeholder="상품, 후기, 공지, 상담, 문의 검색">
+    <div id="globalSearchResults" class="cards"></div>
+  </section>
+  <section id="eventPlayPage" class="page">
+    <h1>이벤트</h1>
+    <div class="formCard">
+      <button id="checkinBtn" class="primary" type="button">오늘 출석체크</button>
+      <button id="rouletteBtn" class="secondary" type="button">룰렛 이벤트 참여</button>
+      <div id="eventPlayResult"></div>
+    </div>
+  </section>
+  <section id="qrPage" class="page">
+    <h1>QR 코드</h1>
+    <div class="formCard">
+      <input id="qrText" placeholder="QR로 만들 링크/문구">
+      <button id="makeQrBtn" class="primary" type="button">QR 생성</button>
+      <div id="qrResult"></div>
+    </div>
+  </section>
   <section id="home" class="page active">
     <div class="heroCard">
       <p class="tag">17년차 황해도 이북 만신</p>
@@ -244,6 +265,7 @@
 
 <nav class="bottomNav">
   <button data-go="home" class="on">홈</button>
+  <button data-go="globalSearchPage">검색</button>
   <button data-go="reserve">예약</button>
   <button data-go="shop">상품</button>
   <button data-go="reviews">후기</button>
@@ -254,6 +276,8 @@
   <button data-go="referralPage">추천</button>
   <button data-go="filesPage">자료</button>
   <button data-go="receiptPage">영수증</button>
+  <button data-go="eventPlayPage">이벤트</button>
+  <button data-go="qrPage">QR</button>
   <button data-go="supportPage">문의</button>
   <button data-go="memberSecurityPage">보안</button>
   <button data-go="bookingHistoryPage">예약이력</button>
@@ -321,6 +345,7 @@
   </div>
 </div>
 
-<script type="module" src="mobile.js?v=540"></script>
+<script type="module" src="mobile.js?v=600"></script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=600").catch(()=>{});}</script>
 </body>
 </html>

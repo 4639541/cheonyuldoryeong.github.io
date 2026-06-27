@@ -11,7 +11,7 @@ const money=v=>Number(String(v||"").replace(/[^\d]/g,""))||0;
 const won=n=>(Number(n)||0).toLocaleString()+"원";
 
 let state={
-  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], pointSettings:[], supportTickets:[], faqs:[], reservationBlocks:[], activityLogs:[], refundLogs:[], consultationReports:[], crmProfiles:[], events:[], memberFiles:[], seoSettings:[], adminRoles:[], epostShipments:[],
+  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], pointSettings:[], supportTickets:[], faqs:[], reservationBlocks:[], activityLogs:[], refundLogs:[], consultationReports:[], crmProfiles:[], adminRoles:[], realtimeAlerts:[], visitorSessions:[], storageFiles:[], calendarEvents:[], eventGameSettings:[], aiSummaries:[], errorLogs:[], cacheSettings:[], events:[], memberFiles:[], seoSettings:[], adminRoles:[], epostShipments:[],
   payment:{name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청"},
   booking:{times:["오전 10시","오후 2시","오후 7시"],blockedDates:[]}
 };
@@ -369,6 +369,72 @@ function renderConsultReports(){
   if(html) box.innerHTML=html+box.innerHTML;
 }
 
+
+// ===== 6.0 enterprise mobile additions =====
+let deferredInstallPrompt=null;
+window.addEventListener("beforeinstallprompt",(e)=>{e.preventDefault();deferredInstallPrompt=e;});
+async function trackVisitor(){
+  try{
+    const id=localStorage.cyVisitorId || ("v_"+Math.random().toString(36).slice(2));
+    localStorage.cyVisitorId=id;
+    await setDoc(doc(db,"visitorSessions",id),{
+      id, path:location.pathname, referrer:document.referrer||"", userAgent:navigator.userAgent,
+      device:/Mobi|Android|iPhone/i.test(navigator.userAgent)?"mobile":"pc",
+      lang:navigator.language||"", lastSeenAt:serverTimestamp(), createdDate:new Date().toISOString().slice(0,10)
+    },{merge:true});
+  }catch(e){}
+}
+function toggleTheme(){
+  document.body.classList.toggle("lightMode");
+  localStorage.cyTheme=document.body.classList.contains("lightMode")?"light":"dark";
+}
+function initTheme(){
+  if(localStorage.cyTheme==="light")document.body.classList.add("lightMode");
+}
+async function installPwa(){
+  if(!deferredInstallPrompt)return alert("브라우저 메뉴에서 홈 화면에 추가를 이용해 주세요.");
+  deferredInstallPrompt.prompt();
+}
+function globalSearch(){
+  const q=($("globalSearchInput")?.value||"").toLowerCase();
+  const box=$("globalSearchResults"); if(!box)return;
+  if(!q){box.innerHTML="<p>검색어를 입력하세요.</p>";return;}
+  const rows=[
+    ...state.products.map(x=>({type:"상품",title:x.name,body:x.desc})),
+    ...state.reviews.map(x=>({type:"후기",title:x.name,body:x.body})),
+    ...state.notices.map(x=>({type:"공지",title:x.title,body:x.body})),
+    ...state.bookings.map(x=>({type:"상담",title:x.type,body:x.body})),
+    ...state.supportTickets.map(x=>({type:"문의",title:x.title,body:x.body}))
+  ].filter(x=>`${x.type} ${x.title} ${x.body}`.toLowerCase().includes(q));
+  box.innerHTML=rows.slice(0,30).map(r=>`<article class="card"><h3>[${r.type}] ${esc(r.title||"")}</h3><p>${esc(r.body||"")}</p></article>`).join("")||"<p>검색 결과가 없습니다.</p>";
+}
+function makeQr(text, boxId){
+  const box=$(boxId); if(!box)return;
+  const url="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data="+encodeURIComponent(text);
+  box.innerHTML=`<img class="qrImg" src="${url}"><p>${esc(text)}</p>`;
+}
+async function checkin(){
+  if(!member)return alert("로그인 후 참여해 주세요.");
+  const today=new Date().toISOString().slice(0,10);
+  const exists=(state.points||[]).some(p=>p.memberUid===(member.uid||member.id)&&p.type==="checkin"&&p.date===today);
+  if(exists)return alert("오늘은 이미 출석체크를 했습니다.");
+  const setting=(state.eventGameSettings||[])[0]||{checkinPoint:100};
+  await addDoc(collection(db,"points"),{memberUid:member.uid||member.id,memberEmail:member.email,memberName:member.name||"",amount:Number(setting.checkinPoint||100),reason:"출석체크 적립",type:"checkin",date:today,status:"active",createdAt:serverTimestamp()});
+  $("eventPlayResult").innerHTML=`<div class="card">출석 완료! ${won(Number(setting.checkinPoint||100))} 적립</div>`;
+}
+async function roulette(){
+  if(!member)return alert("로그인 후 참여해 주세요.");
+  const setting=(state.eventGameSettings||[])[0]||{prizes:"1000P,500P,꽝"};
+  const prizes=String(setting.prizes||"1000P,500P,꽝").split(",").map(x=>x.trim()).filter(Boolean);
+  const prize=prizes[Math.floor(Math.random()*prizes.length)]||"꽝";
+  if(/P|포인트|원/.test(prize)){
+    const amt=Number(prize.replace(/[^\d]/g,""))||0;
+    if(amt>0)await addDoc(collection(db,"points"),{memberUid:member.uid||member.id,memberEmail:member.email,memberName:member.name||"",amount:amt,reason:"룰렛 이벤트",type:"roulette",status:"active",createdAt:serverTimestamp()});
+  }
+  $("eventPlayResult").innerHTML=`<div class="card">룰렛 결과: <b>${esc(prize)}</b></div>`;
+}
+window.addEventListener("error",async(e)=>{try{await addDoc(collection(db,"errorLogs"),{message:e.message,source:e.filename,line:e.lineno,createdAt:serverTimestamp()})}catch(_){}});
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
@@ -556,14 +622,14 @@ function bind(){
   document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
   document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>close(b.dataset.close));
   document.querySelectorAll(".modal").forEach(m=>m.onclick=e=>{if(e.target===m)close(m.id)});
-  $("loginOpen").onclick=()=>member?go("mypage"):open("authModal");
+  if($("themeToggle"))$("themeToggle").onclick=toggleTheme; if($("installPwaBtn"))$("installPwaBtn").onclick=installPwa; $("loginOpen").onclick=()=>member?go("mypage"):open("authModal");
   $("loginTab").onclick=()=>{$("loginTab").classList.add("on");$("joinTab").classList.remove("on");$("loginPanel").classList.remove("hide");$("joinPanel").classList.add("hide")};
   $("joinTab").onclick=()=>{$("joinTab").classList.add("on");$("loginTab").classList.remove("on");$("joinPanel").classList.remove("hide");$("loginPanel").classList.add("hide")};
-  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; if($("pointApply"))$("pointApply").onclick=applyPointUse; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("supportSubmit"))$("supportSubmit").onclick=submitSupport; if($("saveMemberEdit"))$("saveMemberEdit").onclick=saveMemberEdit; if($("requestDeleteMember"))$("requestDeleteMember").onclick=requestDeleteMember; if($("sendEmailVerifyBtn"))$("sendEmailVerifyBtn").onclick=sendVerifyEmail; if($("sendResetPwBtn"))$("sendResetPwBtn").onclick=sendResetPassword; if($("epostTrackBtn"))$("epostTrackBtn").onclick=handleEpostTrack; if($("chatSend"))$("chatSend").onclick=sendChat; if($("saveReferral"))$("saveReferral").onclick=saveReferralCode; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
+  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; if($("pointApply"))$("pointApply").onclick=applyPointUse; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("globalSearchInput"))$("globalSearchInput").oninput=globalSearch; if($("makeQrBtn"))$("makeQrBtn").onclick=()=>makeQr($("qrText").value,"qrResult"); if($("checkinBtn"))$("checkinBtn").onclick=checkin; if($("rouletteBtn"))$("rouletteBtn").onclick=roulette; if($("supportSubmit"))$("supportSubmit").onclick=submitSupport; if($("saveMemberEdit"))$("saveMemberEdit").onclick=saveMemberEdit; if($("requestDeleteMember"))$("requestDeleteMember").onclick=requestDeleteMember; if($("sendEmailVerifyBtn"))$("sendEmailVerifyBtn").onclick=sendVerifyEmail; if($("sendResetPwBtn"))$("sendResetPwBtn").onclick=sendResetPassword; if($("epostTrackBtn"))$("epostTrackBtn").onclick=handleEpostTrack; if($("chatSend"))$("chatSend").onclick=sendChat; if($("saveReferral"))$("saveReferral").onclick=saveReferralCode; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
 }
 function startSync(){
   if(started)return; started=true;
-  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",pointSettings:"pointSettings",supportTickets:"supportTickets",faqs:"faqs",reservationBlocks:"reservationBlocks",activityLogs:"activityLogs",refundLogs:"refundLogs",consultationReports:"consultationReports",crmProfiles:"crmProfiles",events:"events",memberFiles:"memberFiles",seoSettings:"seoSettings",adminRoles:"adminRoles",epostShipments:"epostShipments"};
+  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",pointSettings:"pointSettings",supportTickets:"supportTickets",faqs:"faqs",reservationBlocks:"reservationBlocks",activityLogs:"activityLogs",refundLogs:"refundLogs",consultationReports:"consultationReports",crmProfiles:"crmProfiles",adminRoles:"adminRoles",realtimeAlerts:"realtimeAlerts",visitorSessions:"visitorSessions",storageFiles:"storageFiles",calendarEvents:"calendarEvents",eventGameSettings:"eventGameSettings",aiSummaries:"aiSummaries",errorLogs:"errorLogs",cacheSettings:"cacheSettings",events:"events",memberFiles:"memberFiles",seoSettings:"seoSettings",adminRoles:"adminRoles",epostShipments:"epostShipments"};
   Object.entries(map).forEach(([col,key])=>listen(col,key));
 }
-bind(); hydrate(); renderAll(); startSync(); recordVisit(); onAuthStateChanged(auth,loadMember);
+initTheme(); bind(); hydrate(); renderAll(); startSync(); recordVisit(); trackVisitor(); onAuthStateChanged(auth,loadMember);

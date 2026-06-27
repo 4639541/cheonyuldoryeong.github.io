@@ -172,3 +172,28 @@ Mobile 5.4 요청 목록 전체 추가 구현:
 - Firestore JSON 백업, 설정 백업, 이미지/자료 URL 백업, 복원 미리보기
 
 캐시 방지 v=540
+
+Mobile 6.0 Enterprise Complete:
+1 Super Admin 권한 시스템
+2 실시간 알림센터 + 알림음
+3 실시간 방문자 통계
+4 SEO 관리자
+5 Firebase Storage 관리자
+6 이미지 업로드/최적화 준비
+7 다크모드
+8 PWA 앱 설치/서비스워커
+9 통합 검색
+10 CSV 엑셀 다운로드
+11 상담보고서 PDF 생성 준비
+12 QR 코드 생성
+13 관리자 캘린더
+14 이벤트 룰렛/출석체크
+15 AI 상담 보조 요약
+16 Cloud Functions 자동화 템플릿
+17 Firebase Security Rules / Storage Rules
+18 Firestore Index
+19 에러 모니터링
+20 자동 캐시 버전 갱신
+캐시 방지 v=600
+
+주의: Cloud Functions, Security Rules, Index는 Firebase 콘솔/CLI에서 직접 배포해야 실제 서버 자동화가 작동합니다.

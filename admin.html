@@ -1,11 +1,11 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천율도령 모바일 관리자</title><link rel="stylesheet" href="mobile.css?v=540"></head><body><header class="appTop">
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천율도령 모바일 관리자</title><link rel="stylesheet" href="mobile.css?v=600"></head><body><header class="appTop">
   <span id="adminSyncStatus" class="syncStatus">연동 준비</span><div><b>관리자</b><small>모바일 전용</small></div><a class="pill" href="index.html">홈</a></header><main class="screen"><section class="formCard" id="adminLoginBox"><h1>관리자 로그인</h1><input id="adminEmail" placeholder="이메일"><input id="adminPw" type="password" placeholder="비밀번호">
         <button id="adminLogin" class="primary" type="button">로그인</button>
         <button id="adminJoin" class="secondary" type="button">관리자 최초 등록</button>
         <button id="adminResetPw" class="secondary" type="button">비밀번호 재설정 메일</button>
         <p id="adminLoginMsg" class="loginMsg"></p>
         <p class="loginHelp">로그인이 안 되면 먼저 관리자 최초 등록을 눌러 계정을 생성하세요.</p>
-        </section><section id="adminPanel" class="hide"><button id="adminLogout" class="secondary">로그아웃</button><div class="quickGrid"><button data-tab="dash">대시보드</button><button data-tab="orders">주문</button><button data-tab="bookings">예약</button><button data-tab="members">회원</button><button data-tab="coupons">쿠폰</button><button data-tab="products">상품</button><button data-tab="prices">상담</button><button data-tab="settings">설정</button><button data-tab="backup2Admin">백업2.0</button><button data-tab="logs2Admin">로그2.0</button><button data-tab="opsAdmin">운영관리</button><button data-tab="consultManageAdmin">상담관리</button><button data-tab="memberSystemAdmin">회원시스템</button><button data-tab="refund2Admin">환불2.0</button><button data-tab="dash2Admin">대시보드2.0</button><button data-tab="crm2Admin">CRM2.0</button><button data-tab="reservationAdvanced">예약고도화</button><button data-tab="memberAnalytics">고객분석</button><button data-tab="productOptionsAdmin">상품옵션</button><button data-tab="supportAdmin">문의</button><button data-tab="epostAdmin">우체국</button><button data-tab="filesAdmin">자료</button><button data-tab="rolesAdmin">권한</button><button data-tab="backupAdmin">백업</button><button data-tab="seoAdmin">SEO</button><button data-tab="chatAdmin">채팅</button><button data-tab="pointsAdmin">적립금</button><button data-tab="eventsAdmin">이벤트</button><button data-tab="alertCenter">알림</button><button data-tab="crmDashboard">CRM</button><button data-tab="calendarAdmin">일정</button><button data-tab="consultRecords">상담이력</button><button data-tab="spiritualManage">부적/초발원</button><button data-tab="refundManage">환불</button><button data-tab="security">보안</button><button data-tab="business">사업자</button><button data-tab="reviewsAdmin">후기</button><button data-tab="backup">백업</button><button data-tab="homeManage">홈관리</button><button data-tab="analytics">통계</button><button data-tab="banners">배너</button><button data-tab="logs">로그</button></div><div id="dash" class="adminTab"><h1>대시보드</h1><div class="quickGrid"><button>주문 <b id="statOrders">0</b></button><button>예약 <b id="statBookings">0</b></button><button>회원 <b id="statMembers">0</b></button><button>매출 <b id="statSales">0원</b></button></div></div><div id="orders" class="adminTab hide"><h1>주문관리</h1><div id="orderList"></div></div><div id="bookings" class="adminTab hide"><h1>예약관리</h1><div id="bookingList"></div></div><div id="members" class="adminTab hide"><h1>회원관리</h1><div id="memberList"></div></div><div id="coupons" class="adminTab hide"><h1>쿠폰관리</h1><div class="formCard"><select id="memberSelect"><option value="">공용 쿠폰</option></select><input id="couponCode" placeholder="쿠폰 코드"><input id="couponDiscount" placeholder="할인금액"><input id="couponDesc" placeholder="설명"><input id="couponMinOrder" placeholder="최소 주문금액 예: 30000"><input id="couponExpire" type="date"><input id="couponLimit" placeholder="사용 가능 횟수 예: 1"><button id="addCoupon" class="primary">쿠폰 발급</button></div><div id="couponList"></div></div><div id="products" class="adminTab hide"><h1>상품관리</h1><div class="formCard"><input id="pName" placeholder="상품명"><input id="pPrice" placeholder="가격"><input id="pStock" placeholder="재고"><input id="pImages" type="file" multiple accept="image/*"><textarea id="pDesc" placeholder="설명"></textarea><button id="addProduct" class="primary">상품 등록</button></div><div id="productListAdmin"></div></div><div id="prices" class="adminTab hide"><h1>상담가격</h1><div class="formCard"><input id="priceTitle" placeholder="상담명"><input id="priceAmount" placeholder="가격"><textarea id="priceDesc" placeholder="설명"></textarea><button id="addPrice" class="primary">상담가격 등록</button></div><div id="priceListAdmin"></div></div><div id="settings" class="adminTab hide"><h1>설정</h1><div class="formCard"><h3>결제 설정</h3><input id="payAccount" placeholder="카카오페이 번호"><input id="payLink" placeholder="카카오페이 링크"><input id="bankName" placeholder="은행"><input id="bankOwner" placeholder="예금주"><input id="bankAccount" placeholder="계좌번호"><textarea id="payGuide" placeholder="결제 안내"></textarea><button id="savePay" class="primary">결제 저장</button></div><div class="formCard"><h3>예약 시간</h3><textarea id="timeInput" placeholder="오전 10시&#10;오후 2시"></textarea><textarea id="blockInput" placeholder="마감 날짜 2026-07-01"></textarea><button id="saveBooking" class="primary">예약 설정 저장</button></div></div>
+        </section><section id="adminPanel" class="hide"><button id="adminLogout" class="secondary">로그아웃</button><div class="quickGrid"><button data-tab="dash">대시보드</button><button data-tab="orders">주문</button><button data-tab="bookings">예약</button><button data-tab="members">회원</button><button data-tab="coupons">쿠폰</button><button data-tab="products">상품</button><button data-tab="prices">상담</button><button data-tab="settings">설정</button><button data-tab="cacheAdmin">캐시</button><button data-tab="errorAdmin">오류</button><button data-tab="indexAdmin">인덱스</button><button data-tab="rulesAdmin">보안</button><button data-tab="functionsAdmin">자동화</button><button data-tab="aiAssistAdmin">AI보조</button><button data-tab="eventGameAdmin">이벤트</button><button data-tab="calendarProAdmin">캘린더</button><button data-tab="qrAdmin">QR</button><button data-tab="pdfAdmin">PDF</button><button data-tab="excelAdmin">엑셀</button><button data-tab="searchAdmin">검색</button><button data-tab="pwaAdmin">PWA</button><button data-tab="storageAdmin">Storage</button><button data-tab="seoProAdmin">SEO</button><button data-tab="visitorAdmin">방문자</button><button data-tab="realtimeCenterAdmin">실시간</button><button data-tab="superRoleAdmin">권한</button><button data-tab="backup2Admin">백업2.0</button><button data-tab="logs2Admin">로그2.0</button><button data-tab="opsAdmin">운영관리</button><button data-tab="consultManageAdmin">상담관리</button><button data-tab="memberSystemAdmin">회원시스템</button><button data-tab="refund2Admin">환불2.0</button><button data-tab="dash2Admin">대시보드2.0</button><button data-tab="crm2Admin">CRM2.0</button><button data-tab="reservationAdvanced">예약고도화</button><button data-tab="memberAnalytics">고객분석</button><button data-tab="productOptionsAdmin">상품옵션</button><button data-tab="supportAdmin">문의</button><button data-tab="epostAdmin">우체국</button><button data-tab="filesAdmin">자료</button><button data-tab="rolesAdmin">권한</button><button data-tab="backupAdmin">백업</button><button data-tab="seoAdmin">SEO</button><button data-tab="chatAdmin">채팅</button><button data-tab="pointsAdmin">적립금</button><button data-tab="eventsAdmin">이벤트</button><button data-tab="alertCenter">알림</button><button data-tab="crmDashboard">CRM</button><button data-tab="calendarAdmin">일정</button><button data-tab="consultRecords">상담이력</button><button data-tab="spiritualManage">부적/초발원</button><button data-tab="refundManage">환불</button><button data-tab="security">보안</button><button data-tab="business">사업자</button><button data-tab="reviewsAdmin">후기</button><button data-tab="backup">백업</button><button data-tab="homeManage">홈관리</button><button data-tab="analytics">통계</button><button data-tab="banners">배너</button><button data-tab="logs">로그</button></div><div id="dash" class="adminTab"><h1>대시보드</h1><div class="quickGrid"><button>주문 <b id="statOrders">0</b></button><button>예약 <b id="statBookings">0</b></button><button>회원 <b id="statMembers">0</b></button><button>매출 <b id="statSales">0원</b></button></div></div><div id="orders" class="adminTab hide"><h1>주문관리</h1><div id="orderList"></div></div><div id="bookings" class="adminTab hide"><h1>예약관리</h1><div id="bookingList"></div></div><div id="members" class="adminTab hide"><h1>회원관리</h1><div id="memberList"></div></div><div id="coupons" class="adminTab hide"><h1>쿠폰관리</h1><div class="formCard"><select id="memberSelect"><option value="">공용 쿠폰</option></select><input id="couponCode" placeholder="쿠폰 코드"><input id="couponDiscount" placeholder="할인금액"><input id="couponDesc" placeholder="설명"><input id="couponMinOrder" placeholder="최소 주문금액 예: 30000"><input id="couponExpire" type="date"><input id="couponLimit" placeholder="사용 가능 횟수 예: 1"><button id="addCoupon" class="primary">쿠폰 발급</button></div><div id="couponList"></div></div><div id="products" class="adminTab hide"><h1>상품관리</h1><div class="formCard"><input id="pName" placeholder="상품명"><input id="pPrice" placeholder="가격"><input id="pStock" placeholder="재고"><input id="pImages" type="file" multiple accept="image/*"><textarea id="pDesc" placeholder="설명"></textarea><button id="addProduct" class="primary">상품 등록</button></div><div id="productListAdmin"></div></div><div id="prices" class="adminTab hide"><h1>상담가격</h1><div class="formCard"><input id="priceTitle" placeholder="상담명"><input id="priceAmount" placeholder="가격"><textarea id="priceDesc" placeholder="설명"></textarea><button id="addPrice" class="primary">상담가격 등록</button></div><div id="priceListAdmin"></div></div><div id="settings" class="adminTab hide"><h1>설정</h1><div class="formCard"><h3>결제 설정</h3><input id="payAccount" placeholder="카카오페이 번호"><input id="payLink" placeholder="카카오페이 링크"><input id="bankName" placeholder="은행"><input id="bankOwner" placeholder="예금주"><input id="bankAccount" placeholder="계좌번호"><textarea id="payGuide" placeholder="결제 안내"></textarea><button id="savePay" class="primary">결제 저장</button></div><div class="formCard"><h3>예약 시간</h3><textarea id="timeInput" placeholder="오전 10시&#10;오후 2시"></textarea><textarea id="blockInput" placeholder="마감 날짜 2026-07-01"></textarea><button id="saveBooking" class="primary">예약 설정 저장</button></div></div>
 
 <div id="homeManage" class="adminTab hide">
   <h1>홈페이지 표시 관리</h1>
@@ -373,4 +373,168 @@
   <div id="backupResult"></div>
 </div>
 
-</section></main><script type="module" src="admin-mobile.js?v=540"></script></body></html>
+
+<div id="superRoleAdmin" class="adminTab hide">
+  <h1>Super Admin 권한 시스템</h1>
+  <div class="formCard">
+    <input id="roleUserEmail" placeholder="관리자 이메일">
+    <select id="roleUserType">
+      <option value="super">최고관리자</option>
+      <option value="operation">운영관리자</option>
+      <option value="consult">상담관리자</option>
+      <option value="delivery">배송관리자</option>
+      <option value="customer">고객관리자</option>
+    </select>
+    <button id="saveSuperRole" class="primary" type="button">권한 저장</button>
+  </div>
+  <div id="superRoleList"></div>
+</div>
+
+<div id="realtimeCenterAdmin" class="adminTab hide">
+  <h1>실시간 알림센터</h1>
+  <button id="enableSoundAlert" class="primary" type="button">알림음 켜기</button>
+  <div id="realtimeAlertList"></div>
+</div>
+
+<div id="visitorAdmin" class="adminTab hide">
+  <h1>실시간 방문자</h1>
+  <div class="quickGrid">
+    <button>현재 접속 <b id="onlineVisitorCount">0</b></button>
+    <button>오늘 방문 <b id="todayVisitorCount">0</b></button>
+    <button>모바일 <b id="mobileVisitorCount">0</b></button>
+    <button>PC <b id="pcVisitorCount">0</b></button>
+  </div>
+  <div id="visitorList"></div>
+</div>
+
+<div id="seoProAdmin" class="adminTab hide">
+  <h1>SEO 관리자</h1>
+  <div class="formCard">
+    <input id="seoProTitle" placeholder="사이트 제목">
+    <textarea id="seoProDesc" placeholder="사이트 설명"></textarea>
+    <input id="seoProOg" placeholder="OG 이미지 URL">
+    <input id="seoProNaver" placeholder="네이버 인증 메타값">
+    <input id="seoProGoogle" placeholder="구글 인증 메타값">
+    <button id="saveSeoPro" class="primary" type="button">SEO 저장</button>
+  </div>
+</div>
+
+<div id="storageAdmin" class="adminTab hide">
+  <h1>Firebase Storage 관리자</h1>
+  <div class="formCard">
+    <input id="storageUploadFiles" type="file" multiple accept="image/*,application/pdf,audio/*,video/*">
+    <select id="storagePurpose"><option>상품 이미지</option><option>배너 이미지</option><option>후기 이미지</option><option>상담 자료</option></select>
+    <button id="uploadStorageFiles" class="primary" type="button">업로드</button>
+  </div>
+  <div id="storageFileList"></div>
+</div>
+
+<div id="pwaAdmin" class="adminTab hide">
+  <h1>PWA 앱 설정</h1>
+  <div class="formCard">
+    <input id="pwaName" placeholder="앱 이름">
+    <input id="pwaShort" placeholder="짧은 이름">
+    <input id="pwaTheme" placeholder="테마 색상 예: #050403">
+    <button id="savePwaSettings" class="primary" type="button">PWA 설정 저장</button>
+  </div>
+</div>
+
+<div id="searchAdmin" class="adminTab hide">
+  <h1>관리자 통합 검색</h1>
+  <input id="adminGlobalSearch" placeholder="회원, 주문, 예약, 후기, 상담 검색">
+  <div id="adminSearchResults"></div>
+</div>
+
+<div id="excelAdmin" class="adminTab hide">
+  <h1>엑셀/CSV 다운로드</h1>
+  <div class="formCard">
+    <button id="csvMembers" class="primary" type="button">회원 CSV</button>
+    <button id="csvOrders" class="secondary" type="button">주문 CSV</button>
+    <button id="csvBookings" class="secondary" type="button">예약 CSV</button>
+    <button id="csvReviews" class="secondary" type="button">후기 CSV</button>
+  </div>
+</div>
+
+<div id="pdfAdmin" class="adminTab hide">
+  <h1>PDF 자동 생성</h1>
+  <div class="formCard">
+    <select id="pdfMemberSelect"><option value="">회원 선택</option></select>
+    <input id="pdfTitle" placeholder="상담보고서 제목">
+    <textarea id="pdfBody" placeholder="PDF 내용"></textarea>
+    <button id="createReportPdf" class="primary" type="button">PDF 생성/회원 제공</button>
+  </div>
+  <div id="pdfList"></div>
+</div>
+
+<div id="qrAdmin" class="adminTab hide">
+  <h1>QR 코드 생성</h1>
+  <div class="formCard">
+    <input id="qrAdminText" placeholder="상품/예약/오픈채팅/카카오채널 링크">
+    <button id="createAdminQr" class="primary" type="button">QR 생성</button>
+    <div id="qrAdminResult"></div>
+  </div>
+</div>
+
+<div id="calendarProAdmin" class="adminTab hide">
+  <h1>관리자 캘린더</h1>
+  <div class="formCard">
+    <input id="calTitle" placeholder="일정 제목">
+    <input id="calDate" type="date">
+    <select id="calType"><option>예약</option><option>휴무</option><option>행사</option><option>생일</option></select>
+    <button id="saveCalEvent" class="primary" type="button">일정 저장</button>
+  </div>
+  <div id="calendarProList"></div>
+</div>
+
+<div id="eventGameAdmin" class="adminTab hide">
+  <h1>이벤트 룰렛/출석체크</h1>
+  <div class="formCard">
+    <input id="roulettePrizes" placeholder="룰렛 경품 쉼표구분 예: 1000P, 쿠폰, 꽝">
+    <input id="checkinPoint" placeholder="출석체크 적립금 예: 100">
+    <button id="saveGameEvent" class="primary" type="button">이벤트 설정 저장</button>
+  </div>
+</div>
+
+<div id="aiAssistAdmin" class="adminTab hide">
+  <h1>AI 상담 보조</h1>
+  <div class="formCard">
+    <select id="aiMemberSelect"><option value="">회원 선택</option></select>
+    <button id="makeAiSummary" class="primary" type="button">상담기록 요약 생성</button>
+  </div>
+  <div id="aiAssistResult"></div>
+</div>
+
+<div id="functionsAdmin" class="adminTab hide">
+  <h1>Cloud Functions 자동화</h1>
+  <div class="formCard">
+    <button id="showFunctionsGuide" class="primary" type="button">자동화 설정 안내 보기</button>
+    <div id="functionsGuide"></div>
+  </div>
+</div>
+
+<div id="rulesAdmin" class="adminTab hide">
+  <h1>Firebase Security Rules</h1>
+  <button id="downloadRules" class="primary" type="button">보안 규칙 다운로드</button>
+  <pre id="rulesPreview"></pre>
+</div>
+
+<div id="indexAdmin" class="adminTab hide">
+  <h1>Firestore Index</h1>
+  <button id="downloadIndexes" class="primary" type="button">인덱스 파일 다운로드</button>
+  <pre id="indexPreview"></pre>
+</div>
+
+<div id="errorAdmin" class="adminTab hide">
+  <h1>에러 모니터링</h1>
+  <div id="errorLogList"></div>
+</div>
+
+<div id="cacheAdmin" class="adminTab hide">
+  <h1>자동 캐시</h1>
+  <div class="formCard">
+    <button id="bumpCacheBtn" class="primary" type="button">캐시 버전 갱신</button>
+    <div id="cacheStatus"></div>
+  </div>
+</div>
+
+</section></main><script type="module" src="admin-mobile.js?v=600"></script></body></html>

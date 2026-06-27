@@ -858,3 +858,100 @@ setTimeout(()=>{
   loadFullRequestedSuite();
 },1500);
 setInterval(loadFullRequestedSuite,6000);
+
+// ===== 6.0 enterprise admin additions =====
+let soundAlertEnabled=false, lastAlertCount=0;
+function csvDownload2(filename, rows){
+  const csv=rows.map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
+  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);
+}
+function jsonDownload(filename, obj){
+  const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);
+}
+async function uploadEnterpriseFiles(files, folder){
+  const urls=[];
+  for(const f of Array.from(files||[])){
+    const r=ref(storage,`${folder}/${Date.now()}_${f.name}`);
+    await uploadBytes(r,f);
+    urls.push(await getDownloadURL(r));
+  }
+  return urls;
+}
+function playBeep(){
+  if(!soundAlertEnabled)return;
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator();const g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.value=.08;o.start();setTimeout(()=>{o.stop();ctx.close();},160);
+  }catch(e){}
+}
+function applyRoleMenus(role){
+  const permissions={
+    super:["*"],
+    operation:["dash2Admin","realtimeCenterAdmin","visitorAdmin","opsAdmin","eventGameAdmin","excelAdmin","backup2Admin"],
+    consult:["crm2Admin","consultManageAdmin","calendarProAdmin","aiAssistAdmin","supportAdmin","bookingHistoryPage"],
+    delivery:["epostAdmin","orders","excelAdmin"],
+    customer:["memberAnalytics","memberSystemAdmin","supportAdmin","crm2Admin"]
+  };
+  const allowed=permissions[role]||permissions.super;
+  if(allowed[0]==="*")return;
+  document.querySelectorAll("[data-tab]").forEach(b=>{const t=b.dataset.tab;if(!allowed.includes(t)&&!["dash"].includes(t))b.style.display="none";});
+}
+async function loadEnterprise(){
+  try{
+    const cols=["adminRoles","notifications","orders","bookings","supportTickets","reviews","visitorSessions","storageFiles","members","products","consultRecords","calendarEvents","events","errorLogs","settings","faqs","consultationReports"];
+    const [roles,notifications,orders,bookings,tickets,reviews,visitors,storageFiles,members,products,records,calEvents,events,errorLogs,settings,faqs,reports]=await Promise.all(cols.map(list));
+    const myRole=(roles.find(r=>String(r.email||"").toLowerCase()===(auth.currentUser?.email||"").toLowerCase())?.role)||"super";
+    applyRoleMenus(myRole);
+    if($("superRoleList"))$("superRoleList").innerHTML=roles.map(r=>card(r.email||"",`권한: ${r.role||""}`,`<button class="secondary" onclick="del('adminRoles','${r.id}')">삭제</button>`)).join("")||"<p>권한 등록이 없습니다.</p>";
+
+    const alerts=[
+      ...orders.slice(0,5).map(o=>({title:"새 주문",body:`${o.orderNo||""} ${o.name||""} ${o.total||""}`})),
+      ...bookings.slice(0,5).map(b=>({title:"상담 예약",body:`${b.name||""} ${b.date||""} ${b.time||""}`})),
+      ...tickets.slice(0,5).map(t=>({title:"1:1 문의",body:t.title||""})),
+      ...reviews.filter(r=>!r.approved).slice(0,5).map(r=>({title:"후기 승인대기",body:r.name||""})),
+      ...notifications.filter(n=>n.target==="admin").slice(0,10).map(n=>({title:n.title,body:n.body}))
+    ];
+    if(alerts.length>lastAlertCount){playBeep();lastAlertCount=alerts.length;}
+    if($("realtimeAlertList"))$("realtimeAlertList").innerHTML=alerts.map(a=>card(a.title,a.body)).join("")||"<p>실시간 알림이 없습니다.</p>";
+
+    const today=new Date().toISOString().slice(0,10);
+    const online=visitors.filter(v=>v.lastSeenAt?.seconds && Date.now()-v.lastSeenAt.seconds*1000<10*60*1000);
+    if($("onlineVisitorCount"))$("onlineVisitorCount").textContent=online.length;
+    if($("todayVisitorCount"))$("todayVisitorCount").textContent=visitors.filter(v=>v.createdDate===today).length;
+    if($("mobileVisitorCount"))$("mobileVisitorCount").textContent=visitors.filter(v=>v.device==="mobile").length;
+    if($("pcVisitorCount"))$("pcVisitorCount").textContent=visitors.filter(v=>v.device==="pc").length;
+    if($("visitorList"))$("visitorList").innerHTML=visitors.slice(0,50).map(v=>card(v.device||"접속",`${v.path||""}<br>${v.referrer||"직접접속"}<br>${v.lang||""}`)).join("");
+
+    if($("storageFileList"))$("storageFileList").innerHTML=storageFiles.map(f=>card(f.purpose||"파일",`${f.urls?.length||0}개`,(f.urls||[]).map((u,i)=>`<a class="secondary fileLink" target="_blank" href="${u}">파일 ${i+1}</a>`).join(""))).join("")||"<p>업로드 파일이 없습니다.</p>";
+    if($("pdfMemberSelect"))$("pdfMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||""} / ${m.email||""}</option>`).join("");
+    if($("aiMemberSelect"))$("aiMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||""} / ${m.email||""}</option>`).join("");
+    if($("calendarProList"))$("calendarProList").innerHTML=calEvents.map(c=>card(`${c.date||""} · ${c.type||""}`,c.title||"",`<button class="secondary" onclick="del('calendarEvents','${c.id}')">삭제</button>`)).join("")||"<p>일정이 없습니다.</p>";
+    if($("errorLogList"))$("errorLogList").innerHTML=errorLogs.slice(0,50).map(e=>card(e.message||"오류",`${e.source||""}:${e.line||""}`)).join("")||"<p>오류 기록이 없습니다.</p>";
+  }catch(e){console.warn(e)}
+}
+setTimeout(()=>{
+  $("enableSoundAlert")?.addEventListener("click",()=>{soundAlertEnabled=true;alert("알림음이 켜졌습니다.");});
+  $("saveSuperRole")?.addEventListener("click",async()=>{await addDoc(collection(db,"adminRoles"),{email:val("roleUserEmail"),role:val("roleUserType"),createdAt:serverTimestamp()});await adminLog("관리자 권한 저장");alert("권한 저장 완료");loadEnterprise();});
+  $("saveSeoPro")?.addEventListener("click",async()=>{await addDoc(collection(db,"seoSettings"),{title:val("seoProTitle"),desc:val("seoProDesc"),ogImage:val("seoProOg"),naver:val("seoProNaver"),google:val("seoProGoogle"),createdAt:serverTimestamp()});alert("SEO 저장 완료");});
+  $("uploadStorageFiles")?.addEventListener("click",async()=>{const urls=await uploadEnterpriseFiles($("storageUploadFiles").files,"enterprise");await addDoc(collection(db,"storageFiles"),{purpose:val("storagePurpose"),urls,createdAt:serverTimestamp()});alert("Storage 업로드 완료");loadEnterprise();});
+  $("savePwaSettings")?.addEventListener("click",async()=>{await setDoc(doc(db,"settings","pwa"),{name:val("pwaName"),shortName:val("pwaShort"),theme:val("pwaTheme"),updatedAt:serverTimestamp()},{merge:true});alert("PWA 설정 저장 완료");});
+  $("adminGlobalSearch")?.addEventListener("input",async()=>{const q=val("adminGlobalSearch").toLowerCase();if(!q){$("adminSearchResults").innerHTML="";return;}const rows=[];for(const c of ["members","orders","bookings","reviews","products","consultRecords","supportTickets"]){(await list(c)).forEach(x=>{if(JSON.stringify(x).toLowerCase().includes(q))rows.push({c,x})})}$("adminSearchResults").innerHTML=rows.slice(0,50).map(r=>card(r.c,JSON.stringify(r.x).slice(0,300))).join("")||"<p>검색 결과 없음</p>";});
+  $("csvMembers")?.addEventListener("click",async()=>csvDownload2("members.csv",[["이름","이메일","연락처"],...(await list("members")).map(m=>[m.name,m.email,m.contact])]));
+  $("csvOrders")?.addEventListener("click",async()=>csvDownload2("orders.csv",[["주문번호","이름","금액","상태"],...(await list("orders")).map(o=>[o.orderNo,o.name,o.total,o.status])]));
+  $("csvBookings")?.addEventListener("click",async()=>csvDownload2("bookings.csv",[["이름","상담","날짜","상태"],...(await list("bookings")).map(b=>[b.name,b.type,b.date,b.status])]));
+  $("csvReviews")?.addEventListener("click",async()=>csvDownload2("reviews.csv",[["이름","별점","내용","승인"],...(await list("reviews")).map(r=>[r.name,r.stars,r.body,r.approved])]));
+  $("createReportPdf")?.addEventListener("click",async()=>{const sel=$("pdfMemberSelect"),opt=sel.options[sel.selectedIndex];if(!sel.value)return alert("회원을 선택해 주세요.");const html=`<html><body><h1>${val("pdfTitle")}</h1><pre>${val("pdfBody")}</pre></body></html>`;const blob=new Blob([html],{type:"text/html"});const url=URL.createObjectURL(blob);await addDoc(collection(db,"consultationReports"),{memberUid:sel.value,memberEmail:opt.dataset.email,memberName:opt.dataset.name,title:val("pdfTitle"),result:val("pdfBody"),urls:[url],createdAt:serverTimestamp()});alert("보고서가 생성되었습니다. 브라우저 인쇄에서 PDF 저장도 가능합니다.");});
+  $("createAdminQr")?.addEventListener("click",()=>{$("qrAdminResult").innerHTML=`<img class="qrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(val("qrAdminText"))}">`;});
+  $("saveCalEvent")?.addEventListener("click",async()=>{await addDoc(collection(db,"calendarEvents"),{title:val("calTitle"),date:val("calDate"),type:val("calType"),createdAt:serverTimestamp()});alert("캘린더 일정 저장 완료");loadEnterprise();});
+  $("saveGameEvent")?.addEventListener("click",async()=>{await setDoc(doc(db,"eventGameSettings","default"),{prizes:val("roulettePrizes"),checkinPoint:val("checkinPoint"),updatedAt:serverTimestamp()},{merge:true});alert("이벤트 설정 저장 완료");});
+  $("makeAiSummary")?.addEventListener("click",async()=>{const sel=$("aiMemberSelect"),uid=sel.value;if(!uid)return alert("회원을 선택해 주세요.");const rec=(await list("consultRecords")).filter(r=>r.memberUid===uid).map(r=>r.memo||r.title).join("\\n");const summary=`요약: ${rec.slice(0,300)||"상담기록 없음"}\\n주의사항: 재상담 예정일과 최근 감정 흐름 확인\\n다음 상담 추천: 이전 상담 주제 기반으로 재확인`;await addDoc(collection(db,"aiSummaries"),{memberUid:uid,summary,createdAt:serverTimestamp()});$("aiAssistResult").innerHTML=card("AI 상담 보조",summary);});
+  $("showFunctionsGuide")?.addEventListener("click",()=>{$("functionsGuide").innerHTML="<p>Cloud Functions로 예약 자동취소, 적립금 만료, 생일 적립, 쿠폰 만료, 휴면회원, 자동 이메일을 배포할 수 있습니다. functions 폴더 템플릿을 확인하세요.</p>";});
+  $("downloadRules")?.addEventListener("click",()=>jsonDownload("firestore-rules.txt",{rules:"첨부된 firestore.rules 파일을 Firebase 콘솔에 적용하세요."}));
+  $("downloadIndexes")?.addEventListener("click",()=>jsonDownload("firestore.indexes.json",{indexes:"첨부된 firestore.indexes.json 사용"}));
+  $("bumpCacheBtn")?.addEventListener("click",async()=>{await setDoc(doc(db,"cacheSettings","version"),{version:Date.now(),updatedAt:serverTimestamp()},{merge:true});$("cacheStatus").innerHTML="<p>캐시 버전이 갱신되었습니다.</p>";});
+  loadEnterprise();
+},1600);
+setInterval(loadEnterprise,5000);

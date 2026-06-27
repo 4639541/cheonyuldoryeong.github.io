@@ -324,7 +324,7 @@ window.approveReview=async(id,approved)=>{
     try{
       const reviews=await list("reviews");
       const r=reviews.find(x=>x.id===id);
-      const settings=(await list("pointSettings"))[0]||{reviewPoint:1000};
+      const settings=(await list("pointSettings","supportTickets","faqs","reservationBlocks"))[0]||{reviewPoint:1000};
       if(r?.memberUid && Number(settings.reviewPoint)>0){
         await addDoc(collection(db,"points"),{memberUid:r.memberUid,memberEmail:r.memberEmail,memberName:r.name,amount:Number(settings.reviewPoint),reason:"후기 승인 자동 적립",type:"review",status:"active",createdAt:serverTimestamp()});
       }
@@ -620,7 +620,7 @@ setInterval(loadEpostAdmin,5000);
 // ===== 5.2 points automation admin complete =====
 async function loadPointSettingsAdmin(){
   try{
-    const [settings,members,points]=await Promise.all(["pointSettings","members","points"].map(list));
+    const [settings,members,points]=await Promise.all(["pointSettings","supportTickets","faqs","reservationBlocks","members","points"].map(list));
     const s=settings[0]||{};
     if($("pointRate"))$("pointRate").value=s.orderRate??"1";
     if($("consultPointRate"))$("consultPointRate").value=s.consultRate??"1";
@@ -649,7 +649,7 @@ async function savePointSettings(){
     maxUseRate:Number(val("maxPointUseRate")||50),
     updatedAt:serverTimestamp()
   };
-  await setDoc(doc(db,"pointSettings","default"),data,{merge:true});
+  await setDoc(doc(db,"pointSettings","supportTickets","faqs","reservationBlocks","default"),data,{merge:true});
   await adminLog("적립금 자동화 설정 저장");
   alert("적립금 설정이 저장되었습니다.");
   loadPointSettingsAdmin();
@@ -686,7 +686,7 @@ async function bulkGivePoint(){
 }
 async function autoPointByStatus(col,id,status){
   if(col==="bookings" && status==="상담완료"){
-    const settings=(await list("pointSettings"))[0]||{consultRate:1};
+    const settings=(await list("pointSettings","supportTickets","faqs","reservationBlocks"))[0]||{consultRate:1};
     const bookings=await list("bookings");
     const b=bookings.find(x=>x.id===id);
     if(b && b.memberUid){
@@ -706,3 +706,42 @@ setTimeout(()=>{
   loadPointSettingsAdmin();
 },1200);
 setInterval(loadPointSettingsAdmin,5000);
+
+// ===== 5.3 admin remaining core complete =====
+async function loadRemainingCore(){
+  try{
+    const [members,orders,bookings,reviews,products,tickets,faqs,blocks,records,points]=await Promise.all(["members","orders","bookings","reviews","products","supportTickets","faqs","reservationBlocks","consultRecords","points"].map(list));
+    if($("supportAdminList")) $("supportAdminList").innerHTML=tickets.map(t=>card(`${t.title||"문의"} · ${t.memberName||t.memberEmail||""}`,`${t.body||""}<br>상태: ${t.status||""}${t.answer?`<br>답변: ${t.answer}`:""}`,`<button class="secondary" onclick="answerTicket('${t.id}')">답변</button><button class="secondary" onclick="st('supportTickets','${t.id}','완료')">완료</button><button class="secondary" onclick="del('supportTickets','${t.id}')">삭제</button>`)).join("")||"<p>문의가 없습니다.</p>";
+    if($("faqAdminList")) $("faqAdminList").innerHTML=faqs.map(f=>card(f.question||"FAQ",f.answer||"",`<button class="secondary" onclick="del('faqs','${f.id}')">삭제</button>`)).join("")||"<p>FAQ가 없습니다.</p>";
+    if($("optionProductSelect")) $("optionProductSelect").innerHTML='<option value="">상품 선택</option>'+products.map(p=>`<option value="${p.id}">${p.name||""} / ${p.price||""}</option>`).join("");
+    if($("reservationBlockList")) $("reservationBlockList").innerHTML=blocks.map(b=>card(`${b.date||""} ${b.time||""}`,"예약 차단",`<button class="secondary" onclick="del('reservationBlocks','${b.id}')">삭제</button>`)).join("")||"<p>차단된 시간이 없습니다.</p>";
+    if($("memberAnalyticsList")){
+      $("memberAnalyticsList").innerHTML=members.map(m=>{
+        const uid=m.id;
+        const total=orders.filter(o=>o.memberUid===uid||o.memberEmail===m.email).reduce((s,o)=>s+money(o.total),0);
+        const orderCnt=orders.filter(o=>o.memberUid===uid||o.memberEmail===m.email).length;
+        const bookCnt=bookings.filter(b=>b.memberUid===uid||b.memberEmail===m.email).length;
+        const reviewCnt=reviews.filter(r=>r.memberUid===uid||r.memberEmail===m.email).length;
+        const recordCnt=records.filter(r=>r.memberUid===uid||r.memberEmail===m.email).length;
+        const pointSum=points.filter(p=>p.memberUid===uid||p.memberEmail===m.email).reduce((s,p)=>s+Number(p.amount||0),0);
+        const grade=total>=500000?"VVIP":total>=300000?"VIP":total>=100000?"GOLD":total>=50000?"SILVER":"일반";
+        return card(`${m.name||"회원"} · ${grade}`,`이메일: ${m.email||""}<br>총결제: ${total.toLocaleString()}원<br>주문: ${orderCnt}건 / 예약: ${bookCnt}건 / 후기: ${reviewCnt}건<br>상담이력: ${recordCnt}건<br>적립금: ${pointSum.toLocaleString()}원`, `<button class="secondary" onclick="setMemberGrade('${uid}','${grade}')">등급저장</button>`);
+      }).join("")||"<p>회원이 없습니다.</p>";
+    }
+  }catch(e){console.warn(e)}
+}
+window.answerTicket=async(id)=>{
+  const answer=prompt("답변 내용을 입력해 주세요."); if(answer===null)return;
+  const tickets=await list("supportTickets"); const t=tickets.find(x=>x.id===id);
+  await updateDoc(doc(db,"supportTickets",id),{answer,status:"답변완료",updatedAt:serverTimestamp()});
+  if(t) await addDoc(collection(db,"notifications"),{memberUid:t.memberUid,memberEmail:t.memberEmail,title:"1:1 문의 답변",body:answer,createdAt:serverTimestamp()});
+  await adminLog("1:1 문의 답변"); loadRemainingCore();
+};
+window.setMemberGrade=async(uid,grade)=>{await updateDoc(doc(db,"members",uid),{grade,updatedAt:serverTimestamp()});alert("회원 등급 저장 완료");loadRemainingCore();};
+setTimeout(()=>{
+  $("addFaq")?.addEventListener("click",async()=>{await addDoc(collection(db,"faqs"),{question:val("faqQuestion"),answer:val("faqAnswer"),createdAt:serverTimestamp()});await adminLog("FAQ 등록");alert("FAQ가 홈페이지에 반영되었습니다.");loadRemainingCore();});
+  $("saveProductOption")?.addEventListener("click",async()=>{const id=val("optionProductSelect"); if(!id)return alert("상품을 선택해 주세요."); await updateDoc(doc(db,"products",id),{options:val("productOptionText"),discountRate:val("productDiscountRate"),eventEnd:val("productEventEnd"),badge:val("productBadge"),updatedAt:serverTimestamp()});await adminLog("상품 옵션 저장");alert("상품 옵션이 홈페이지에 반영되었습니다.");loadRemainingCore();});
+  $("addReservationBlock")?.addEventListener("click",async()=>{if(!val("reservationBlockDate")||!val("reservationBlockTime"))return alert("날짜와 시간을 입력해 주세요.");await addDoc(collection(db,"reservationBlocks"),{date:val("reservationBlockDate"),time:val("reservationBlockTime"),createdAt:serverTimestamp()});await adminLog("예약 시간 차단");alert("해당 시간이 차단되었습니다.");loadRemainingCore();});
+  loadRemainingCore();
+},1200);
+setInterval(loadRemainingCore,5000);

@@ -11,7 +11,7 @@ const money=v=>Number(String(v||"").replace(/[^\d]/g,""))||0;
 const won=n=>(Number(n)||0).toLocaleString()+"원";
 
 let state={
-  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], events:[], memberFiles:[], seoSettings:[], adminRoles:[],
+  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], pointSettings:[], events:[], memberFiles:[], seoSettings:[], adminRoles:[], epostShipments:[],
   payment:{name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청"},
   booking:{times:["오전 10시","오후 2시","오후 7시"],blockedDates:[]}
 };
@@ -137,7 +137,7 @@ function renderPointHistory(){
   if(!member){box.innerHTML="<p>로그인 후 확인 가능합니다.</p>";return;}
   const uid=member.uid||member.id;
   const rows=(state.points||[]).filter(p=>p.memberUid===uid||p.memberEmail===member.email);
-  box.innerHTML=rows.length?rows.map(p=>`<article class="card"><h3>${won(Number(p.amount||0))}</h3><p>${esc(p.reason||"적립금")}</p></article>`).join(""):"<p>적립금 내역이 없습니다.</p>";
+  box.innerHTML=rows.length?rows.map(p=>`<article class="card"><h3>${Number(p.amount||0)>=0?"+":""}${won(Number(p.amount||0))}</h3><p>${esc(p.reason||"적립금")}</p><small>${p.expiresAt?`만료일: ${p.expiresAt}`:""}</small></article>`).join(""):"<p>적립금 내역이 없습니다.</p>";
 }
 function renderEvents(){
   if($("homeBenefitList")){
@@ -186,6 +186,101 @@ function applySeo(){
   let d=document.querySelector('meta[name="description"]'); if(d&&s.desc)d.setAttribute("content",s.desc);
 }
 
+
+// ===== 5.1 우체국 익일특급 배송조회 additions =====
+async function epostTrackDirect(no){
+  const settings = state.settings.find(s=>s.id==="epost") || {};
+  if(!settings.trackEndpoint){
+    return {ok:false,message:"우체국 배송조회 API 서버 URL이 아직 설정되지 않았습니다."};
+  }
+  try{
+    const res = await fetch(settings.trackEndpoint, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({trackingNo:no})
+    });
+    return await res.json();
+  }catch(e){
+    return {ok:false,message:"배송조회 서버 연결 실패: "+e.message};
+  }
+}
+async function handleEpostTrack(){
+  const no=($("epostTrackNo")?.value||"").trim();
+  if(!no)return alert("우체국 송장/등기번호를 입력해 주세요.");
+  const box=$("epostTrackResult");
+  if(box)box.innerHTML="<p>조회 중입니다...</p>";
+  const r=await epostTrackDirect(no);
+  if(box)box.innerHTML=r.ok?`<article class="card"><h3>${esc(no)}</h3><p>상태: ${esc(r.status||"조회완료")}</p><p>${esc(r.message||"")}</p>${(r.history||[]).map(h=>`<p>${esc(h.date||"")} ${esc(h.place||"")} ${esc(h.status||"")}</p>`).join("")}</article>`:`<article class="card"><h3>조회 실패</h3><p>${esc(r.message||"API 설정 필요")}</p></article>`;
+}
+function renderMyEpost(){
+  const box=$("myEpostList"); if(!box)return;
+  if(!member){box.innerHTML="<p>로그인 후 내 배송을 확인할 수 있습니다.</p>";return;}
+  const uid=member.uid||member.id;
+  const rows=(state.epostShipments||[]).filter(s=>s.memberUid===uid||s.memberEmail===member.email||s.contact===member.contact);
+  box.innerHTML=rows.length?rows.map(s=>`<article class="card"><h3>우체국 익일특급</h3><p>주문번호: ${esc(s.orderNo||"")}</p><p>송장번호: ${esc(s.trackingNo||"발급 전")}</p><p>상태: ${esc(s.status||"접수대기")}</p><p>예상도착: ${esc(s.expectedArrival||"발송 다음 영업일")}</p></article>`).join(""):"<p>우체국 배송 내역이 없습니다.</p>";
+}
+
+
+// ===== 5.2 points automation complete =====
+let pointUseAmount = 0;
+
+function getPointSettings(){
+  const s=(state.pointSettings||[])[0] || {};
+  return {
+    orderRate:Number(s.orderRate ?? 1),
+    consultRate:Number(s.consultRate ?? 1),
+    reviewPoint:Number(s.reviewPoint ?? 1000),
+    signupPoint:Number(s.signupPoint ?? 1000),
+    birthdayPoint:Number(s.birthdayPoint ?? 3000),
+    expireDays:Number(s.expireDays ?? 365),
+    minUse:Number(s.minUse ?? 1000),
+    maxUseRate:Number(s.maxUseRate ?? 50)
+  };
+}
+function currentPoints(){
+  const uid=member?.uid||member?.id;
+  if(!uid) return 0;
+  return (state.points||[])
+    .filter(p=>(p.memberUid===uid || p.memberEmail===member.email) && p.status!=="cancelled")
+    .reduce((s,p)=>s+Number(p.amount||0),0);
+}
+function maxPointCanUse(){
+  const set=getPointSettings();
+  const maxByOrder=Math.floor(subtotal()*set.maxUseRate/100);
+  return Math.max(0, Math.min(currentPoints(), maxByOrder));
+}
+function applyPointUse(){
+  if(!member) return alert("로그인 후 적립금을 사용할 수 있습니다.");
+  const set=getPointSettings();
+  const val=Number(String($("pointUseInput")?.value||"").replace(/[^\d]/g,""))||0;
+  if(val<=0){pointUseAmount=0; renderCart(); return;}
+  if(val<set.minUse) return alert(`적립금은 최소 ${won(set.minUse)}부터 사용할 수 있습니다.`);
+  const max=maxPointCanUse();
+  if(val>max) return alert(`사용 가능한 최대 적립금은 ${won(max)}입니다.`);
+  pointUseAmount=val;
+  renderCart();
+  alert("적립금이 적용되었습니다.");
+}
+async function addPoint(memberData, amount, reason, type="auto"){
+  if(!memberData || !amount) return;
+  const uid=memberData.uid||memberData.id||memberData.memberUid;
+  const email=memberData.email||memberData.memberEmail||"";
+  const name=memberData.name||memberData.memberName||"";
+  const set=getPointSettings();
+  const exp=new Date(); exp.setDate(exp.getDate()+set.expireDays);
+  await addDoc(collection(db,"points"),{
+    memberUid:uid, memberEmail:email, memberName:name, amount:Number(amount), reason, type,
+    expiresAt:exp.toISOString().slice(0,10), status:"active", createdAt:serverTimestamp()
+  });
+  try{await updateDoc(doc(db,"members",uid),{points:currentPoints()+Number(amount),updatedAt:serverTimestamp()})}catch(e){}
+}
+function renderPointSummary(){
+  const box=$("pointSummaryBox"); if(!box)return;
+  if(!member){box.innerHTML="로그인 후 적립금을 확인할 수 있습니다.";return;}
+  const set=getPointSettings();
+  box.innerHTML=`<h3>보유 적립금</h3><div class="price">${won(currentPoints())}</div><p>최소 사용: ${won(set.minUse)}</p><p>주문 최대 사용률: ${set.maxUseRate}%</p>`;
+}
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
@@ -204,7 +299,7 @@ function go(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove
 function open(id){$(id)?.classList.add("show");document.body.classList.add("modalOpen")}
 function close(id){$(id)?.classList.remove("show");if(!document.querySelector(".modal.show"))document.body.classList.remove("modalOpen")}
 function subtotal(){return cart.reduce((s,i)=>s+money(i.price)*i.qty,0)}
-function total(){return Math.max(0,subtotal()-couponDiscount)}
+function total(){return Math.max(0,subtotal()-couponDiscount-pointUseAmount)}
 function saveCart(){localStorage.cyMobileCart=JSON.stringify(cart); if($("cartCount"))$("cartCount").textContent=cart.reduce((s,i)=>s+i.qty,0)}
 function imgTag(src){return src?`<img class="productImg" src="${src}" loading="lazy">`:""}
 
@@ -221,10 +316,12 @@ function renderAll(){
   renderProgressCenter();
   renderReferral();
   renderPointHistory();
+  renderPointSummary();
   renderEvents();
   renderChat();
   renderMemberFiles();
   renderReceipts();
+  renderMyEpost();
   applySeo();
   saveCart();
 }
@@ -268,6 +365,7 @@ function renderCart(){
   if($("discount"))$("discount").textContent=won(couponDiscount);
   if($("total"))$("total").textContent=won(total());
   if($("couponText"))$("couponText").textContent=coupon?`${coupon.code} / ${won(couponDiscount)} 할인`:"적용된 쿠폰이 없습니다.";
+  if($("pointUseText"))$("pointUseText").textContent=pointUseAmount?`${won(pointUseAmount)} 사용`:"사용한 적립금이 없습니다.";
 }
 function renderPay(){
   const p=state.payment;
@@ -285,13 +383,20 @@ async function order(){
   if(!cart.length)return alert("장바구니가 비었습니다.");
   if(!$("orderName").value||!$("orderContact").value)return alert("이름과 연락처를 입력하세요.");
   const no=orderNo();
-  await addDoc(collection(db,"orders"),{orderNo:no,items:cart,subtotal:won(subtotal()),discount:couponDiscount,coupon:coupon?.code||"",total:won(total()),name:$("orderName").value,contact:$("orderContact").value,address:$("orderAddress").value,memo:$("orderMemo").value,memberUid:member?.uid||member?.id||"",memberEmail:member?.email||"",status:"입금대기",createdAt:serverTimestamp()});
+  await addDoc(collection(db,"orders"),{orderNo:no,items:cart,subtotal:won(subtotal()),discount:couponDiscount,coupon:coupon?.code||"",pointUsed:pointUseAmount,total:won(total()),name:$("orderName").value,contact:$("orderContact").value,address:$("orderAddress").value,memo:$("orderMemo").value,memberUid:member?.uid||member?.id||"",memberEmail:member?.email||"",status:"입금대기",createdAt:serverTimestamp()});
   await decreaseStockAfterOrder();
   await addDoc(collection(db,"notifications"),{target:"admin",title:"새 주문 접수",body:`${$("orderName").value} / ${won(total())}`,createdAt:serverTimestamp()});
   await addDoc(collection(db,"notifications"),{memberUid:member?.uid||member?.id||"",memberEmail:member?.email||"",title:"주문 접수 알림",body:`주문번호 ${no} 접수 완료`,createdAt:serverTimestamp()});
   if(coupon?.id)try{await updateDoc(doc(db,"coupons",coupon.id),{used:true,usedAt:serverTimestamp(),usedCount:Number(coupon.usedCount||0)+1})}catch(e){}
-  if(member){const point=Math.floor(total()*0.01); if(point>0){await addDoc(collection(db,"points"),{memberUid:member.uid||member.id,memberEmail:member.email,amount:point,reason:"주문 적립금",createdAt:serverTimestamp()}); try{await updateDoc(doc(db,"members",member.uid||member.id),{points:Number(member.points||0)+point,updatedAt:serverTimestamp()})}catch(e){}}}
-  cart=[]; coupon=null; couponDiscount=0; saveCart(); close("cartModal"); alert("주문 완료\n주문번호: "+no);
+  if(member && pointUseAmount>0){
+    await addDoc(collection(db,"points"),{memberUid:member.uid||member.id,memberEmail:member.email,memberName:member.name||"",amount:-pointUseAmount,reason:"적립금 사용 차감",type:"use",status:"active",createdAt:serverTimestamp()});
+  }
+  if(member){
+    const rate=getPointSettings().orderRate;
+    const point=Math.floor(total()*rate/100);
+    if(point>0){await addPoint(member,point,"주문 자동 적립","order");}
+  }
+  cart=[]; coupon=null; couponDiscount=0; pointUseAmount=0; saveCart(); close("cartModal"); alert("주문 완료\n주문번호: "+no);
 }
 function renderTimes(){const d=$("bookDate")?.value, blocked=state.booking.blockedDates.includes(d); if($("bookTime")) $("bookTime").innerHTML=blocked?"<option>예약 마감</option>":state.booking.times.map(t=>`<option>${t}</option>`).join("")}
 async function book(){
@@ -319,6 +424,10 @@ async function join(){
     await setDoc(doc(db,"members",cr.user.uid),{uid:cr.user.uid,name:$("joinName").value,contact:$("joinContact").value,email:$("joinEmail").value.trim(),points:0,createdAt:serverTimestamp()},{merge:true});
     // 회원가입 자동 쿠폰
     await addDoc(collection(db,"coupons"),{code:"WELCOME-"+Math.random().toString(36).slice(2,7).toUpperCase(),discount:"5000",desc:"신규 회원 쿠폰",used:false,memberUid:cr.user.uid,memberEmail:$("joinEmail").value.trim(),memberName:$("joinName").value,createdAt:serverTimestamp()});
+    const set=getPointSettings();
+    if(set.signupPoint>0){
+      await addDoc(collection(db,"points"),{memberUid:cr.user.uid,memberEmail:$("joinEmail").value.trim(),memberName:$("joinName").value,amount:set.signupPoint,reason:"회원가입 자동 적립",type:"signup",status:"active",createdAt:serverTimestamp()});
+    }
     alert("회원가입 완료\n신규 회원 쿠폰이 발급되었습니다."); close("authModal");
   }catch(e){alert(e.code==="auth/email-already-in-use"?"이미 가입된 이메일입니다. 로그인해 주세요.":"회원가입 실패: "+e.message)}
 }
@@ -356,11 +465,11 @@ function bind(){
   $("loginOpen").onclick=()=>member?go("mypage"):open("authModal");
   $("loginTab").onclick=()=>{$("loginTab").classList.add("on");$("joinTab").classList.remove("on");$("loginPanel").classList.remove("hide");$("joinPanel").classList.add("hide")};
   $("joinTab").onclick=()=>{$("joinTab").classList.add("on");$("loginTab").classList.remove("on");$("joinPanel").classList.remove("hide");$("loginPanel").classList.add("hide")};
-  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("chatSend"))$("chatSend").onclick=sendChat; if($("saveReferral"))$("saveReferral").onclick=saveReferralCode; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
+  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; if($("pointApply"))$("pointApply").onclick=applyPointUse; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("epostTrackBtn"))$("epostTrackBtn").onclick=handleEpostTrack; if($("chatSend"))$("chatSend").onclick=sendChat; if($("saveReferral"))$("saveReferral").onclick=saveReferralCode; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
 }
 function startSync(){
   if(started)return; started=true;
-  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",events:"events",memberFiles:"memberFiles",seoSettings:"seoSettings",adminRoles:"adminRoles"};
+  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",pointSettings:"pointSettings",events:"events",memberFiles:"memberFiles",seoSettings:"seoSettings",adminRoles:"adminRoles",epostShipments:"epostShipments"};
   Object.entries(map).forEach(([col,key])=>listen(col,key));
 }
 bind(); hydrate(); renderAll(); startSync(); recordVisit(); onAuthStateChanged(auth,loadMember);

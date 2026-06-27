@@ -136,3 +136,21 @@
   .appTop,.bottomNav,.primary,.secondary{display:none!important}
   .receipt{border:1px solid #000;color:#000}
 }
+
+#epostPage .card,#epostRequestList .card{
+  border-left:4px solid #e6ba60;
+}
+#epostTrackResult{
+  margin-top:10px;
+}
+
+#pointSummaryBox{
+  border-left:4px solid #e6ba60;
+}
+#pointUseText{
+  color:#e6ba60;
+  font-weight:800;
+}
+#pointAdminList .card{
+  border-left:4px solid #e6ba60;
+}

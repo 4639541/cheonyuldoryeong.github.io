@@ -267,7 +267,7 @@ function bind(){
   });
 }
 
-window.st = async(c,id,s)=>{await updateDoc(doc(db,c,id),{status:s,updatedAt:serverTimestamp()});await adminLog(`${c} 상태 변경: ${s}`);load();};
+window.st = async(c,id,s)=>{await updateDoc(doc(db,c,id),{status:s,updatedAt:serverTimestamp()});await autoPointByStatus(c,id,s);await adminLog(`${c} 상태 변경: ${s}`);load();};
 window.tr = async(id)=>{const trackingCompany=prompt("택배사/배송방법"); if(trackingCompany===null)return; const trackingNo=prompt("송장번호/메모"); await updateDoc(doc(db,"orders",id),{trackingCompany,trackingNo,status:"배송중",updatedAt:serverTimestamp()});await adminLog("배송 정보 입력");load();};
 window.del = async(c,id)=>{if(confirm("삭제할까요?")){await deleteDoc(doc(db,c,id));await adminLog(`${c} 삭제`);load();}};
 
@@ -293,7 +293,7 @@ onAuthStateChanged(auth,(u)=>{
   }
 });
 
-["orders","bookings","members","coupons","products","consultPrices","settings","visits","adminLogs","banners","benefits","consultRecords","spiritualRequests","allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings"].forEach(c=>{
+["orders","bookings","members","coupons","products","consultPrices","settings","visits","adminLogs","banners","benefits","consultRecords","spiritualRequests","allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings","epostShipments"].forEach(c=>{
   try{onSnapshot(collection(db,c),()=>{if(!$("adminPanel")?.classList.contains("hide")) load();});}catch(e){}
 });
 
@@ -318,7 +318,20 @@ function renderReviewAdmin(reviews){
   if($("pendingReviewList")) $("pendingReviewList").innerHTML=reviews.filter(r=>!r.approved).map(r=>card(`${r.name||"익명"} · ${r.stars||""}`,`${r.category||""}<br>${r.body||""}`,`<button class="secondary" onclick="approveReview('${r.id}',true)">승인</button><button class="secondary" onclick="del('reviews','${r.id}')">삭제</button>`)).join("")||"<p>승인 대기 후기가 없습니다.</p>";
   if($("approvedReviewList")) $("approvedReviewList").innerHTML=reviews.filter(r=>r.approved).map(r=>card(`${r.name||"익명"} · ${r.stars||""}`,`${r.category||""}<br>${r.body||""}`,`<button class="secondary" onclick="approveReview('${r.id}',false)">승인취소</button><button class="secondary" onclick="del('reviews','${r.id}')">삭제</button>`)).join("")||"<p>공개 후기가 없습니다.</p>";
 }
-window.approveReview=async(id,approved)=>{await updateDoc(doc(db,"reviews",id),{approved,updatedAt:serverTimestamp()});await adminLog(approved?"후기 승인":"후기 승인취소");load();};
+window.approveReview=async(id,approved)=>{
+  await updateDoc(doc(db,"reviews",id),{approved,updatedAt:serverTimestamp()});
+  if(approved){
+    try{
+      const reviews=await list("reviews");
+      const r=reviews.find(x=>x.id===id);
+      const settings=(await list("pointSettings"))[0]||{reviewPoint:1000};
+      if(r?.memberUid && Number(settings.reviewPoint)>0){
+        await addDoc(collection(db,"points"),{memberUid:r.memberUid,memberEmail:r.memberEmail,memberName:r.name,amount:Number(settings.reviewPoint),reason:"후기 승인 자동 적립",type:"review",status:"active",createdAt:serverTimestamp()});
+      }
+    }catch(e){}
+  }
+  await adminLog(approved?"후기 승인":"후기 승인취소");load();
+};
 setTimeout(()=>{
   $("saveBusiness")?.addEventListener("click",async()=>{
     await setDoc(doc(db,"settings","business"),{name:val("bizName"),owner:val("bizOwner"),number:val("bizNumber"),address:val("bizAddress"),type:val("bizType"),item:val("bizItem"),contact:val("bizContact"),mailOrder:val("bizMailOrder"),updatedAt:serverTimestamp()},{merge:true});
@@ -332,10 +345,10 @@ setTimeout(()=>{
 // ===== 4.6 operation admin additions =====
 async function ensureAllowedAdmin(){
   try{
-    const rows=await list("allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings");
+    const rows=await list("allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings","epostShipments");
     const current=auth.currentUser?.email||"";
     if(!rows.length && current){
-      await addDoc(collection(db,"allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings"),{email:current,createdAt:serverTimestamp()});
+      await addDoc(collection(db,"allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings","epostShipments"),{email:current,createdAt:serverTimestamp()});
       return true;
     }
     return rows.some(a=>String(a.email||"").toLowerCase()===current.toLowerCase());
@@ -343,7 +356,7 @@ async function ensureAllowedAdmin(){
 }
 async function loadOps(){
   try{
-    const [members,records,spirituals,orders,bookings,allowed] = await Promise.all(["members","consultRecords","spiritualRequests","orders","bookings","allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings"].map(list));
+    const [members,records,spirituals,orders,bookings,allowed] = await Promise.all(["members","consultRecords","spiritualRequests","orders","bookings","allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings","epostShipments"].map(list));
     if($("recordMemberSelect")) $("recordMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
     if($("consultRecordList")) $("consultRecordList").innerHTML=records.map(r=>card(r.title||"상담 이력",`${r.memberName||r.memberEmail||""}<br>${r.date||""}<br>${r.memo||""}<br>${r.nextDate?`재상담: ${r.nextDate}`:""}`,`<button class="secondary" onclick="del('consultRecords','${r.id}')">삭제</button>`)).join("")||"<p>상담 이력이 없습니다.</p>";
     if($("spiritualList")) $("spiritualList").innerHTML=spirituals.map(s=>card(`${s.type||"신청"} · ${s.name||""}`,`${s.contact||""}<br>${s.amount||""}<br>${s.body||""}<br>상태: ${s.status||""}`,`<button class="secondary" onclick="st('spiritualRequests','${s.id}','진행중')">진행중</button><button class="secondary" onclick="st('spiritualRequests','${s.id}','완료')">완료</button><button class="secondary" onclick="del('spiritualRequests','${s.id}')">삭제</button>`)).join("")||"<p>신청 내역이 없습니다.</p>";
@@ -375,7 +388,7 @@ setTimeout(()=>{
   });
   $("addAllowedAdmin")?.addEventListener("click",async()=>{
     if(!val("allowedAdminEmail")) return alert("이메일을 입력해 주세요.");
-    await addDoc(collection(db,"allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings"),{email:val("allowedAdminEmail"),createdAt:serverTimestamp()});
+    await addDoc(collection(db,"allowedAdmins","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings","epostShipments"),{email:val("allowedAdminEmail"),createdAt:serverTimestamp()});
     await adminLog("관리자 이메일 허용"); alert("허용 관리자 추가 완료"); loadOps();
   });
   loadOps();
@@ -385,7 +398,7 @@ setInterval(loadOps,4000);
 // ===== 4.7 admin CRM / alerts / calendar additions =====
 async function loadCrmAndAlerts(){
   try{
-    const [members,orders,bookings,spirituals,records,notifications,crm,schedules]=await Promise.all(["members","orders","bookings","spiritualRequests","consultRecords","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings"].map(list));
+    const [members,orders,bookings,spirituals,records,notifications,crm,schedules]=await Promise.all(["members","orders","bookings","spiritualRequests","consultRecords","notifications","crmNotes","schedules","chats","points","events","memberFiles","adminRoles","seoSettings","epostShipments"].map(list));
     if($("crmMemberSelect")) $("crmMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
     if($("adminAlertList")){
       const adminNoti=notifications.filter(n=>n.target==="admin"||!n.memberUid&&!n.memberEmail).slice(0,30);
@@ -432,7 +445,7 @@ setInterval(loadCrmAndAlerts,4000);
 let selectedChatMember="";
 async function loadChatPointsEvents(){
   try{
-    const [members,chats,points,events]=await Promise.all(["members","chats","points","events","memberFiles","adminRoles","seoSettings"].map(list));
+    const [members,chats,points,events]=await Promise.all(["members","chats","points","events","memberFiles","adminRoles","seoSettings","epostShipments"].map(list));
     if($("chatMemberSelect")) $("chatMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
     if($("pointMemberSelect")) $("pointMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
     const sel=$("chatMemberSelect"); if(sel && selectedChatMember) sel.value=selectedChatMember;
@@ -489,7 +502,7 @@ function downloadJson(filename,data){
 }
 async function loadFinalAdmin(){
   try{
-    const [members,files,roles,seo]=await Promise.all(["members","memberFiles","adminRoles","seoSettings"].map(list));
+    const [members,files,roles,seo]=await Promise.all(["members","memberFiles","adminRoles","seoSettings","epostShipments"].map(list));
     if($("fileMemberSelect")) $("fileMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
     if($("memberFileList")) $("memberFileList").innerHTML=files.map(f=>card(`${f.title||"자료"} · ${f.memberName||f.memberEmail||""}`,`${f.memo||""}<br>${(f.urls||[]).length}개 파일`, `<button class="secondary" onclick="del('memberFiles','${f.id}')">삭제</button>`)).join("")||"<p>업로드된 자료가 없습니다.</p>";
     if($("roleList")) $("roleList").innerHTML=roles.map(r=>card(r.email||"",`권한: ${r.role||"staff"}`,`<button class="secondary" onclick="del('adminRoles','${r.id}')">삭제</button>`)).join("")||"<p>등록된 권한이 없습니다.</p>";
@@ -511,7 +524,7 @@ setTimeout(()=>{
     await adminLog("관리자 권한 저장"); alert("권한 저장 완료"); loadFinalAdmin();
   });
   $("downloadFullBackup")?.addEventListener("click",async()=>{
-    const cols=["orders","bookings","members","coupons","products","consultPrices","settings","reviews","chats","points","events","memberFiles","adminRoles","seoSettings","spiritualRequests","consultRecords","notifications","memberFiles","adminRoles"];
+    const cols=["orders","bookings","members","coupons","products","consultPrices","settings","reviews","chats","points","events","memberFiles","adminRoles","seoSettings","epostShipments","spiritualRequests","consultRecords","notifications","memberFiles","adminRoles"];
     const data={};
     for(const c of cols) data[c]=await list(c).catch(()=>[]);
     downloadJson("cheonyul-backup.json",data);
@@ -520,9 +533,176 @@ setTimeout(()=>{
     alert("안전상 자동 복원은 비활성화했습니다. 백업 JSON은 보관용으로 사용하세요.");
   });
   $("saveSeo")?.addEventListener("click",async()=>{
-    await addDoc(collection(db,"seoSettings"),{title:val("seoTitle"),desc:val("seoDesc"),keywords:val("seoKeywords"),createdAt:serverTimestamp()});
+    await addDoc(collection(db,"seoSettings","epostShipments"),{title:val("seoTitle"),desc:val("seoDesc"),keywords:val("seoKeywords"),createdAt:serverTimestamp()});
     await adminLog("SEO 설정 저장"); alert("SEO 설정 저장 완료"); loadFinalAdmin();
   });
   loadFinalAdmin();
 },1000);
 setInterval(loadFinalAdmin,5000);
+
+// ===== 5.1 우체국 익일특급 관리자 additions =====
+function nextBusinessDayText(dateStr){
+  const d=dateStr?new Date(dateStr):new Date();
+  d.setDate(d.getDate()+1);
+  const day=d.getDay();
+  if(day===0)d.setDate(d.getDate()+1);
+  if(day===6)d.setDate(d.getDate()+2);
+  return d.toISOString().slice(0,10);
+}
+async function getEpostSettings(){
+  const settings=await list("settings").catch(()=>[]);
+  return settings.find(s=>s.id==="epost")||{};
+}
+async function loadEpostAdmin(){
+  try{
+    const [orders,shipments,settings]=await Promise.all([list("orders"),list("epostShipments"),list("settings")]);
+    const opt='<option value="">주문 선택</option>'+orders.map(o=>`<option value="${o.id}" data-order-no="${o.orderNo||""}" data-name="${o.name||""}" data-contact="${o.contact||""}" data-address="${o.address||""}" data-member-uid="${o.memberUid||""}" data-member-email="${o.memberEmail||""}">${o.orderNo||o.id} / ${o.name||""} / ${o.status||""}</option>`).join("");
+    if($("epostOrderSelect"))$("epostOrderSelect").innerHTML=opt;
+    if($("manualEpostOrderSelect"))$("manualEpostOrderSelect").innerHTML=opt;
+    const epost=settings.find(s=>s.id==="epost")||{};
+    if($("epostTrackEndpoint"))$("epostTrackEndpoint").value=epost.trackEndpoint||"";
+    if($("epostLabelEndpoint"))$("epostLabelEndpoint").value=epost.labelEndpoint||"";
+    if($("epostRequestList"))$("epostRequestList").innerHTML=shipments.map(s=>card(`${s.orderNo||""} · 우체국 익일특급`, `송장: ${s.trackingNo||"발급 전"}<br>상태: ${s.status||""}<br>예상도착: ${s.expectedArrival||""}`, `<button class="secondary" onclick="refreshEpost('${s.id}','${s.trackingNo||""}')">배송상태 갱신</button><button class="secondary" onclick="del('epostShipments','${s.id}')">삭제</button>`)).join("")||"<p>우체국 배송 내역이 없습니다.</p>";
+  }catch(e){console.warn(e)}
+}
+async function callEpostLabel(payload){
+  const s=await getEpostSettings();
+  if(!s.labelEndpoint){
+    return {ok:false,message:"송장 발급 Cloud Function URL이 설정되지 않았습니다. 우체국 계약고객 API 키와 서버 연동이 필요합니다."};
+  }
+  const res=await fetch(s.labelEndpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  return await res.json();
+}
+window.refreshEpost=async(id,no)=>{
+  if(!no)return alert("송장번호가 없습니다.");
+  const s=await getEpostSettings();
+  if(!s.trackEndpoint)return alert("배송조회 Cloud Function URL이 설정되지 않았습니다.");
+  try{
+    const res=await fetch(s.trackEndpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({trackingNo:no})});
+    const r=await res.json();
+    await updateDoc(doc(db,"epostShipments",id),{status:r.status||"조회완료",trackingHistory:r.history||[],updatedAt:serverTimestamp()});
+    alert("배송상태가 갱신되었습니다.");
+  }catch(e){alert("조회 실패: "+e.message)}
+};
+setTimeout(()=>{
+  $("saveEpostSettings")?.addEventListener("click",async()=>{
+    await setDoc(doc(db,"settings","epost"),{trackEndpoint:val("epostTrackEndpoint"),labelEndpoint:val("epostLabelEndpoint"),service:"우체국 익일특급",updatedAt:serverTimestamp()},{merge:true});
+    await adminLog("우체국 API 설정 저장"); alert("우체국 설정이 저장되었습니다."); loadEpostAdmin();
+  });
+  $("issueEpostLabel")?.addEventListener("click",async()=>{
+    const sel=$("epostOrderSelect"), opt=sel.options[sel.selectedIndex];
+    if(!sel.value)return alert("주문을 선택해 주세요.");
+    const payload={
+      orderId:sel.value, orderNo:opt.dataset.orderNo, receiverName:opt.dataset.name, receiverPhone:opt.dataset.contact, receiverAddress:opt.dataset.address,
+      senderName:val("senderName"), senderPhone:val("senderPhone"), senderZip:val("senderZip"), senderAddress:val("senderAddr"),
+      weight:val("parcelWeight")||"300", memo:val("parcelMemo"), service:"우체국 익일특급"
+    };
+    const r=await callEpostLabel(payload);
+    const trackingNo=r.trackingNo||"";
+    await addDoc(collection(db,"epostShipments"),{...payload,trackingNo,status:r.ok?"송장발급완료":"발급요청대기",expectedArrival:nextBusinessDayText(),memberUid:opt.dataset.memberUid,memberEmail:opt.dataset.memberEmail,contact:opt.dataset.contact,createdAt:serverTimestamp(),apiMessage:r.message||""});
+    if(trackingNo) await updateDoc(doc(db,"orders",sel.value),{trackingCompany:"우체국 익일특급",trackingNo,status:"배송준비",updatedAt:serverTimestamp()});
+    await adminLog("우체국 익일특급 송장 발급 요청");
+    alert(r.ok?"송장이 발급되었습니다.":"서버/API 설정 전이라 발급요청대기로 저장했습니다.");
+    loadEpostAdmin();
+  });
+  $("saveManualEpost")?.addEventListener("click",async()=>{
+    const sel=$("manualEpostOrderSelect"), opt=sel.options[sel.selectedIndex];
+    if(!sel.value||!val("manualEpostNo"))return alert("주문과 송장번호를 입력해 주세요.");
+    await addDoc(collection(db,"epostShipments"),{orderId:sel.value,orderNo:opt.dataset.orderNo,trackingNo:val("manualEpostNo"),service:"우체국 익일특급",status:"발송완료",expectedArrival:nextBusinessDayText(),memberUid:opt.dataset.memberUid,memberEmail:opt.dataset.memberEmail,contact:opt.dataset.contact,createdAt:serverTimestamp()});
+    await updateDoc(doc(db,"orders",sel.value),{trackingCompany:"우체국 익일특급",trackingNo:val("manualEpostNo"),status:"배송중",updatedAt:serverTimestamp()});
+    await addDoc(collection(db,"notifications"),{memberUid:opt.dataset.memberUid,memberEmail:opt.dataset.memberEmail,title:"우체국 익일특급 발송",body:`송장번호 ${val("manualEpostNo")} 발송되었습니다.`,createdAt:serverTimestamp()});
+    await adminLog("우체국 수동 송장 저장"); alert("우체국 송장이 저장되고 홈페이지에 반영되었습니다."); loadEpostAdmin();
+  });
+  loadEpostAdmin();
+},1000);
+setInterval(loadEpostAdmin,5000);
+
+// ===== 5.2 points automation admin complete =====
+async function loadPointSettingsAdmin(){
+  try{
+    const [settings,members,points]=await Promise.all(["pointSettings","members","points"].map(list));
+    const s=settings[0]||{};
+    if($("pointRate"))$("pointRate").value=s.orderRate??"1";
+    if($("consultPointRate"))$("consultPointRate").value=s.consultRate??"1";
+    if($("reviewPoint"))$("reviewPoint").value=s.reviewPoint??"1000";
+    if($("signupPoint"))$("signupPoint").value=s.signupPoint??"1000";
+    if($("birthdayPoint"))$("birthdayPoint").value=s.birthdayPoint??"3000";
+    if($("pointExpireDays"))$("pointExpireDays").value=s.expireDays??"365";
+    if($("minPointUse"))$("minPointUse").value=s.minUse??"1000";
+    if($("maxPointUseRate"))$("maxPointUseRate").value=s.maxUseRate??"50";
+    if($("pointMemberSelect"))$("pointMemberSelect").innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""} / ${calcMemberPoints(points,m).toLocaleString()}원</option>`).join("");
+    if($("pointAdminList"))$("pointAdminList").innerHTML=points.slice(0,80).map(p=>card(`${p.memberName||p.memberEmail||""} · ${Number(p.amount||0).toLocaleString()}원`,`${p.reason||"적립금"}<br>구분: ${p.type||"-"}<br>만료일: ${p.expiresAt||"-"}`)).join("")||"<p>적립 내역이 없습니다.</p>";
+  }catch(e){console.warn(e)}
+}
+function calcMemberPoints(points,m){
+  return points.filter(p=>(p.memberUid===m.id||p.memberEmail===m.email)&&p.status!=="cancelled").reduce((s,p)=>s+Number(p.amount||0),0);
+}
+async function savePointSettings(){
+  const data={
+    orderRate:Number(val("pointRate")||1),
+    consultRate:Number(val("consultPointRate")||1),
+    reviewPoint:Number(val("reviewPoint")||1000),
+    signupPoint:Number(val("signupPoint")||1000),
+    birthdayPoint:Number(val("birthdayPoint")||3000),
+    expireDays:Number(val("pointExpireDays")||365),
+    minUse:Number(val("minPointUse")||1000),
+    maxUseRate:Number(val("maxPointUseRate")||50),
+    updatedAt:serverTimestamp()
+  };
+  await setDoc(doc(db,"pointSettings","default"),data,{merge:true});
+  await adminLog("적립금 자동화 설정 저장");
+  alert("적립금 설정이 저장되었습니다.");
+  loadPointSettingsAdmin();
+}
+async function giveOrDeductPoint(){
+  const sel=$("pointMemberSelect"), uid=sel.value;
+  if(!uid)return alert("회원을 선택해 주세요.");
+  const opt=sel.options[sel.selectedIndex];
+  let amount=Number(val("pointAmount")||0);
+  if(!amount)return alert("금액을 입력해 주세요.");
+  if(val("pointMode")==="minus") amount=-Math.abs(amount);
+  const reason=val("pointReason") || (amount>=0?"관리자 지급":"관리자 차감");
+  const exp=new Date(); exp.setDate(exp.getDate()+365);
+  await addDoc(collection(db,"points"),{memberUid:uid,memberEmail:opt.dataset.email,memberName:opt.dataset.name,amount,reason,type:"admin",expiresAt:exp.toISOString().slice(0,10),status:"active",createdAt:serverTimestamp()});
+  await addDoc(collection(db,"notifications"),{memberUid:uid,memberEmail:opt.dataset.email,title:amount>=0?"적립금 지급":"적립금 차감",body:`${Math.abs(amount).toLocaleString()}원 / ${reason}`,createdAt:serverTimestamp()});
+  await adminLog("적립금 수동 처리");
+  alert("적립금 처리가 완료되었습니다.");
+  loadPointSettingsAdmin();
+}
+async function bulkGivePoint(){
+  const amount=Number(val("bulkPointAmount")||0);
+  if(!amount)return alert("일괄 지급 금액을 입력해 주세요.");
+  if(!confirm("전체 회원에게 적립금을 지급할까요?"))return;
+  const members=await list("members");
+  const reason=val("bulkPointReason")||"전체 이벤트 지급";
+  const exp=new Date(); exp.setDate(exp.getDate()+365);
+  for(const m of members){
+    await addDoc(collection(db,"points"),{memberUid:m.id,memberEmail:m.email,memberName:m.name,amount,reason,type:"bulk",expiresAt:exp.toISOString().slice(0,10),status:"active",createdAt:serverTimestamp()});
+    await addDoc(collection(db,"notifications"),{memberUid:m.id,memberEmail:m.email,title:"이벤트 적립금 지급",body:`${amount.toLocaleString()}원이 지급되었습니다.`,createdAt:serverTimestamp()});
+  }
+  await adminLog("전체 회원 적립금 일괄 지급");
+  alert("전체 회원 지급 완료");
+  loadPointSettingsAdmin();
+}
+async function autoPointByStatus(col,id,status){
+  if(col==="bookings" && status==="상담완료"){
+    const settings=(await list("pointSettings"))[0]||{consultRate:1};
+    const bookings=await list("bookings");
+    const b=bookings.find(x=>x.id===id);
+    if(b && b.memberUid){
+      const base=Number(String(b.price||b.type||"").replace(/[^\d]/g,""))||0;
+      const amount=Math.floor(base*Number(settings.consultRate||1)/100);
+      if(amount>0){
+        await addDoc(collection(db,"points"),{memberUid:b.memberUid,memberEmail:b.memberEmail,memberName:b.name,amount,reason:"상담완료 자동 적립",type:"consult",status:"active",createdAt:serverTimestamp()});
+      }
+    }
+  }
+}
+
+setTimeout(()=>{
+  $("savePointSettings")?.addEventListener("click",savePointSettings);
+  $("givePoint")?.addEventListener("click",giveOrDeductPoint);
+  $("bulkGivePoint")?.addEventListener("click",bulkGivePoint);
+  loadPointSettingsAdmin();
+},1200);
+setInterval(loadPointSettingsAdmin,5000);

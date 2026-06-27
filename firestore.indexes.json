@@ -1,9 +1,12 @@
 {
   "indexes": [
     {"collectionGroup":"orders","queryScope":"COLLECTION","fields":[{"fieldPath":"memberUid","order":"ASCENDING"},{"fieldPath":"createdAt","order":"DESCENDING"}]},
+    {"collectionGroup":"orders","queryScope":"COLLECTION","fields":[{"fieldPath":"status","order":"ASCENDING"},{"fieldPath":"createdAt","order":"DESCENDING"}]},
+    {"collectionGroup":"bookings","queryScope":"COLLECTION","fields":[{"fieldPath":"memberUid","order":"ASCENDING"},{"fieldPath":"date","order":"DESCENDING"}]},
     {"collectionGroup":"bookings","queryScope":"COLLECTION","fields":[{"fieldPath":"date","order":"ASCENDING"},{"fieldPath":"time","order":"ASCENDING"}]},
     {"collectionGroup":"points","queryScope":"COLLECTION","fields":[{"fieldPath":"memberUid","order":"ASCENDING"},{"fieldPath":"createdAt","order":"DESCENDING"}]},
-    {"collectionGroup":"notifications","queryScope":"COLLECTION","fields":[{"fieldPath":"target","order":"ASCENDING"},{"fieldPath":"createdAt","order":"DESCENDING"}]}
+    {"collectionGroup":"notifications","queryScope":"COLLECTION","fields":[{"fieldPath":"target","order":"ASCENDING"},{"fieldPath":"createdAt","order":"DESCENDING"}]},
+    {"collectionGroup":"chats","queryScope":"COLLECTION","fields":[{"fieldPath":"threadId","order":"ASCENDING"},{"fieldPath":"createdAt","order":"ASCENDING"}]}
   ],
   "fieldOverrides": []
 }

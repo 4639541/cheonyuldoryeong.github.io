@@ -463,3 +463,16 @@ body{
 main .syncStatus{
   display:none !important;
 }
+
+#paymentProList .card,#orderAutoList .card,#consultAutoList .card,#memberProList .card,#crmProList .card,#statsProCharts .card,#reviewProList .card,#syncHealthList .card{
+  border-left:4px solid #e6ba60;
+}
+.sortItem{
+  padding:12px;
+  margin:8px 0;
+  border:1px solid rgba(230,186,96,.25);
+  border-radius:14px;
+  background:#0b0805;
+  color:#fff4d7;
+  font-weight:900;
+}

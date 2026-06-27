@@ -11,7 +11,7 @@ const money=v=>Number(String(v||"").replace(/[^\d]/g,""))||0;
 const won=n=>(Number(n)||0).toLocaleString()+"원";
 
 let state={
-  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], pointSettings:[], supportTickets:[], faqs:[], reservationBlocks:[], activityLogs:[], refundLogs:[], consultationReports:[], crmProfiles:[], adminRoles:[], realtimeAlerts:[], visitorSessions:[], storageFiles:[], calendarEvents:[], eventGameSettings:[], aiSummaries:[], errorLogs:[], cacheSettings:[], events:[], memberFiles:[], seoSettings:[], adminRoles:[], epostShipments:[],
+  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], pointSettings:[], supportTickets:[], faqs:[], reservationBlocks:[], activityLogs:[], refundLogs:[], consultationReports:[], crmProfiles:[], adminRoles:[], realtimeAlerts:[], visitorSessions:[], storageFiles:[], calendarEvents:[], eventGameSettings:[], aiSummaries:[], errorLogs:[], cacheSettings:[], paymentSettings:[], paymentReceipts:[], orderStatusLogs:[], consultAudioFiles:[], crmProProfiles:[], marketingSettings:[], securitySettings:[], aiProReports:[], pushSettings:[], syncHealth:[], events:[], memberFiles:[], seoSettings:[], adminRoles:[], epostShipments:[],
   payment:{name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청"},
   booking:{times:["오전 10시","오후 2시","오후 7시"],blockedDates:[]}
 };
@@ -517,6 +517,38 @@ function hideSyncBadges(){
 setInterval(hideSyncBadges,800);
 window.addEventListener("load",hideSyncBadges);
 
+
+// ===== 7.0 total platform automation mobile =====
+function renderMyTotalStatus(){
+  const box=$("myTotalStatus"); if(!box)return;
+  if(!member){box.innerHTML="<p>로그인 후 확인 가능합니다.</p>";return;}
+  const uid=member.uid||member.id;
+  const orders=state.orders.filter(o=>o.memberUid===uid||o.memberEmail===member.email);
+  const bookings=state.bookings.filter(b=>b.memberUid===uid||b.memberEmail===member.email);
+  const coupons=state.coupons.filter(c=>c.memberUid===uid||c.memberEmail===member.email);
+  const points=currentPoints?currentPoints():0;
+  const reports=(state.consultationReports||[]).filter(r=>r.memberUid===uid||r.memberEmail===member.email);
+  box.innerHTML=[
+    `<article class="card"><h3>주문</h3><p>${orders.length}건</p></article>`,
+    `<article class="card"><h3>예약/상담</h3><p>${bookings.length}건</p></article>`,
+    `<article class="card"><h3>쿠폰</h3><p>${coupons.length}개</p></article>`,
+    `<article class="card"><h3>적립금</h3><p>${won(points)}</p></article>`,
+    `<article class="card"><h3>상담보고서</h3><p>${reports.length}개</p></article>`
+  ].join("");
+}
+async function issueMarketingCoupon(kind){
+  if(!member)return alert("로그인 후 이용해 주세요.");
+  const s=(state.marketingSettings||[])[0]||{};
+  const map={birthday:Number(s.birthdayCouponAmount||3000),first:Number(s.firstBuyCouponAmount||5000)};
+  const code=(kind==="birthday"?"BIRTH":"FIRST")+"-"+Math.random().toString(36).slice(2,7).toUpperCase();
+  await addDoc(collection(db,"coupons"),{code,discount:String(map[kind]||1000),desc:kind==="birthday"?"생일쿠폰":"첫구매쿠폰",memberUid:member.uid||member.id,memberEmail:member.email,used:false,createdAt:serverTimestamp()});
+  $("marketingResult").innerHTML=`<article class="card"><h3>쿠폰 발급</h3><p>${code}</p></article>`;
+}
+async function referralReward(){
+  if(!member)return alert("로그인 후 이용해 주세요.");
+  $("marketingResult").innerHTML=`<article class="card"><h3>내 추천 코드</h3><p>${referralCode()}</p><p>친구가 가입 시 입력하면 보상이 지급됩니다.</p></article>`;
+}
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
@@ -554,6 +586,7 @@ function renderAll(){
   renderPointHistory();
   renderPointSummary();
   renderFaqSupport();
+  renderMyTotalStatus();
   renderMemberSecurity();
   renderBookingHistory();
   renderRefundHistory();
@@ -710,11 +743,11 @@ function bind(){
   if($("themeToggle"))$("themeToggle").onclick=toggleTheme; if($("installPwaBtn"))$("installPwaBtn").onclick=installPwa; $("loginOpen").onclick=()=>member?go("mypage"):open("authModal");
   $("loginTab").onclick=()=>{$("loginTab").classList.add("on");$("joinTab").classList.remove("on");$("loginPanel").classList.remove("hide");$("joinPanel").classList.add("hide")};
   $("joinTab").onclick=()=>{$("joinTab").classList.add("on");$("loginTab").classList.remove("on");$("joinPanel").classList.remove("hide");$("loginPanel").classList.add("hide")};
-  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; if($("pointApply"))$("pointApply").onclick=applyPointUse; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("globalSearchInput"))$("globalSearchInput").oninput=globalSearch; if($("makeQrBtn"))$("makeQrBtn").onclick=()=>makeQr($("qrText").value,"qrResult"); if($("checkinBtn"))$("checkinBtn").onclick=checkin; if($("rouletteBtn"))$("rouletteBtn").onclick=roulette; if($("supportSubmit"))$("supportSubmit").onclick=submitSupport; if($("saveMemberEdit"))$("saveMemberEdit").onclick=saveMemberEdit; if($("requestDeleteMember"))$("requestDeleteMember").onclick=requestDeleteMember; if($("sendEmailVerifyBtn"))$("sendEmailVerifyBtn").onclick=sendVerifyEmail; if($("sendResetPwBtn"))$("sendResetPwBtn").onclick=sendResetPassword; if($("epostTrackBtn"))$("epostTrackBtn").onclick=handleEpostTrack; if($("chatSend"))$("chatSend").onclick=sendChat; if($("saveReferral"))$("saveReferral").onclick=saveReferralCode; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
+  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; if($("pointApply"))$("pointApply").onclick=applyPointUse; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("birthdayCouponBtn"))$("birthdayCouponBtn").onclick=()=>issueMarketingCoupon("birthday"); if($("firstBuyCouponBtn"))$("firstBuyCouponBtn").onclick=()=>issueMarketingCoupon("first"); if($("friendReferralBtn"))$("friendReferralBtn").onclick=referralReward; if($("globalSearchInput"))$("globalSearchInput").oninput=globalSearch; if($("makeQrBtn"))$("makeQrBtn").onclick=()=>makeQr($("qrText").value,"qrResult"); if($("checkinBtn"))$("checkinBtn").onclick=checkin; if($("rouletteBtn"))$("rouletteBtn").onclick=roulette; if($("supportSubmit"))$("supportSubmit").onclick=submitSupport; if($("saveMemberEdit"))$("saveMemberEdit").onclick=saveMemberEdit; if($("requestDeleteMember"))$("requestDeleteMember").onclick=requestDeleteMember; if($("sendEmailVerifyBtn"))$("sendEmailVerifyBtn").onclick=sendVerifyEmail; if($("sendResetPwBtn"))$("sendResetPwBtn").onclick=sendResetPassword; if($("epostTrackBtn"))$("epostTrackBtn").onclick=handleEpostTrack; if($("chatSend"))$("chatSend").onclick=sendChat; if($("saveReferral"))$("saveReferral").onclick=saveReferralCode; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
 }
 function startSync(){
   if(started)return; started=true;
-  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",pointSettings:"pointSettings",supportTickets:"supportTickets",faqs:"faqs",reservationBlocks:"reservationBlocks",activityLogs:"activityLogs",refundLogs:"refundLogs",consultationReports:"consultationReports",crmProfiles:"crmProfiles",adminRoles:"adminRoles",realtimeAlerts:"realtimeAlerts",visitorSessions:"visitorSessions",storageFiles:"storageFiles",calendarEvents:"calendarEvents",eventGameSettings:"eventGameSettings",aiSummaries:"aiSummaries",errorLogs:"errorLogs",cacheSettings:"cacheSettings",events:"events",memberFiles:"memberFiles",seoSettings:"seoSettings",adminRoles:"adminRoles",epostShipments:"epostShipments"};
+  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",pointSettings:"pointSettings",supportTickets:"supportTickets",faqs:"faqs",reservationBlocks:"reservationBlocks",activityLogs:"activityLogs",refundLogs:"refundLogs",consultationReports:"consultationReports",crmProfiles:"crmProfiles",adminRoles:"adminRoles",realtimeAlerts:"realtimeAlerts",visitorSessions:"visitorSessions",storageFiles:"storageFiles",calendarEvents:"calendarEvents",eventGameSettings:"eventGameSettings",aiSummaries:"aiSummaries",errorLogs:"errorLogs",cacheSettings:"cacheSettings",paymentSettings:"paymentSettings",paymentReceipts:"paymentReceipts",orderStatusLogs:"orderStatusLogs",consultAudioFiles:"consultAudioFiles",crmProProfiles:"crmProProfiles",marketingSettings:"marketingSettings",securitySettings:"securitySettings",aiProReports:"aiProReports",pushSettings:"pushSettings",syncHealth:"syncHealth",events:"events",memberFiles:"memberFiles",seoSettings:"seoSettings",adminRoles:"adminRoles",epostShipments:"epostShipments"};
   Object.entries(map).forEach(([col,key])=>listen(col,key));
 }
 initTheme(); bind(); hydrate(); renderAll(); startSync(); recordVisit(); trackVisitor(); onAuthStateChanged(auth,loadMember);

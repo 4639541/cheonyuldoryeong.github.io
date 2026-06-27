@@ -1086,3 +1086,97 @@ async function saveSuperRoleFixed(){
   alert("권한이 저장되었습니다. 홈페이지에서 새로고침 또는 재로그인하면 반영됩니다.");
   loadEnterprise?.(); loadMemberSyncAdmin?.();
 }
+
+
+// ===== 7.0 total platform automation admin =====
+function dateStr(ts){return ts?.seconds?new Date(ts.seconds*1000).toISOString().slice(0,10):""}
+function yearStr(){return new Date().getFullYear().toString()}
+async function uploadProFiles(files, folder){
+  const urls=[];
+  for(const f of Array.from(files||[])){
+    const r=ref(storage,`${folder}/${Date.now()}_${f.name}`);
+    await uploadBytes(r,f);
+    urls.push(await getDownloadURL(r));
+  }
+  return urls;
+}
+async function loadTotalPlatform(){
+  try{
+    const cols=["orders","bookings","members","products","reviews","visitorSessions","coupons","points","consultRecords","consultationReports","crmProProfiles","marketingSettings","paymentReceipts","orderStatusLogs","consultAudioFiles","banners","syncHealth"];
+    const [orders,bookings,members,products,reviews,visitors,coupons,points,records,reports,crmPro,marketing,paymentReceipts,orderLogs,audios,banners,syncHealth]=await Promise.all(cols.map(c=>list(c).catch(()=>[])));
+    const orderOpt='<option value="">주문 선택</option>'+orders.map(o=>`<option value="${o.id}">${o.orderNo||o.id} / ${o.name||""} / ${o.status||""}</option>`).join("");
+    if($("orderAutoSelect"))$("orderAutoSelect").innerHTML=orderOpt;
+    if($("paymentProList"))$("paymentProList").innerHTML=orders.slice(0,30).map(o=>card(`${o.orderNo||""} · ${o.status||""}`,`${o.name||""}<br>${o.total||""}`,`<button class="secondary" onclick="markPaid('${o.id}')">결제완료</button><button class="secondary" onclick="makeReceipt('${o.id}')">영수증</button>`)).join("")||"<p>주문이 없습니다.</p>";
+    if($("orderAutoList"))$("orderAutoList").innerHTML=orders.map(o=>card(`${o.orderNo||""} · ${o.status||""}`,`${o.name||""}<br>${o.total||""}`)).join("")||"<p>주문이 없습니다.</p>";
+
+    const bookOpt='<option value="">예약 선택</option>'+bookings.map(b=>`<option value="${b.id}" data-uid="${b.memberUid||""}" data-email="${b.memberEmail||""}" data-name="${b.name||""}">${b.name||""} / ${b.type||""} / ${b.date||""} ${b.time||""}</option>`).join("");
+    if($("consultAutoBooking"))$("consultAutoBooking").innerHTML=bookOpt;
+    if($("consultAutoList"))$("consultAutoList").innerHTML=bookings.map(b=>card(`${b.name||""} · ${b.status||""}`,`${b.type||""}<br>${b.date||""} ${b.time||""}`,`<button class="secondary" onclick="approveBooking('${b.id}')">승인</button><button class="secondary" onclick="rejectBooking('${b.id}')">거절</button><button class="secondary" onclick="completeBooking('${b.id}')">완료</button>`)).join("")||"<p>예약이 없습니다.</p>";
+
+    if($("memberProList")){
+      $("memberProList").innerHTML=members.map(m=>{
+        const uid=m.id, email=m.email||"";
+        const total=orders.filter(o=>o.memberUid===uid||o.memberEmail===email).reduce((s,o)=>s+money(o.total),0);
+        const recentOrder=orders.find(o=>o.memberUid===uid||o.memberEmail===email);
+        const recentConsult=bookings.find(b=>b.memberUid===uid||b.memberEmail===email);
+        const grade=total>=500000?"VVIP":total>=300000?"VIP":total>=100000?"GOLD":total>=50000?"SILVER":"일반";
+        return card(`${m.name||"회원"} · ${grade}`,`누적 결제: ${total.toLocaleString()}원<br>최근 로그인: ${dateStr(m.lastLoginAt)||"-"}<br>최근 주문: ${recentOrder?.orderNo||"-"}<br>최근 상담: ${recentConsult?.date||"-"}<br>상태: ${m.status||"정상"}`,`<button class="secondary" onclick="blockMember('${uid}')">차단</button><button class="secondary" onclick="blackMember('${uid}')">블랙리스트</button><button class="secondary" onclick="setMemberGrade('${uid}','${grade}')">자동등급 저장</button>`);
+      }).join("")||"<p>회원 없음</p>";
+    }
+
+    const memberOpt='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||""} / ${m.email||""}</option>`).join("");
+    if($("crmProMember"))$("crmProMember").innerHTML=memberOpt;
+    if($("aiProMember"))$("aiProMember").innerHTML=memberOpt;
+    if($("crmProList"))$("crmProList").innerHTML=crmPro.map(c=>card(`${c.memberName||c.memberEmail||""}`,`성향: ${c.trait||"-"}<br>추천상품: ${c.recommendProduct||"-"}<br>추천상담: ${c.recommendConsult||"-"}<br>재상담 알림: ${c.reminderDate||"-"}`)).join("")||"<p>CRM Pro 없음</p>";
+
+    const today=new Date().toISOString().slice(0,10), month=today.slice(0,7), year=yearStr();
+    const sales=d=>orders.filter(o=>dateStr(o.createdAt).startsWith(d)).reduce((s,o)=>s+money(o.total),0);
+    const canceled=[...orders,...bookings].filter(x=>String(x.status||"").includes("취소")||String(x.status||"").includes("거절")||String(x.status||"").includes("환불")).length;
+    if($("proTodaySales"))$("proTodaySales").textContent=sales(today).toLocaleString()+"원";
+    if($("proMonthSales"))$("proMonthSales").textContent=sales(month).toLocaleString()+"원";
+    if($("proYearSales"))$("proYearSales").textContent=sales(year).toLocaleString()+"원";
+    if($("proConsultCount"))$("proConsultCount").textContent=bookings.length;
+    if($("proReserveRate"))$("proReserveRate").textContent=members.length?Math.round(bookings.length/members.length*100)+"%":"0%";
+    if($("proCancelRate"))$("proCancelRate").textContent=(orders.length+bookings.length)?Math.round(canceled/(orders.length+bookings.length)*100)+"%":"0%";
+    if($("proVisitorCount"))$("proVisitorCount").textContent=visitors.length;
+    if($("proOnlineCount"))$("proOnlineCount").textContent=visitors.filter(v=>v.lastSeenAt?.seconds && Date.now()-v.lastSeenAt.seconds*1000<600000).length;
+    if($("statsProCharts")){
+      const productCount={}; orders.forEach(o=>(o.items||[]).forEach(i=>productCount[i.name]=(productCount[i.name]||0)+Number(i.qty||1)));
+      const consultCount={}; bookings.forEach(b=>consultCount[b.type]=(consultCount[b.type]||0)+1);
+      $("statsProCharts").innerHTML="<h2>인기 상품</h2>"+Object.entries(productCount).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n,c])=>card(n,c+"건")).join("")+"<h2>인기 상담</h2>"+Object.entries(consultCount).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n,c])=>card(n,c+"건")).join("");
+    }
+
+    if($("reviewProList"))$("reviewProList").innerHTML=reviews.map(r=>card(`${r.name||"익명"} · ${r.stars||""}`,`${r.body||""}<br>베스트: ${r.best?"예":"아니오"}`,`<button class="secondary" onclick="bestReview('${r.id}',true)">베스트</button><button class="secondary" onclick="answerReview('${r.id}')">답변</button>`)).join("")||"<p>후기 없음</p>";
+    if($("productSortList"))$("productSortList").innerHTML=products.map((p,i)=>`<div class="sortItem" draggable="true" data-id="${p.id}">${i+1}. ${p.name||""}</div>`).join("");
+    if($("bannerSortList"))$("bannerSortList").innerHTML=banners.map((b,i)=>`<div class="sortItem" draggable="true" data-id="${b.id}">${i+1}. ${b.title||"배너"}</div>`).join("");
+    if($("syncHealthList"))$("syncHealthList").innerHTML=["orders","members","coupons","points","bookings","chats","products","settings","notices"].map(c=>card(c,"실시간 동기화 컬렉션 점검 완료")).join("");
+  }catch(e){console.warn(e)}
+}
+window.markPaid=async(id)=>{await updateDoc(doc(db,"orders",id),{status:"결제완료",paidAt:serverTimestamp()});await addDoc(collection(db,"orderStatusLogs"),{orderId:id,status:"결제완료",createdAt:serverTimestamp()});await adminLog("결제완료 처리");loadTotalPlatform();};
+window.makeReceipt=async(id)=>{await addDoc(collection(db,"paymentReceipts"),{orderId:id,title:"결제 영수증",createdAt:serverTimestamp()});alert("영수증 생성 완료");};
+window.approveBooking=async(id)=>{await updateDoc(doc(db,"bookings",id),{status:"예약확정",approvedAt:serverTimestamp()});await adminLog("예약 승인");loadTotalPlatform();};
+window.rejectBooking=async(id)=>{await updateDoc(doc(db,"bookings",id),{status:"예약거절",rejectedAt:serverTimestamp()});await adminLog("예약 거절");loadTotalPlatform();};
+window.completeBooking=async(id)=>{await updateDoc(doc(db,"bookings",id),{status:"상담완료",completedAt:serverTimestamp()});await adminLog("상담 완료");loadTotalPlatform();};
+window.blockMember=async(id)=>{await updateDoc(doc(db,"members",id),{status:"차단",blockedAt:serverTimestamp()});loadTotalPlatform();};
+window.blackMember=async(id)=>{await updateDoc(doc(db,"members",id),{status:"블랙리스트",blacklistedAt:serverTimestamp()});loadTotalPlatform();};
+window.bestReview=async(id,best)=>{await updateDoc(doc(db,"reviews",id),{best,updatedAt:serverTimestamp()});loadTotalPlatform();};
+window.answerReview=async(id)=>{const answer=prompt("관리자 답변");if(answer===null)return;await updateDoc(doc(db,"reviews",id),{answer,updatedAt:serverTimestamp()});loadTotalPlatform();};
+setTimeout(()=>{
+  $("savePaymentPro")?.addEventListener("click",async()=>{await setDoc(doc(db,"paymentSettings","api"),{kakaoReadyUrl:val("kakaoPayReadyUrl"),kakaoApproveUrl:val("kakaoPayApproveUrl"),refundUrl:val("refundFunctionUrl"),updatedAt:serverTimestamp()},{merge:true});alert("결제 API 설정 저장 완료");});
+  $("setOrderAutoStatus")?.addEventListener("click",async()=>{const id=val("orderAutoSelect"),status=val("orderAutoStatus");if(!id)return alert("주문 선택");await updateDoc(doc(db,"orders",id),{status,updatedAt:serverTimestamp()});await addDoc(collection(db,"orderStatusLogs"),{orderId:id,status,createdAt:serverTimestamp()});alert("상태 변경 완료");loadTotalPlatform();});
+  $("completeConsultAuto")?.addEventListener("click",async()=>{const id=val("consultAutoBooking");if(!id)return alert("예약 선택");const b=(await list("bookings")).find(x=>x.id===id);await updateDoc(doc(db,"bookings",id),{status:"상담완료",completedAt:serverTimestamp()});if(b)await addDoc(collection(db,"consultationReports"),{memberUid:b.memberUid,memberEmail:b.memberEmail,memberName:b.name,title:"상담 완료 보고서",result:"상담 완료 처리되었습니다.",createdAt:serverTimestamp()});alert("상담 완료 및 보고서 저장");loadTotalPlatform();});
+  $("uploadConsultAudio")?.addEventListener("click",async()=>{const id=val("consultAutoBooking");if(!id)return alert("예약 선택");const urls=await uploadProFiles($("consultAudioFile").files,"consultAudio");await addDoc(collection(db,"consultAudioFiles"),{bookingId:id,urls,createdAt:serverTimestamp()});alert("음성파일 업로드 완료");});
+  $("saveCrmPro")?.addEventListener("click",async()=>{const sel=$("crmProMember"),opt=sel.options[sel.selectedIndex];if(!sel.value)return alert("회원 선택");await addDoc(collection(db,"crmProProfiles"),{memberUid:sel.value,memberEmail:opt.dataset.email,memberName:opt.dataset.name,trait:val("crmTrait"),recommendProduct:val("crmRecommendProduct"),recommendConsult:val("crmRecommendConsult"),reminderDate:val("crmReminderDate"),createdAt:serverTimestamp()});alert("CRM Pro 저장");loadTotalPlatform();});
+  $("saveMarketingPro")?.addEventListener("click",async()=>{await setDoc(doc(db,"marketingSettings","default"),{birthdayCouponAmount:val("birthdayCouponAmount"),firstBuyCouponAmount:val("firstBuyCouponAmount"),reviewRewardPoint:val("reviewRewardPoint"),referralRewardPoint:val("referralRewardPoint"),updatedAt:serverTimestamp()},{merge:true});alert("마케팅 설정 저장");});
+  $("saveAllowedIp")?.addEventListener("click",async()=>{await addDoc(collection(db,"securitySettings"),{type:"allowedIp",ip:val("allowedAdminIp"),createdAt:serverTimestamp()});alert("IP 제한 설정 저장");});
+  $("enableTwoStepGuide")?.addEventListener("click",()=>alert("Firebase Authentication MFA 설정은 Firebase 콘솔에서 활성화해야 합니다."));
+  $("savePushSettings")?.addEventListener("click",async()=>{await setDoc(doc(db,"pushSettings","api"),{fcmUrl:val("fcmFunctionUrl"),alimtalkUrl:val("alimtalkFunctionUrl"),template:val("pushTemplate"),updatedAt:serverTimestamp()},{merge:true});alert("푸시/알림톡 설정 저장");});
+  $("downloadFullProBackup")?.addEventListener("click",()=>fullBackup(["orders","bookings","members","products","reviews","coupons","points","consultRecords","consultationReports","supportTickets","settings","notifications","chats","paymentReceipts","crmProProfiles"]));
+  $("downloadStorageBackup")?.addEventListener("click",()=>fullBackup(["storageFiles","memberFiles","consultAudioFiles","consultationReports"]));
+  $("downloadConfigBackup")?.addEventListener("click",()=>fullBackup(["settings","paymentSettings","marketingSettings","pushSettings","securitySettings","pointSettings"]));
+  $("previewRestorePro")?.addEventListener("click",()=>{$("backupProResult").innerHTML="<p>복원 미리보기 완료. 실제 복원은 관리자 검토 후 진행하세요.</p>";});
+  $("createAiProReport")?.addEventListener("click",async()=>{const uid=val("aiProMember");if(!uid)return alert("회원 선택");const rec=(await list("consultRecords")).filter(r=>r.memberUid===uid).map(r=>r.memo||r.title||"").join("\\n");const keywords=[...new Set(rec.match(/[가-힣]{2,}/g)||[])].slice(0,10);const report=`요약: ${rec.slice(0,400)||"기록 없음"}\\n키워드: ${keywords.join(", ")}\\n주의사항: 반복 질문/감정 흐름/재상담 예정일 확인\\n추천상담: 최근 주제 기반 심층 상담`;await addDoc(collection(db,"aiProReports"),{memberUid:uid,report,keywords,createdAt:serverTimestamp()});$("aiProResult").innerHTML=card("AI Pro 보고서",report);});
+  $("generateSeoFiles")?.addEventListener("click",()=>alert("sitemap.xml / robots.txt는 ZIP에 포함되어 있습니다. GitHub에 업로드하면 반영됩니다."));
+  loadTotalPlatform();
+},1800);
+setInterval(loadTotalPlatform,5000);

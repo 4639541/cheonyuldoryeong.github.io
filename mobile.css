@@ -301,3 +301,88 @@
     object-fit:contain !important;
   }
 }
+
+
+/* ===== 6.2 하단 메뉴 정리 ===== */
+.bottomNav{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:9990;
+  display:flex !important;
+  gap:0;
+  overflow-x:auto;
+  overflow-y:hidden;
+  white-space:nowrap;
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+  background:rgba(5,4,3,.96);
+  border-top:1px solid rgba(230,186,96,.25);
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.bottomNav::-webkit-scrollbar{display:none}
+.bottomNav button{
+  flex:0 0 auto;
+  min-width:64px;
+  max-width:80px;
+  height:48px;
+  padding:4px 6px;
+  border:0;
+  background:transparent;
+  color:#dcc89f;
+  font-size:14px;
+  line-height:1.05;
+  font-weight:900;
+  border-radius:14px;
+  word-break:keep-all;
+  white-space:normal;
+}
+.bottomNav button.on{
+  background:rgba(230,186,96,.16);
+  color:#ffd875;
+}
+body{
+  padding-bottom:78px;
+}
+@media(max-width:430px){
+  .bottomNav button{
+    min-width:58px;
+    height:44px;
+    font-size:13px;
+  }
+}
+.installGuideModal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.55);
+  z-index:100000;
+  padding:18px;
+}
+.installGuideModal.show{display:flex}
+.installGuideBox{
+  width:min(520px,100%);
+  background:#fff;
+  color:#111;
+  border-radius:24px;
+  padding:24px;
+  line-height:1.6;
+}
+#installGuideClose{
+  float:right;
+  border:0;
+  border-radius:999px;
+  padding:8px 14px;
+  font-weight:900;
+}
+.installGuideBox h2{margin-top:6px}
+.installGuideBox .small{font-size:13px;color:#555}
+.fieldLabel{
+  display:block;
+  color:#d9c9a8;
+  margin:8px 0 4px;
+  font-weight:900;
+}

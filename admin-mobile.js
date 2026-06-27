@@ -891,9 +891,9 @@ function applyRoleMenus(role){
   const permissions={
     super:["*"],
     operation:["dash2Admin","realtimeCenterAdmin","visitorAdmin","opsAdmin","eventGameAdmin","excelAdmin","backup2Admin"],
-    consult:["crm2Admin","consultManageAdmin","calendarProAdmin","aiAssistAdmin","supportAdmin","bookingHistoryPage"],
+    consult:["crm2Admin","consultManageAdmin","calendarProAdmin","aiAssistAdmin","supportAdmin","chatAdmin","bookingHistoryPage"],
     delivery:["epostAdmin","orders","excelAdmin"],
-    customer:["memberAnalytics","memberSystemAdmin","supportAdmin","crm2Admin"]
+    customer:["memberAnalytics","memberSystemAdmin","supportAdmin","crm2Admin","chatAdmin"]
   };
   const allowed=permissions[role]||permissions.super;
   if(allowed[0]==="*")return;
@@ -955,3 +955,51 @@ setTimeout(()=>{
   loadEnterprise();
 },1600);
 setInterval(loadEnterprise,5000);
+
+
+// ===== 6.2 관리자 상담 채팅 복원 =====
+let selectedAdminChatMember="";
+async function loadAdminChat(){
+  try{
+    const [members,chats]=await Promise.all([list("members"),list("chats")]);
+    const sel=$("chatMemberSelect");
+    if(sel){
+      const current=sel.value || selectedAdminChatMember;
+      sel.innerHTML='<option value="">회원 선택</option>'+members.map(m=>`<option value="${m.id}" data-email="${m.email||""}" data-name="${m.name||""}">${m.name||"이름 없음"} / ${m.email||""}</option>`).join("");
+      if(current) sel.value=current;
+      selectedAdminChatMember=sel.value;
+    }
+    const uid=selectedAdminChatMember || sel?.value || "";
+    const box=$("adminChatBox");
+    if(box){
+      const rows=chats.filter(c=>c.threadId===uid || c.memberUid===uid).sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+      box.innerHTML=uid ? (rows.map(m=>`<div class="msg ${m.sender==='admin'?'adminMsg':'userMsg'}"><b>${m.sender==='admin'?'관리자':(m.memberName||'회원')}</b><p>${m.text||""}</p></div>`).join("")||"<p>채팅 내역이 없습니다.</p>") : "<p>회원을 선택해 주세요.</p>";
+      box.scrollTop=box.scrollHeight;
+    }
+  }catch(e){console.warn(e)}
+}
+async function sendAdminChat(){
+  const sel=$("chatMemberSelect");
+  const uid=sel?.value;
+  if(!uid)return alert("회원을 선택해 주세요.");
+  const text=val("adminChatInput");
+  if(!text)return alert("메시지를 입력해 주세요.");
+  const opt=sel.options[sel.selectedIndex];
+  await addDoc(collection(db,"chats"),{
+    threadId:uid, memberUid:uid, memberEmail:opt.dataset.email, memberName:opt.dataset.name,
+    sender:"admin", text, read:false, createdAt:serverTimestamp()
+  });
+  await addDoc(collection(db,"notifications"),{
+    memberUid:uid, memberEmail:opt.dataset.email, title:"상담 답변 도착", body:text, createdAt:serverTimestamp()
+  });
+  $("adminChatInput").value="";
+  await adminLog("상담 채팅 답변");
+  loadAdminChat();
+}
+setTimeout(()=>{
+  $("chatMemberSelect")?.addEventListener("change",()=>{selectedAdminChatMember=$("chatMemberSelect").value;loadAdminChat();});
+  $("adminChatSend")?.addEventListener("click",sendAdminChat);
+  $("refreshChatAdmin")?.addEventListener("click",loadAdminChat);
+  loadAdminChat();
+},1000);
+setInterval(loadAdminChat,4000);

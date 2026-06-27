@@ -304,9 +304,14 @@ function fillMemberEdit(){
 }
 async function saveMemberEdit(){
   if(!member)return alert("로그인 후 이용해 주세요.");
-  await updateDoc(doc(db,"members",member.uid||member.id),{name:$("editName").value,contact:$("editContact").value,birthday:$("editBirthday").value,updatedAt:serverTimestamp()});
+  const uid=member.uid||member.id||auth.currentUser?.uid;
+  const data={name:$("editName").value,contact:$("editContact").value,birthday:$("editBirthday").value,updatedAt:serverTimestamp()};
+  await setDoc(doc(db,"members",uid),data,{merge:true});
+  member={...member,...data,uid};
   await logMemberActivity("회원정보 수정","개인정보 수정 완료");
   alert("회원정보가 저장되었습니다.");
+  renderMember();
+  fillMemberEdit();
 }
 async function requestDeleteMember(){
   if(!member)return;
@@ -392,8 +397,8 @@ function initTheme(){
   if(localStorage.cyTheme==="light")document.body.classList.add("lightMode");
 }
 async function installPwa(){
-  if(!deferredInstallPrompt)return alert("브라우저 메뉴에서 홈 화면에 추가를 이용해 주세요.");
-  deferredInstallPrompt.prompt();
+  if(deferredInstallPrompt){deferredInstallPrompt.prompt(); return;}
+  openInstallGuide();
 }
 function globalSearch(){
   const q=($("globalSearchInput")?.value||"").toLowerCase();
@@ -452,6 +457,17 @@ function openFullImage(src){
   viewer.classList.add("show");
 }
 window.openFullImage=openFullImage;
+
+
+// ===== 6.2 install guide / profile fix =====
+function openInstallGuide(){
+  const m=document.getElementById("installGuideModal");
+  if(m)m.classList.add("show");
+}
+function closeInstallGuide(){
+  const m=document.getElementById("installGuideModal");
+  if(m)m.classList.remove("show");
+}
 
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
@@ -640,6 +656,7 @@ function bind(){
   document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
   document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>close(b.dataset.close));
   document.querySelectorAll(".modal").forEach(m=>m.onclick=e=>{if(e.target===m)close(m.id)});
+  if($("installGuideClose"))$("installGuideClose").onclick=closeInstallGuide;
   if($("themeToggle"))$("themeToggle").onclick=toggleTheme; if($("installPwaBtn"))$("installPwaBtn").onclick=installPwa; $("loginOpen").onclick=()=>member?go("mypage"):open("authModal");
   $("loginTab").onclick=()=>{$("loginTab").classList.add("on");$("joinTab").classList.remove("on");$("loginPanel").classList.remove("hide");$("joinPanel").classList.add("hide")};
   $("joinTab").onclick=()=>{$("joinTab").classList.add("on");$("loginTab").classList.remove("on");$("joinPanel").classList.remove("hide");$("loginPanel").classList.add("hide")};

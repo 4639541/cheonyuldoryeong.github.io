@@ -1,0 +1,17 @@
+{
+  "name": "천율도령 공식 신점 상담",
+  "short_name": "천율도령",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050403",
+  "theme_color": "#050403",
+  "description": "천율도령 공식 신점 상담 모바일 홈페이지",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192'%3E%3Crect width='192' height='192' fill='%23050403'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='42' fill='%23e6ba60'%3E천율%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

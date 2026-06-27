@@ -197,3 +197,13 @@ Mobile 6.0 Enterprise Complete:
 캐시 방지 v=600
 
 주의: Cloud Functions, Security Rules, Index는 Firebase 콘솔/CLI에서 직접 배포해야 실제 서버 자동화가 작동합니다.
+
+Mobile 6.1 상품 이미지 전체 표시:
+- 상품 이미지 object-fit: cover 제거
+- object-fit: contain 적용
+- 이미지 높이 auto 적용
+- 긴 포스터/세로 이미지 전체 표시
+- 모바일에서 위아래 잘림 방지
+- 이미지 클릭 시 전체보기 뷰어 추가
+- Swiper/슬라이드 이미지도 contain 적용
+- 캐시 방지 v=610

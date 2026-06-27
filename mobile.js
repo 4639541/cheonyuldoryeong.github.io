@@ -435,6 +435,24 @@ async function roulette(){
 }
 window.addEventListener("error",async(e)=>{try{await addDoc(collection(db,"errorLogs"),{message:e.message,source:e.filename,line:e.lineno,createdAt:serverTimestamp()})}catch(_){}});
 
+
+// ===== 6.1 full image visible additions =====
+function openFullImage(src){
+  if(!src)return;
+  let viewer=document.getElementById("imageViewer");
+  if(!viewer){
+    viewer=document.createElement("div");
+    viewer.id="imageViewer";
+    viewer.innerHTML=`<button id="imageViewerClose" type="button">닫기</button><img id="imageViewerImg" alt="전체 이미지">`;
+    document.body.appendChild(viewer);
+    document.getElementById("imageViewerClose").onclick=()=>viewer.classList.remove("show");
+    viewer.onclick=(e)=>{if(e.target===viewer)viewer.classList.remove("show")};
+  }
+  document.getElementById("imageViewerImg").src=src;
+  viewer.classList.add("show");
+}
+window.openFullImage=openFullImage;
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
@@ -455,7 +473,7 @@ function close(id){$(id)?.classList.remove("show");if(!document.querySelector(".
 function subtotal(){return cart.reduce((s,i)=>s+money(i.price)*i.qty,0)}
 function total(){return Math.max(0,subtotal()-couponDiscount-pointUseAmount)}
 function saveCart(){localStorage.cyMobileCart=JSON.stringify(cart); if($("cartCount"))$("cartCount").textContent=cart.reduce((s,i)=>s+i.qty,0)}
-function imgTag(src){return src?`<img class="productImg" src="${src}" loading="lazy">`:""}
+function imgTag(src){return src?`<div class="productImageWrap"><img class="productImg" src="${src}" loading="lazy" onclick="openFullImage && openFullImage(src)"></div>`:""}
 
 function renderAll(){
   renderHome();

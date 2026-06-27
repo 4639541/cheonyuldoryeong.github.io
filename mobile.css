@@ -177,3 +177,127 @@
 #realtimeAlertList .card,#visitorList .card,#storageFileList .card,#adminSearchResults .card,#calendarProList .card,#errorLogList .card,#superRoleList .card{
   border-left:4px solid #e6ba60;
 }
+
+
+/* ===== 6.1 상품 이미지 전체 표시 패치 ===== */
+.productImageWrap,
+.product-image,
+.product-img,
+.productPhoto,
+.itemImage,
+.imageBox,
+.card .imageWrap{
+  width:100%;
+  background:#080604;
+  border-radius:18px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px;
+  box-sizing:border-box;
+}
+
+.productImageWrap .productImg,
+.productImg,
+.product-image img,
+.product-img img,
+.productPhoto img,
+.itemImage img,
+.imageBox img,
+.card img.productImg{
+  width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  min-height:0 !important;
+  aspect-ratio:auto !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  display:block !important;
+  border-radius:14px;
+  background:#080604;
+  touch-action:pinch-zoom;
+  cursor:zoom-in;
+}
+
+.product-card img,
+.productCard img,
+#productList .card img,
+#home .card img,
+.cards .card img{
+  object-fit:contain !important;
+  height:auto !important;
+  max-height:none !important;
+}
+
+.swiper-slide,
+.slide,
+.carousel-slide{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.swiper-slide img,
+.slide img,
+.carousel-slide img{
+  width:100% !important;
+  height:auto !important;
+  object-fit:contain !important;
+  object-position:center !important;
+}
+
+#imageViewer{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  background:rgba(0,0,0,.94);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  box-sizing:border-box;
+}
+#imageViewer.show{
+  display:flex;
+}
+#imageViewer img{
+  max-width:100%;
+  max-height:92vh;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  border-radius:12px;
+}
+#imageViewerClose{
+  position:fixed;
+  top:18px;
+  right:18px;
+  z-index:100000;
+  border:1px solid rgba(230,186,96,.5);
+  background:#17110b;
+  color:#fff4d7;
+  padding:10px 16px;
+  border-radius:999px;
+  font-weight:900;
+}
+
+@media(max-width:768px){
+  .productImageWrap,
+  .product-image,
+  .product-img,
+  .productPhoto,
+  .itemImage,
+  .imageBox{
+    padding:6px;
+    border-radius:16px;
+  }
+  .productImageWrap .productImg,
+  .productImg,
+  #productList .card img{
+    width:100% !important;
+    height:auto !important;
+    max-height:none !important;
+    object-fit:contain !important;
+  }
+}

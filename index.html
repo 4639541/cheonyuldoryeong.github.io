@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<link rel="manifest" href="./manifest.webmanifest?v=860">
+<link rel="manifest" href="./manifest.webmanifest?v=850">
 <meta name="theme-color" content="#050403">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,7 +16,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"천율도령 공식 신점 상담","description":"신점 상담, 부적, 초발원, 상담 예약 서비스"}</script>
 <meta name="theme-color" content="#050403">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=860">
+<link rel="stylesheet" href="mobile.css?v=850">
 </head>
 <body>
 <header class="appTop">
@@ -71,8 +71,8 @@
   <h1>천명신당<br><span>천율도령</span></h1>
   <p class="premiumLead">17년차 황해도 이북 만신이 전하는<br>신점 · 신타로 · 부적 · 초발원 상담</p>
   <div class="premiumActions">
-    <button class="premiumPrimary" data-go="reserve" type="button">상담 예약하기</button>
-    <button class="premiumSecondary" data-go="shop" type="button">상품 보기</button>
+    <button class="premiumPrimary" data-go="booking" type="button">상담 예약하기</button>
+    <button class="premiumSecondary" data-go="products" type="button">상품 보기</button>
   </div>
   <div class="premiumTrust">
     <span>1:1 비밀상담</span>
@@ -171,7 +171,7 @@
       <input id="bookDate" type="date">
       <select id="bookTime"></select>
       <textarea id="bookBody" placeholder="상담 내용"></textarea>
-      <button data-go="reserve" id="bookBtn" class="primary" type="button">예약 신청</button>
+      <button id="bookBtn" class="primary" type="button">예약 신청</button>
     </div>
   </section>
 
@@ -388,7 +388,7 @@
   <button data-go="qrPage">QR</button>
   <button data-go="supportPage">문의</button>
   <button data-go="memberSecurityPage">보안</button>
-  <button data-go="reserve">예약이력</button>
+  <button data-go="bookingHistoryPage">예약이력</button>
   <button data-go="refundHistoryPage">환불</button>
   <button data-go="memberEditPage">정보</button>
   <button data-go="mypage">마이</button>
@@ -453,8 +453,8 @@
   </div>
 </div>
 
-<script type="module" src="mobile.js?v=860"></script>
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=860").catch(()=>{});}</script>
+<script type="module" src="mobile.js?v=850"></script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=850").catch(()=>{});}</script>
 
 <div id="installGuideModal" class="installGuideModal">
   <div class="installGuideBox">

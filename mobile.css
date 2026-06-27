@@ -1448,3 +1448,43 @@ body.adminPage .adminTabBar{
     min-height:58px !important;
   }
 }
+
+
+/* ===== 8.4 프로필 이미지 복원 + 카카오페이 버튼 수정 ===== */
+.homeProfileImage{
+  position:relative;
+  z-index:2;
+  width:150px;
+  height:150px;
+  object-fit:cover;
+  border-radius:999px;
+  display:block;
+  margin:0 auto 22px;
+  border:2px solid rgba(255,216,117,.72);
+  box-shadow:
+    0 0 0 8px rgba(230,186,96,.08),
+    0 18px 44px rgba(0,0,0,.36),
+    0 0 34px rgba(230,186,96,.22);
+  background:#050403;
+}
+.profileSealImage{
+  overflow:hidden;
+  padding:0!important;
+  background:#050403!important;
+}
+.profileSealImage img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.premiumHero h1{
+  margin-top:0!important;
+}
+@media(max-width:430px){
+  .homeProfileImage{
+    width:124px;
+    height:124px;
+    margin-bottom:18px;
+  }
+}

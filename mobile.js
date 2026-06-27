@@ -725,7 +725,7 @@ function premiumPaymentCardsHTML(){
     <article class="payPremiumCard">
       <h3>💳 카카오페이</h3>
       <p class="payNumber">020-02-407816</p>
-      <button class="primary" type="button" onclick="location.href='https://qr.kakaopay.com/'">카카오페이 송금하기</button>
+      <button class="primary" type="button" onclick="location.href='https://qr.kakaopay.com/281006011000002710315576'">카카오페이 송금하기</button>
       <button class="secondary" type="button" onclick="navigator.clipboard.writeText('020-02-407816').then(()=>alert('카카오페이 번호가 복사되었습니다.'))">카카오페이 번호 복사</button>
     </article>
 
@@ -811,6 +811,52 @@ function fixPremiumHeroTextAndLinks(){
 }
 setInterval(fixPremiumHeroTextAndLinks,1000);
 window.addEventListener("load",fixPremiumHeroTextAndLinks);
+
+
+// ===== 8.4 프로필 이미지 복원 + 카카오페이 QR 링크 수정 =====
+const CHEONYUL_PROFILE_IMAGE = "./assets/cheonyul_profile.png";
+const KAKAO_PAY_QR_LINK = "https://qr.kakaopay.com/281006011000002710315576";
+
+function openKakaoPayQR(){
+  location.href = KAKAO_PAY_QR_LINK;
+}
+
+function fixProfileAndKakaoPay(){
+  try{
+    const hero=document.querySelector(".premiumHero");
+    if(hero && !hero.querySelector(".homeProfileImage")){
+      const img=document.createElement("img");
+      img.src=CHEONYUL_PROFILE_IMAGE;
+      img.alt="천율도령 프로필";
+      img.className="homeProfileImage";
+      const eyebrow=hero.querySelector(".premiumEyebrow");
+      if(eyebrow) eyebrow.insertAdjacentElement("beforebegin", img);
+      else hero.prepend(img);
+    }
+
+    document.querySelectorAll(".profileSeal").forEach(el=>{
+      if(!el.querySelector("img")){
+        el.innerHTML = `<img src="${CHEONYUL_PROFILE_IMAGE}" alt="천율도령 프로필">`;
+        el.classList.add("profileSealImage");
+      }
+    });
+
+    document.querySelectorAll("button,a").forEach(el=>{
+      const t=(el.textContent||"").trim();
+      if(t.includes("카카오페이 송금")){
+        el.onclick=(e)=>{ e.preventDefault(); openKakaoPayQR(); };
+        if(el.tagName==="A") {
+          el.href=KAKAO_PAY_QR_LINK;
+          el.target="_blank";
+          el.rel="noopener noreferrer";
+        }
+      }
+    });
+  }catch(e){}
+}
+
+setInterval(fixProfileAndKakaoPay,1000);
+window.addEventListener("load",fixProfileAndKakaoPay);
 
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"100,000원",desc:"심층 상담"}],

@@ -154,3 +154,19 @@
 #pointAdminList .card{
   border-left:4px solid #e6ba60;
 }
+
+#supportAdminList .card,#memberAnalyticsList .card,#reservationBlockList .card,#faqAdminList .card{
+  border-left:4px solid #e6ba60;
+}
+#supportPage textarea{min-height:120px}
+.tag{
+  color:#e6ba60;
+  font-weight:900;
+}
+
+#crm2List .card,#crm2Timeline .card,#dashPopularList .card,#refund2List .card,#memberSystemList .card,#consultReportList .card,#adminActivityLogList .card,#memberActivityLogList .card,#dataChangeLogList .card{
+  border-left:4px solid #e6ba60;
+}
+.barRow{display:grid;grid-template-columns:80px 1fr 90px;gap:8px;align-items:center;margin:8px 0}
+.barRow b{display:block;height:12px;background:#e6ba60;border-radius:99px;min-width:4px}
+.barRow em{font-style:normal;font-size:12px;color:#cdb990}

@@ -1,11 +1,11 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천율도령 모바일 관리자</title><link rel="stylesheet" href="mobile.css?v=520"></head><body><header class="appTop">
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천율도령 모바일 관리자</title><link rel="stylesheet" href="mobile.css?v=540"></head><body><header class="appTop">
   <span id="adminSyncStatus" class="syncStatus">연동 준비</span><div><b>관리자</b><small>모바일 전용</small></div><a class="pill" href="index.html">홈</a></header><main class="screen"><section class="formCard" id="adminLoginBox"><h1>관리자 로그인</h1><input id="adminEmail" placeholder="이메일"><input id="adminPw" type="password" placeholder="비밀번호">
         <button id="adminLogin" class="primary" type="button">로그인</button>
         <button id="adminJoin" class="secondary" type="button">관리자 최초 등록</button>
         <button id="adminResetPw" class="secondary" type="button">비밀번호 재설정 메일</button>
         <p id="adminLoginMsg" class="loginMsg"></p>
         <p class="loginHelp">로그인이 안 되면 먼저 관리자 최초 등록을 눌러 계정을 생성하세요.</p>
-        </section><section id="adminPanel" class="hide"><button id="adminLogout" class="secondary">로그아웃</button><div class="quickGrid"><button data-tab="dash">대시보드</button><button data-tab="orders">주문</button><button data-tab="bookings">예약</button><button data-tab="members">회원</button><button data-tab="coupons">쿠폰</button><button data-tab="products">상품</button><button data-tab="prices">상담</button><button data-tab="settings">설정</button><button data-tab="epostAdmin">우체국</button><button data-tab="filesAdmin">자료</button><button data-tab="rolesAdmin">권한</button><button data-tab="backupAdmin">백업</button><button data-tab="seoAdmin">SEO</button><button data-tab="chatAdmin">채팅</button><button data-tab="pointsAdmin">적립금</button><button data-tab="eventsAdmin">이벤트</button><button data-tab="alertCenter">알림</button><button data-tab="crmDashboard">CRM</button><button data-tab="calendarAdmin">일정</button><button data-tab="consultRecords">상담이력</button><button data-tab="spiritualManage">부적/초발원</button><button data-tab="refundManage">환불</button><button data-tab="security">보안</button><button data-tab="business">사업자</button><button data-tab="reviewsAdmin">후기</button><button data-tab="backup">백업</button><button data-tab="homeManage">홈관리</button><button data-tab="analytics">통계</button><button data-tab="banners">배너</button><button data-tab="logs">로그</button></div><div id="dash" class="adminTab"><h1>대시보드</h1><div class="quickGrid"><button>주문 <b id="statOrders">0</b></button><button>예약 <b id="statBookings">0</b></button><button>회원 <b id="statMembers">0</b></button><button>매출 <b id="statSales">0원</b></button></div></div><div id="orders" class="adminTab hide"><h1>주문관리</h1><div id="orderList"></div></div><div id="bookings" class="adminTab hide"><h1>예약관리</h1><div id="bookingList"></div></div><div id="members" class="adminTab hide"><h1>회원관리</h1><div id="memberList"></div></div><div id="coupons" class="adminTab hide"><h1>쿠폰관리</h1><div class="formCard"><select id="memberSelect"><option value="">공용 쿠폰</option></select><input id="couponCode" placeholder="쿠폰 코드"><input id="couponDiscount" placeholder="할인금액"><input id="couponDesc" placeholder="설명"><input id="couponMinOrder" placeholder="최소 주문금액 예: 30000"><input id="couponExpire" type="date"><input id="couponLimit" placeholder="사용 가능 횟수 예: 1"><button id="addCoupon" class="primary">쿠폰 발급</button></div><div id="couponList"></div></div><div id="products" class="adminTab hide"><h1>상품관리</h1><div class="formCard"><input id="pName" placeholder="상품명"><input id="pPrice" placeholder="가격"><input id="pStock" placeholder="재고"><input id="pImages" type="file" multiple accept="image/*"><textarea id="pDesc" placeholder="설명"></textarea><button id="addProduct" class="primary">상품 등록</button></div><div id="productListAdmin"></div></div><div id="prices" class="adminTab hide"><h1>상담가격</h1><div class="formCard"><input id="priceTitle" placeholder="상담명"><input id="priceAmount" placeholder="가격"><textarea id="priceDesc" placeholder="설명"></textarea><button id="addPrice" class="primary">상담가격 등록</button></div><div id="priceListAdmin"></div></div><div id="settings" class="adminTab hide"><h1>설정</h1><div class="formCard"><h3>결제 설정</h3><input id="payAccount" placeholder="카카오페이 번호"><input id="payLink" placeholder="카카오페이 링크"><input id="bankName" placeholder="은행"><input id="bankOwner" placeholder="예금주"><input id="bankAccount" placeholder="계좌번호"><textarea id="payGuide" placeholder="결제 안내"></textarea><button id="savePay" class="primary">결제 저장</button></div><div class="formCard"><h3>예약 시간</h3><textarea id="timeInput" placeholder="오전 10시&#10;오후 2시"></textarea><textarea id="blockInput" placeholder="마감 날짜 2026-07-01"></textarea><button id="saveBooking" class="primary">예약 설정 저장</button></div></div>
+        </section><section id="adminPanel" class="hide"><button id="adminLogout" class="secondary">로그아웃</button><div class="quickGrid"><button data-tab="dash">대시보드</button><button data-tab="orders">주문</button><button data-tab="bookings">예약</button><button data-tab="members">회원</button><button data-tab="coupons">쿠폰</button><button data-tab="products">상품</button><button data-tab="prices">상담</button><button data-tab="settings">설정</button><button data-tab="backup2Admin">백업2.0</button><button data-tab="logs2Admin">로그2.0</button><button data-tab="opsAdmin">운영관리</button><button data-tab="consultManageAdmin">상담관리</button><button data-tab="memberSystemAdmin">회원시스템</button><button data-tab="refund2Admin">환불2.0</button><button data-tab="dash2Admin">대시보드2.0</button><button data-tab="crm2Admin">CRM2.0</button><button data-tab="reservationAdvanced">예약고도화</button><button data-tab="memberAnalytics">고객분석</button><button data-tab="productOptionsAdmin">상품옵션</button><button data-tab="supportAdmin">문의</button><button data-tab="epostAdmin">우체국</button><button data-tab="filesAdmin">자료</button><button data-tab="rolesAdmin">권한</button><button data-tab="backupAdmin">백업</button><button data-tab="seoAdmin">SEO</button><button data-tab="chatAdmin">채팅</button><button data-tab="pointsAdmin">적립금</button><button data-tab="eventsAdmin">이벤트</button><button data-tab="alertCenter">알림</button><button data-tab="crmDashboard">CRM</button><button data-tab="calendarAdmin">일정</button><button data-tab="consultRecords">상담이력</button><button data-tab="spiritualManage">부적/초발원</button><button data-tab="refundManage">환불</button><button data-tab="security">보안</button><button data-tab="business">사업자</button><button data-tab="reviewsAdmin">후기</button><button data-tab="backup">백업</button><button data-tab="homeManage">홈관리</button><button data-tab="analytics">통계</button><button data-tab="banners">배너</button><button data-tab="logs">로그</button></div><div id="dash" class="adminTab"><h1>대시보드</h1><div class="quickGrid"><button>주문 <b id="statOrders">0</b></button><button>예약 <b id="statBookings">0</b></button><button>회원 <b id="statMembers">0</b></button><button>매출 <b id="statSales">0원</b></button></div></div><div id="orders" class="adminTab hide"><h1>주문관리</h1><div id="orderList"></div></div><div id="bookings" class="adminTab hide"><h1>예약관리</h1><div id="bookingList"></div></div><div id="members" class="adminTab hide"><h1>회원관리</h1><div id="memberList"></div></div><div id="coupons" class="adminTab hide"><h1>쿠폰관리</h1><div class="formCard"><select id="memberSelect"><option value="">공용 쿠폰</option></select><input id="couponCode" placeholder="쿠폰 코드"><input id="couponDiscount" placeholder="할인금액"><input id="couponDesc" placeholder="설명"><input id="couponMinOrder" placeholder="최소 주문금액 예: 30000"><input id="couponExpire" type="date"><input id="couponLimit" placeholder="사용 가능 횟수 예: 1"><button id="addCoupon" class="primary">쿠폰 발급</button></div><div id="couponList"></div></div><div id="products" class="adminTab hide"><h1>상품관리</h1><div class="formCard"><input id="pName" placeholder="상품명"><input id="pPrice" placeholder="가격"><input id="pStock" placeholder="재고"><input id="pImages" type="file" multiple accept="image/*"><textarea id="pDesc" placeholder="설명"></textarea><button id="addProduct" class="primary">상품 등록</button></div><div id="productListAdmin"></div></div><div id="prices" class="adminTab hide"><h1>상담가격</h1><div class="formCard"><input id="priceTitle" placeholder="상담명"><input id="priceAmount" placeholder="가격"><textarea id="priceDesc" placeholder="설명"></textarea><button id="addPrice" class="primary">상담가격 등록</button></div><div id="priceListAdmin"></div></div><div id="settings" class="adminTab hide"><h1>설정</h1><div class="formCard"><h3>결제 설정</h3><input id="payAccount" placeholder="카카오페이 번호"><input id="payLink" placeholder="카카오페이 링크"><input id="bankName" placeholder="은행"><input id="bankOwner" placeholder="예금주"><input id="bankAccount" placeholder="계좌번호"><textarea id="payGuide" placeholder="결제 안내"></textarea><button id="savePay" class="primary">결제 저장</button></div><div class="formCard"><h3>예약 시간</h3><textarea id="timeInput" placeholder="오전 10시&#10;오후 2시"></textarea><textarea id="blockInput" placeholder="마감 날짜 2026-07-01"></textarea><button id="saveBooking" class="primary">예약 설정 저장</button></div></div>
 
 <div id="homeManage" class="adminTab hide">
   <h1>홈페이지 표시 관리</h1>
@@ -249,4 +249,128 @@
   <div id="epostRequestList"></div>
 </div>
 
-</section></main><script type="module" src="admin-mobile.js?v=520"></script></body></html>
+
+<div id="supportAdmin" class="adminTab hide">
+  <h1>1:1 문의 · FAQ 관리</h1>
+  <div class="formCard">
+    <input id="faqQuestion" placeholder="FAQ 질문">
+    <textarea id="faqAnswer" placeholder="FAQ 답변"></textarea>
+    <button id="addFaq" class="primary" type="button">FAQ 등록</button>
+  </div>
+  <h2>문의 목록</h2>
+  <div id="supportAdminList"></div>
+  <h2>FAQ 목록</h2>
+  <div id="faqAdminList"></div>
+</div>
+<div id="productOptionsAdmin" class="adminTab hide">
+  <h1>상품 옵션 · 행사 관리</h1>
+  <div class="formCard">
+    <select id="optionProductSelect"><option value="">상품 선택</option></select>
+    <input id="productOptionText" placeholder="옵션 예: 6mm, 8mm, 10mm">
+    <input id="productDiscountRate" placeholder="할인율 %">
+    <input id="productEventEnd" type="date">
+    <select id="productBadge"><option>일반</option><option>신상품</option><option>베스트</option><option>추천</option><option>특가</option><option>품절예약</option></select>
+    <button id="saveProductOption" class="primary" type="button">상품 옵션 저장</button>
+  </div>
+</div>
+<div id="memberAnalytics" class="adminTab hide">
+  <h1>고객 분석 2.0</h1>
+  <div id="memberAnalyticsList"></div>
+</div>
+<div id="reservationAdvanced" class="adminTab hide">
+  <h1>예약 고도화</h1>
+  <div class="formCard">
+    <input id="reservationBlockDate" type="date">
+    <input id="reservationBlockTime" placeholder="차단 시간 예: 오후 2시">
+    <button id="addReservationBlock" class="primary" type="button">시간 차단</button>
+  </div>
+  <div id="reservationBlockList"></div>
+</div>
+
+
+<div id="crm2Admin" class="adminTab hide">
+  <h1>CRM 2.0</h1>
+  <div class="formCard">
+    <select id="crm2MemberSelect"><option value="">회원 선택</option></select>
+    <textarea id="crm2Memo" placeholder="상담 메모 / 고객 특이사항"></textarea>
+    <input id="crm2NextDate" type="date">
+    <select id="crm2VipStatus"><option>일반</option><option>VIP</option><option>VVIP</option><option>블랙리스트</option></select>
+    <button id="saveCrm2" class="primary" type="button">CRM 저장</button>
+  </div>
+  <div id="crm2Timeline"></div>
+  <div id="crm2List"></div>
+</div>
+
+<div id="dash2Admin" class="adminTab hide">
+  <h1>관리자 대시보드 2.0</h1>
+  <div class="quickGrid">
+    <button>오늘 매출 <b id="dashTodaySales">0원</b></button>
+    <button>이번 달 매출 <b id="dashMonthSales">0원</b></button>
+    <button>상담 건수 <b id="dashConsultCount">0</b></button>
+    <button>주문 건수 <b id="dashOrderCount">0</b></button>
+    <button>예약률 <b id="dashReserveRate">0%</b></button>
+    <button>취소율 <b id="dashCancelRate">0%</b></button>
+  </div>
+  <div id="dashSalesChart" class="formCard"></div>
+  <div id="dashPopularList"></div>
+</div>
+
+<div id="refund2Admin" class="adminTab hide">
+  <h1>환불 · 취소 시스템</h1>
+  <div id="refund2List"></div>
+</div>
+
+<div id="memberSystemAdmin" class="adminTab hide">
+  <h1>회원 시스템</h1>
+  <div id="memberSystemList"></div>
+</div>
+
+<div id="consultManageAdmin" class="adminTab hide">
+  <h1>상담 관리</h1>
+  <div class="formCard">
+    <select id="consultMemberSelect"><option value="">회원 선택</option></select>
+    <input id="consultTitle" placeholder="상담 결과 제목">
+    <textarea id="consultResult" placeholder="상담 결과 / 완료 보고서"></textarea>
+    <input id="consultFiles" type="file" multiple>
+    <button id="saveConsultReport" class="primary" type="button">상담 결과 저장</button>
+  </div>
+  <div id="consultReportList"></div>
+</div>
+
+<div id="opsAdmin" class="adminTab hide">
+  <h1>운영 기능</h1>
+  <div class="formCard">
+    <h3>공지사항</h3>
+    <input id="opNoticeTitle" placeholder="공지 제목">
+    <textarea id="opNoticeBody" placeholder="공지 내용"></textarea>
+    <button id="saveOpNotice" class="primary" type="button">공지 저장</button>
+  </div>
+  <div class="formCard">
+    <h3>팝업 공지 / 이벤트 배너</h3>
+    <input id="opPopupTitle" placeholder="팝업/배너 제목">
+    <textarea id="opPopupBody" placeholder="내용"></textarea>
+    <input id="opPopupEnd" type="date">
+    <button id="saveOpPopup" class="secondary" type="button">팝업/이벤트 저장</button>
+  </div>
+</div>
+
+<div id="logs2Admin" class="adminTab hide">
+  <h1>로그 시스템</h1>
+  <h2>관리자 활동 로그</h2><div id="adminActivityLogList"></div>
+  <h2>회원 활동 로그</h2><div id="memberActivityLogList"></div>
+  <h2>데이터 변경 기록</h2><div id="dataChangeLogList"></div>
+</div>
+
+<div id="backup2Admin" class="adminTab hide">
+  <h1>백업 2.0</h1>
+  <div class="formCard">
+    <button id="backupFirestoreJson" class="primary" type="button">Firestore JSON 백업</button>
+    <button id="backupSettingsJson" class="secondary" type="button">설정 백업</button>
+    <button id="backupImageList" class="secondary" type="button">이미지/자료 URL 백업</button>
+    <textarea id="restorePreviewJson" placeholder="복원할 JSON 붙여넣기"></textarea>
+    <button id="restorePreviewBtn" class="secondary" type="button">복원 미리보기</button>
+  </div>
+  <div id="backupResult"></div>
+</div>
+
+</section></main><script type="module" src="admin-mobile.js?v=540"></script></body></html>

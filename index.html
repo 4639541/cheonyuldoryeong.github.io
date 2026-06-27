@@ -11,7 +11,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"천율도령 공식 신점 상담","description":"신점 상담, 부적, 초발원, 상담 예약 서비스"}</script>
 <meta name="theme-color" content="#050403">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=520">
+<link rel="stylesheet" href="mobile.css?v=540">
 </head>
 <body>
 <header class="appTop">
@@ -184,6 +184,52 @@
     <div id="myEpostList" class="cards"></div>
   </section>
 
+  
+  <section id="supportPage" class="page">
+    <h1>1:1 문의 · FAQ</h1>
+    <div class="formCard">
+      <input id="supportTitle" placeholder="문의 제목">
+      <textarea id="supportBody" placeholder="문의 내용"></textarea>
+      <button id="supportSubmit" class="primary" type="button">문의 등록</button>
+    </div>
+    <h2>자주 묻는 질문</h2>
+    <div id="faqList" class="cards"></div>
+    <h2>내 문의</h2>
+    <div id="mySupportList" class="cards"></div>
+  </section>
+
+  <section id="memberEditPage" class="page">
+    <h1>개인정보 수정</h1>
+    <div class="formCard">
+      <input id="editName" placeholder="이름/닉네임">
+      <input id="editContact" placeholder="연락처/카카오톡 ID">
+      <input id="editBirthday" type="date">
+      <button id="saveMemberEdit" class="primary" type="button">회원정보 저장</button>
+      <button id="requestDeleteMember" class="secondary" type="button">회원탈퇴 요청</button>
+    </div>
+  </section>
+
+  <section id="memberSecurityPage" class="page">
+    <h1>계정 보안</h1>
+    <div class="formCard">
+      <p>비밀번호 재설정, 이메일 인증, 로그인 기록을 확인할 수 있습니다.</p>
+      <button id="sendEmailVerifyBtn" class="primary" type="button">이메일 인증 메일 보내기</button>
+      <button id="sendResetPwBtn" class="secondary" type="button">비밀번호 재설정 메일 보내기</button>
+    </div>
+    <h2>내 활동 로그</h2>
+    <div id="myActivityLogs" class="cards"></div>
+  </section>
+
+  <section id="bookingHistoryPage" class="page">
+    <h1>예약 이력</h1>
+    <div id="bookingHistoryList" class="cards"></div>
+  </section>
+
+  <section id="refundHistoryPage" class="page">
+    <h1>환불 · 취소 이력</h1>
+    <div id="refundHistoryList" class="cards"></div>
+  </section>
+
   <section id="reviews" class="page">
     <h1>후기</h1>
     <button id="reviewOpen" class="primary" type="button">후기 작성</button>
@@ -208,6 +254,11 @@
   <button data-go="referralPage">추천</button>
   <button data-go="filesPage">자료</button>
   <button data-go="receiptPage">영수증</button>
+  <button data-go="supportPage">문의</button>
+  <button data-go="memberSecurityPage">보안</button>
+  <button data-go="bookingHistoryPage">예약이력</button>
+  <button data-go="refundHistoryPage">환불</button>
+  <button data-go="memberEditPage">정보</button>
   <button data-go="mypage">마이</button>
 </nav>
 
@@ -270,6 +321,6 @@
   </div>
 </div>
 
-<script type="module" src="mobile.js?v=520"></script>
+<script type="module" src="mobile.js?v=540"></script>
 </body>
 </html>

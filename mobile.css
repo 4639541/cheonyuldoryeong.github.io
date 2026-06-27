@@ -1570,3 +1570,22 @@ main,.screen,.page{padding-bottom:112px!important}
     padding:0 12px!important;
   }
 }
+
+/* ===== 8.9 home router final ===== */
+.bottomNav:not(#stableBottomNavFinal){display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+#stableBottomNavFinal{position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:2147483000!important;display:flex!important;gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important;background:rgba(5,4,3,.97)!important;border-top:1px solid rgba(230,186,96,.28)!important;box-shadow:0 -12px 30px rgba(0,0,0,.36)!important;scrollbar-width:none!important}
+#stableBottomNavFinal::-webkit-scrollbar{display:none!important}
+#stableBottomNavFinal button{flex:0 0 auto!important;min-width:74px!important;height:50px!important;padding:0 14px!important;border-radius:22px!important;border:1px solid rgba(230,186,96,.14)!important;background:rgba(255,255,255,.025)!important;color:#fff4d7!important;font-size:14px!important;font-weight:950!important;white-space:nowrap!important}
+#stableBottomNavFinal button.on{background:linear-gradient(135deg,rgba(255,216,117,.38),rgba(166,108,30,.26))!important;border-color:rgba(230,186,96,.42)!important;color:#ffe39a!important}
+.page.hide{display:none!important}.page.on,.page.active{display:block!important}main,.screen,.page{padding-bottom:112px!important}
+.homeHeroFinal890{position:relative;display:block!important;overflow:hidden;padding:42px 18px 28px;margin:14px 0 24px;border-radius:30px;border:1px solid rgba(230,186,96,.34);background:radial-gradient(circle at 50% 10%,rgba(230,186,96,.24),transparent 38%),linear-gradient(145deg,rgba(255,216,117,.13),rgba(255,255,255,.025)),#090604;text-align:center;box-shadow:0 20px 48px rgba(0,0,0,.36)}
+.homeHeroProfile890{width:132px;height:132px;object-fit:cover;border-radius:999px;border:2px solid rgba(255,216,117,.72);box-shadow:0 0 0 8px rgba(230,186,96,.08),0 18px 42px rgba(0,0,0,.34);margin:0 auto 18px;display:block}
+.homeHeroEyebrow890{margin:0 0 10px;color:#ffd875;font-size:12px;letter-spacing:.18em;font-weight:950}
+.homeHeroFinal890 h1{margin:0;color:#fff4d7;font-size:50px;line-height:1;letter-spacing:-.055em}.homeHeroFinal890 h1 span{color:#ffd875}
+.homeHeroLead890{color:#e8d8b7;font-size:18px;line-height:1.7;margin:16px 0 22px;word-break:keep-all}
+.homeHeroActions890{display:grid;gap:10px}.homeHeroActions890 button{width:100%;min-height:58px;border-radius:20px;font-size:17px;font-weight:950}
+.homeHeroActions890 button:first-child{border:0;background:linear-gradient(135deg,#fff0b8,#e6ba60 60%,#a66c1e);color:#160d04}
+.homeHeroActions890 button:last-child{background:rgba(0,0,0,.35);border:1px solid rgba(230,186,96,.32);color:#fff4d7}
+.homeHeroChips890{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:16px}.homeHeroChips890 span{padding:8px 10px;border-radius:999px;border:1px solid rgba(230,186,96,.22);color:#d9c9a8;font-size:12px;font-weight:850}
+.cy890HomeHidden{display:none!important}
+@media(max-width:430px){.homeHeroFinal890 h1{font-size:46px}.homeHeroProfile890{width:118px;height:118px}#stableBottomNavFinal button{min-width:70px;height:48px;font-size:13px}}

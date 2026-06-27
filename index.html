@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<link rel="manifest" href="./manifest.webmanifest?v=740">
+<link rel="manifest" href="./manifest.webmanifest?v=800">
 <meta name="theme-color" content="#050403">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,7 +16,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"천율도령 공식 신점 상담","description":"신점 상담, 부적, 초발원, 상담 예약 서비스"}</script>
 <meta name="theme-color" content="#050403">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=740">
+<link rel="stylesheet" href="mobile.css?v=800">
 </head>
 <body>
 <header class="appTop">
@@ -323,7 +323,37 @@
     <div id="refundHistoryList" class="cards"></div>
   </section>
 
-  <section id="reviews" class="page">
+  
+<section id="premiumProfilePage" class="page">
+  <h1>프리미엄 프로필</h1>
+  <div id="premiumMyProfile" class="cards"></div>
+  <div class="formCard">
+    <h3>프로필 수정</h3>
+    <input id="profilePhotoInput" type="file" accept="image/*">
+    <input id="profileNickname" placeholder="닉네임">
+    <button id="savePremiumProfile" class="primary" type="button">프로필 저장</button>
+  </div>
+</section>
+
+<section id="commercePlusPage" class="page">
+  <h1>쇼핑 플러스</h1>
+  <h2>최근 본 상품</h2><div id="recentProductList" class="cards"></div>
+  <h2>관심상품</h2><div id="wishlistProductList" class="cards"></div>
+  <h2>추천상품</h2><div id="recommendProductList" class="cards"></div>
+</section>
+
+<section id="consultLoungePage" class="page">
+  <h1>상담 라운지</h1>
+  <div id="consultProgressBox" class="cards"></div>
+  <div id="consultQueueBox" class="cards"></div>
+</section>
+
+<section id="vipBenefitPage" class="page">
+  <h1>VIP 전용 혜택</h1>
+  <div id="vipBenefitList" class="cards"></div>
+</section>
+
+<section id="reviews" class="page">
     <h1>후기</h1>
     <button id="reviewOpen" class="primary" type="button">후기 작성</button>
     <div id="reviewList" class="cards"></div>
@@ -337,6 +367,7 @@
 
 <nav class="bottomNav">
   <button data-go="home" class="on">홈</button>
+  <button data-go="premiumProfilePage">프로필</button>
   <button data-go="totalStatusPage">통합</button>
   <button data-go="globalSearchPage">검색</button>
   <button data-go="reserve">예약</button>
@@ -349,6 +380,9 @@
   <button data-go="referralPage">추천</button>
   <button data-go="filesPage">자료</button>
   <button data-go="receiptPage">영수증</button>
+  <button data-go="commercePlusPage">찜</button>
+  <button data-go="consultLoungePage">상담</button>
+  <button data-go="vipBenefitPage">VIP</button>
   <button data-go="marketingPage">마케팅</button>
   <button data-go="eventPlayPage">이벤트</button>
   <button data-go="qrPage">QR</button>
@@ -419,8 +453,8 @@
   </div>
 </div>
 
-<script type="module" src="mobile.js?v=740"></script>
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=740").catch(()=>{});}</script>
+<script type="module" src="mobile.js?v=800"></script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=800").catch(()=>{});}</script>
 
 <div id="installGuideModal" class="installGuideModal">
   <div class="installGuideBox">

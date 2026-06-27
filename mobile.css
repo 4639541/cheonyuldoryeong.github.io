@@ -1133,3 +1133,29 @@ button:active{
   .premiumProfileCard h2{font-size:24px}
   .bottomNav button{min-width:68px!important}
 }
+
+/* ===== 8.0 전체 플랫폼 추가 UI ===== */
+.premiumMemberCard{
+  text-align:center;
+  padding:24px;
+  border-radius:26px;
+  border:1px solid rgba(230,186,96,.28);
+  background:linear-gradient(145deg,rgba(255,216,117,.10),rgba(255,255,255,.02)),#090604;
+}
+.avatarLg{
+  width:96px;
+  height:96px;
+  border-radius:999px;
+  object-fit:cover;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 14px;
+  background:radial-gradient(circle,#ffe8a8,#d6a64b);
+  color:#160d04;
+  font-size:42px;
+  font-weight:950;
+}
+#shopOpsList .card,#memberGrowthList .card,#consultOpsList .card,#scheduleOpsList .card,#revenueChartList .card,#automationRunList .card,#aiRiskList .card,#builderSectionList .card,#auditLogList .card{
+  border-left:4px solid #e6ba60;
+}

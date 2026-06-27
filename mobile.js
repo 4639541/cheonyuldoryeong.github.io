@@ -11,7 +11,7 @@ const money=v=>Number(String(v||"").replace(/[^\d]/g,""))||0;
 const won=n=>(Number(n)||0).toLocaleString()+"원";
 
 let state={
-  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], pointSettings:[], supportTickets:[], faqs:[], reservationBlocks:[], activityLogs:[], refundLogs:[], consultationReports:[], crmProfiles:[], adminRoles:[], realtimeAlerts:[], visitorSessions:[], storageFiles:[], calendarEvents:[], eventGameSettings:[], aiSummaries:[], errorLogs:[], cacheSettings:[], paymentSettings:[], paymentReceipts:[], orderStatusLogs:[], consultAudioFiles:[], crmProProfiles:[], marketingSettings:[], securitySettings:[], aiProReports:[], pushSettings:[], syncHealth:[], events:[], memberFiles:[], seoSettings:[], adminRoles:[], epostShipments:[],
+  products:[], prices:[], notices:[], reviews:[], coupons:[], orders:[], bookings:[], banners:[], benefits:[], settings:[], consultRecords:[], spiritualRequests:[], notifications:[], schedules:[], chats:[], points:[], pointSettings:[], supportTickets:[], faqs:[], reservationBlocks:[], activityLogs:[], refundLogs:[], consultationReports:[], crmProfiles:[], adminRoles:[], realtimeAlerts:[], visitorSessions:[], storageFiles:[], calendarEvents:[], eventGameSettings:[], aiSummaries:[], errorLogs:[], cacheSettings:[], paymentSettings:[], paymentReceipts:[], orderStatusLogs:[], consultAudioFiles:[], crmProProfiles:[], marketingSettings:[], securitySettings:[], aiProReports:[], pushSettings:[], syncHealth:[], uiSettings:[], memberGrowthSettings:[], consultOps:[], scheduleSettings:[], automationLogs:[], builderSections:[], auditLogs:[], wishlists:[], recentViews:[], restockAlerts:[], chatStatuses:[], events:[], memberFiles:[], seoSettings:[], adminRoles:[], epostShipments:[],
   payment:{name:"천율도령",account:"02002407816",guide:"송금 후 주문 신청"},
   booking:{times:["오전 10시","오후 2시","오후 7시"],blockedDates:[]}
 };
@@ -599,6 +599,62 @@ function premiumDedupeHome(){
 setInterval(premiumDedupeHome,1000);
 window.addEventListener("load",premiumDedupeHome);
 
+
+// ===== 8.0 customer all-in-one additions =====
+function levelFromExp(exp){return Math.max(1,Math.floor(Number(exp||0)/1000)+1)}
+function gradeIcon(g){return g==="VVIP"?"👑":g==="VIP"?"💎":g==="GOLD"?"🏆":g==="SILVER"?"🥈":"🌙"}
+async function savePremiumProfile(){
+  if(!member)return alert("로그인 후 이용해 주세요.");
+  let photo="";
+  const f=$("profilePhotoInput")?.files?.[0];
+  if(f){
+    const r=ref(storage,`profiles/${member.uid||member.id}_${Date.now()}_${f.name}`);
+    await uploadBytes(r,f); photo=await getDownloadURL(r);
+  }
+  const data={nickname:val("profileNickname"),photoUrl:photo||member.photoUrl||"",updatedAt:serverTimestamp()};
+  await setDoc(doc(db,"members",member.uid||member.id),data,{merge:true});
+  alert("프로필이 저장되었습니다.");
+}
+function renderPremiumProfile(){
+  const box=$("premiumMyProfile"); if(!box)return;
+  if(!member){box.innerHTML="<p>로그인 후 확인 가능합니다.</p>";return;}
+  const g=getMyVisibleGrade?getMyVisibleGrade():(member.grade||"일반");
+  const exp=Number(member.exp||0), lv=levelFromExp(exp);
+  box.innerHTML=`<article class="premiumMemberCard">${member.photoUrl?`<img src="${member.photoUrl}" class="avatarLg">`:`<div class="avatarLg">${gradeIcon(g)}</div>`}<h3>${esc(member.nickname||member.name||"회원님")}</h3><p>${gradeIcon(g)} ${esc(g)} · Lv.${lv}</p><p>경험치 ${exp.toLocaleString()} EXP</p><p>활동배지: 출석 · 상담 · 구매 · 후기</p></article>`;
+}
+function renderCommercePlus(){
+  const recent=$("recentProductList"), wish=$("wishlistProductList"), reco=$("recommendProductList");
+  const uid=member?.uid||member?.id;
+  if(recent){
+    const rows=(state.recentViews||[]).filter(x=>x.memberUid===uid).slice(0,12);
+    recent.innerHTML=rows.length?rows.map(x=>`<article class="card"><h3>${esc(x.name||"상품")}</h3><p>최근 본 상품</p></article>`).join(""):"<p>최근 본 상품이 없습니다.</p>";
+  }
+  if(wish){
+    const rows=(state.wishlists||[]).filter(x=>x.memberUid===uid).slice(0,12);
+    wish.innerHTML=rows.length?rows.map(x=>`<article class="card"><h3>${esc(x.name||"관심상품")}</h3><p>찜한 상품</p></article>`).join(""):"<p>관심상품이 없습니다.</p>";
+  }
+  if(reco){
+    const rows=(state.products||[]).filter(p=>p.badge==="추천"||p.flag==="추천상품"||p.best).slice(0,8);
+    reco.innerHTML=rows.length?rows.map(p=>`<article class="card">${imgTag(p.image||p.img||"")}<h3>${esc(p.name||"상품")}</h3><p>${esc(p.desc||"")}</p></article>`).join(""):"<p>추천상품이 없습니다.</p>";
+  }
+}
+function renderConsultLounge(){
+  const progress=$("consultProgressBox"), queue=$("consultQueueBox");
+  if(!member){if(progress)progress.innerHTML="<p>로그인 후 확인 가능합니다.</p>";return;}
+  const uid=member.uid||member.id;
+  const bookings=state.bookings.filter(b=>b.memberUid===uid||b.memberEmail===member.email);
+  if(progress)progress.innerHTML=bookings.map(b=>{
+    const op=(state.consultOps||[]).find(o=>o.bookingId===b.id)||{};
+    return `<article class="card"><h3>${esc(b.type||"상담")}</h3><p>상태: ${esc(b.status||"대기")}</p><p>진행률: ${esc(op.progress||"0")}%</p><p>상담시간: ${esc(op.duration||"-")}분</p></article>`;
+  }).join("")||"<p>상담 진행 내역이 없습니다.</p>";
+  if(queue)queue.innerHTML=`<article class="card"><h3>상담 대기열</h3><p>현재 예약 ${bookings.length}건</p></article>`;
+}
+function renderVipBenefits(){
+  const box=$("vipBenefitList"); if(!box)return;
+  const s=(state.memberGrowthSettings||[])[0]||{};
+  box.innerHTML=`<article class="card"><h3>VIP 전용혜택</h3><p>${esc(s.vipBenefit||"VIP 회원에게는 우선 상담, 전용 쿠폰, 특별 적립 혜택이 제공됩니다.")}</p></article>`;
+}
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
@@ -636,6 +692,10 @@ function renderAll(){
   renderPointHistory();
   renderPointSummary();
   renderFaqSupport();
+  renderPremiumProfile();
+  renderCommercePlus();
+  renderConsultLounge();
+  renderVipBenefits();
   renderMyTotalStatus();
   renderMemberSecurity();
   renderBookingHistory();
@@ -793,11 +853,11 @@ function bind(){
   if($("themeToggle"))$("themeToggle").onclick=toggleTheme; if($("installPwaBtn"))$("installPwaBtn").onclick=installPwa; $("loginOpen").onclick=()=>member?go("mypage"):open("authModal");
   $("loginTab").onclick=()=>{$("loginTab").classList.add("on");$("joinTab").classList.remove("on");$("loginPanel").classList.remove("hide");$("joinPanel").classList.add("hide")};
   $("joinTab").onclick=()=>{$("joinTab").classList.add("on");$("loginTab").classList.remove("on");$("joinPanel").classList.remove("hide");$("loginPanel").classList.add("hide")};
-  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; if($("pointApply"))$("pointApply").onclick=applyPointUse; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("birthdayCouponBtn"))$("birthdayCouponBtn").onclick=()=>issueMarketingCoupon("birthday"); if($("firstBuyCouponBtn"))$("firstBuyCouponBtn").onclick=()=>issueMarketingCoupon("first"); if($("friendReferralBtn"))$("friendReferralBtn").onclick=referralReward; if($("globalSearchInput"))$("globalSearchInput").oninput=globalSearch; if($("makeQrBtn"))$("makeQrBtn").onclick=()=>makeQr($("qrText").value,"qrResult"); if($("checkinBtn"))$("checkinBtn").onclick=checkin; if($("rouletteBtn"))$("rouletteBtn").onclick=roulette; if($("supportSubmit"))$("supportSubmit").onclick=submitSupport; if($("saveMemberEdit"))$("saveMemberEdit").onclick=saveMemberEdit; if($("requestDeleteMember"))$("requestDeleteMember").onclick=requestDeleteMember; if($("sendEmailVerifyBtn"))$("sendEmailVerifyBtn").onclick=sendVerifyEmail; if($("sendResetPwBtn"))$("sendResetPwBtn").onclick=sendResetPassword; if($("epostTrackBtn"))$("epostTrackBtn").onclick=handleEpostTrack; if($("chatSend"))$("chatSend").onclick=sendChat; if($("saveReferral"))$("saveReferral").onclick=saveReferralCode; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
+  $("joinBtn").onclick=join; $("loginBtn").onclick=login; $("cartOpen").onclick=openCart; $("search").oninput=renderProducts; $("couponApply").onclick=applyCoupon; if($("pointApply"))$("pointApply").onclick=applyPointUse; $("orderBtn").onclick=order; $("bookBtn").onclick=book; $("bookDate").onchange=renderTimes; $("trackBtn").onclick=track; $("reviewOpen").onclick=()=>open("reviewModal"); $("reviewSubmit").onclick=review; if($("savePremiumProfile"))$("savePremiumProfile").onclick=savePremiumProfile; if($("birthdayCouponBtn"))$("birthdayCouponBtn").onclick=()=>issueMarketingCoupon("birthday"); if($("firstBuyCouponBtn"))$("firstBuyCouponBtn").onclick=()=>issueMarketingCoupon("first"); if($("friendReferralBtn"))$("friendReferralBtn").onclick=referralReward; if($("globalSearchInput"))$("globalSearchInput").oninput=globalSearch; if($("makeQrBtn"))$("makeQrBtn").onclick=()=>makeQr($("qrText").value,"qrResult"); if($("checkinBtn"))$("checkinBtn").onclick=checkin; if($("rouletteBtn"))$("rouletteBtn").onclick=roulette; if($("supportSubmit"))$("supportSubmit").onclick=submitSupport; if($("saveMemberEdit"))$("saveMemberEdit").onclick=saveMemberEdit; if($("requestDeleteMember"))$("requestDeleteMember").onclick=requestDeleteMember; if($("sendEmailVerifyBtn"))$("sendEmailVerifyBtn").onclick=sendVerifyEmail; if($("sendResetPwBtn"))$("sendResetPwBtn").onclick=sendResetPassword; if($("epostTrackBtn"))$("epostTrackBtn").onclick=handleEpostTrack; if($("chatSend"))$("chatSend").onclick=sendChat; if($("saveReferral"))$("saveReferral").onclick=saveReferralCode; if($("spSubmit"))$("spSubmit").onclick=submitSpiritual;
 }
 function startSync(){
   if(started)return; started=true;
-  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",pointSettings:"pointSettings",supportTickets:"supportTickets",faqs:"faqs",reservationBlocks:"reservationBlocks",activityLogs:"activityLogs",refundLogs:"refundLogs",consultationReports:"consultationReports",crmProfiles:"crmProfiles",adminRoles:"adminRoles",realtimeAlerts:"realtimeAlerts",visitorSessions:"visitorSessions",storageFiles:"storageFiles",calendarEvents:"calendarEvents",eventGameSettings:"eventGameSettings",aiSummaries:"aiSummaries",errorLogs:"errorLogs",cacheSettings:"cacheSettings",paymentSettings:"paymentSettings",paymentReceipts:"paymentReceipts",orderStatusLogs:"orderStatusLogs",consultAudioFiles:"consultAudioFiles",crmProProfiles:"crmProProfiles",marketingSettings:"marketingSettings",securitySettings:"securitySettings",aiProReports:"aiProReports",pushSettings:"pushSettings",syncHealth:"syncHealth",events:"events",memberFiles:"memberFiles",seoSettings:"seoSettings",adminRoles:"adminRoles",epostShipments:"epostShipments"};
+  const map={products:"products",consultPrices:"prices",notices:"notices",reviews:"reviews",settings:"settings",coupons:"coupons",orders:"orders",bookings:"bookings",banners:"banners",benefits:"benefits",members:"members",consultRecords:"consultRecords",spiritualRequests:"spiritualRequests",notifications:"notifications",schedules:"schedules",chats:"chats",points:"points",pointSettings:"pointSettings",supportTickets:"supportTickets",faqs:"faqs",reservationBlocks:"reservationBlocks",activityLogs:"activityLogs",refundLogs:"refundLogs",consultationReports:"consultationReports",crmProfiles:"crmProfiles",adminRoles:"adminRoles",realtimeAlerts:"realtimeAlerts",visitorSessions:"visitorSessions",storageFiles:"storageFiles",calendarEvents:"calendarEvents",eventGameSettings:"eventGameSettings",aiSummaries:"aiSummaries",errorLogs:"errorLogs",cacheSettings:"cacheSettings",paymentSettings:"paymentSettings",paymentReceipts:"paymentReceipts",orderStatusLogs:"orderStatusLogs",consultAudioFiles:"consultAudioFiles",crmProProfiles:"crmProProfiles",marketingSettings:"marketingSettings",securitySettings:"securitySettings",aiProReports:"aiProReports",pushSettings:"pushSettings",syncHealth:"syncHealth",uiSettings:"uiSettings",memberGrowthSettings:"memberGrowthSettings",consultOps:"consultOps",scheduleSettings:"scheduleSettings",automationLogs:"automationLogs",builderSections:"builderSections",auditLogs:"auditLogs",wishlists:"wishlists",recentViews:"recentViews",restockAlerts:"restockAlerts",chatStatuses:"chatStatuses",events:"events",memberFiles:"memberFiles",seoSettings:"seoSettings",adminRoles:"adminRoles",epostShipments:"epostShipments"};
   Object.entries(map).forEach(([col,key])=>listen(col,key));
 }
 initTheme(); bind(); hydrate(); renderAll(); startSync(); recordVisit(); trackVisitor(); onAuthStateChanged(auth,loadMember);

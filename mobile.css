@@ -386,3 +386,42 @@ body{
   margin:8px 0 4px;
   font-weight:900;
 }
+
+
+/* ===== 6.3 실시간 연동 배지 겹침 수정 ===== */
+.syncStatus{
+  position:fixed !important;
+  top:150px !important;
+  left:auto !important;
+  right:22px !important;
+  transform:none !important;
+  z-index:8000 !important;
+  font-size:11px !important;
+  padding:4px 9px !important;
+  max-width:120px;
+  text-align:center;
+  pointer-events:none;
+  opacity:.92;
+}
+.appTop{
+  gap:8px;
+}
+.appTop .pill,
+#themeToggle,
+#installPwaBtn,
+#loginOpen{
+  position:relative;
+  z-index:8200;
+}
+@media(max-width:430px){
+  .syncStatus{
+    top:146px !important;
+    right:18px !important;
+    font-size:10px !important;
+  }
+  #themeToggle,#installPwaBtn,#loginOpen{
+    min-width:74px;
+    padding-left:10px;
+    padding-right:10px;
+  }
+}

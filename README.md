@@ -218,3 +218,13 @@ Mobile 6.2 Fix:
 - 개인정보 수정 setDoc merge 방식으로 저장 안정화
 - 생년월일 라벨 추가
 - 캐시 방지 v=620
+
+Mobile 6.3 realtime/member sync fix:
+- 실시간 연동중 배지 위치 변경으로 상단 버튼 겹침 해결
+- 회원가입 시 members/users 두 컬렉션 동시 저장
+- 로그인 시 회원정보 자동 동기화
+- 관리자 회원관리 전용 탭 추가
+- members/users/orders/bookings 기반으로 회원 자동 복원 표시
+- 관리자 회원 검색/상태변경/채팅 연결
+- 관리자 상담 채팅 회원 목록도 users fallback 적용
+- 캐시 방지 v=630

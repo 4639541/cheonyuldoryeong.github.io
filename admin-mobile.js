@@ -961,7 +961,7 @@ setInterval(loadEnterprise,5000);
 let selectedAdminChatMember="";
 async function loadAdminChat(){
   try{
-    const [members,chats]=await Promise.all([list("members"),list("chats")]);
+    const [m1,m2,chats]=await Promise.all([list("members").catch(()=>[]),list("users").catch(()=>[]),list("chats").catch(()=>[])]); const members=uniqueByEmailOrUid([...m1,...m2]);
     const sel=$("chatMemberSelect");
     if(sel){
       const current=sel.value || selectedAdminChatMember;
@@ -1003,3 +1003,68 @@ setTimeout(()=>{
   loadAdminChat();
 },1000);
 setInterval(loadAdminChat,4000);
+
+
+// ===== 6.3 관리자 회원관리 실시간 연동 복원 =====
+function uniqueByEmailOrUid(rows){
+  const map=new Map();
+  rows.forEach(x=>{
+    const key=x.uid||x.id||x.email||x.contact||Math.random().toString(36);
+    const old=map.get(key)||{};
+    map.set(key,{...old,...x});
+  });
+  return [...map.values()];
+}
+async function loadMemberSyncAdmin(){
+  try{
+    const [members,users,orders,bookings,points,coupons,chats] = await Promise.all([
+      list("members").catch(()=>[]),
+      list("users").catch(()=>[]),
+      list("orders").catch(()=>[]),
+      list("bookings").catch(()=>[]),
+      list("points").catch(()=>[]),
+      list("coupons").catch(()=>[]),
+      list("chats").catch(()=>[])
+    ]);
+    const fromOrders=orders.map(o=>({uid:o.memberUid||"",email:o.memberEmail||"",name:o.name||"",contact:o.contact||"",source:"orders"})).filter(x=>x.email||x.contact||x.name);
+    const fromBookings=bookings.map(b=>({uid:b.memberUid||"",email:b.memberEmail||"",name:b.name||"",contact:b.contact||"",source:"bookings"})).filter(x=>x.email||x.contact||x.name);
+    let rows=uniqueByEmailOrUid([...members,...users,...fromOrders,...fromBookings]);
+    const q=(val("memberSearchInput")||"").toLowerCase();
+    if(q) rows=rows.filter(m=>JSON.stringify(m).toLowerCase().includes(q));
+    if($("memberSyncStats")){
+      $("memberSyncStats").innerHTML=`<button>전체 회원 <b>${rows.length}</b></button><button>주문 회원 <b>${fromOrders.length}</b></button><button>예약 회원 <b>${fromBookings.length}</b></button><button>채팅 <b>${chats.length}</b></button>`;
+    }
+    if($("memberSyncList")){
+      $("memberSyncList").innerHTML=rows.length?rows.map(m=>{
+        const uid=m.uid||m.id||"";
+        const email=m.email||"";
+        const total=orders.filter(o=>(uid&&o.memberUid===uid)||(email&&o.memberEmail===email)||o.contact===m.contact).reduce((s,o)=>s+money(o.total),0);
+        const bookCnt=bookings.filter(b=>(uid&&b.memberUid===uid)||(email&&b.memberEmail===email)||b.contact===m.contact).length;
+        const pointSum=points.filter(p=>(uid&&p.memberUid===uid)||(email&&p.memberEmail===email)).reduce((s,p)=>s+Number(p.amount||0),0);
+        const couponCnt=coupons.filter(c=>(uid&&c.memberUid===uid)||(email&&c.memberEmail===email)).length;
+        return card(`${m.name||"이름 없음"} · ${email||"이메일 없음"}`,`연락처: ${m.contact||"-"}<br>상태: ${m.status||"정상"}<br>총구매: ${total.toLocaleString()}원<br>예약: ${bookCnt}건 / 적립금: ${pointSum.toLocaleString()}원 / 쿠폰: ${couponCnt}개`,`
+          <button class="secondary" onclick="openMemberChat('${uid}','${email}')">채팅</button>
+          <button class="secondary" onclick="setMemberAdminStatus('${uid}','휴면')">휴면</button>
+          <button class="secondary" onclick="setMemberAdminStatus('${uid}','정상')">정상</button>
+        `);
+      }).join(""):"<p>회원이 없습니다. 회원가입 후 새로고침을 누르거나 고객이 로그인하면 자동 동기화됩니다.</p>";
+    }
+  }catch(e){console.warn(e)}
+}
+window.openMemberChat=(uid,email)=>{
+  const tab=document.querySelector('[data-tab="chatAdmin"]');
+  tab?.click();
+  setTimeout(()=>{if($("chatMemberSelect")){$("chatMemberSelect").value=uid; selectedAdminChatMember=uid; loadAdminChat();}},500);
+};
+window.setMemberAdminStatus=async(uid,status)=>{
+  if(!uid)return alert("회원 UID가 없어 상태 변경이 어렵습니다.");
+  await setDoc(doc(db,"members",uid),{status,updatedAt:serverTimestamp()},{merge:true});
+  await adminLog("회원 상태 변경: "+status);
+  loadMemberSyncAdmin();
+};
+setTimeout(()=>{
+  $("refreshMemberSync")?.addEventListener("click",loadMemberSyncAdmin);
+  $("memberSearchInput")?.addEventListener("input",loadMemberSyncAdmin);
+  loadMemberSyncAdmin();
+},900);
+setInterval(loadMemberSyncAdmin,3000);

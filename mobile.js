@@ -469,6 +469,27 @@ function closeInstallGuide(){
   if(m)m.classList.remove("show");
 }
 
+
+// ===== 6.3 member realtime sync fix =====
+async function ensureMemberSynced(u){
+  try{
+    if(!u)return;
+    const uid=u.uid || u.id || auth.currentUser?.uid;
+    const email=u.email || auth.currentUser?.email || "";
+    const base={
+      uid,
+      email,
+      name:member?.name || u.displayName || "",
+      contact:member?.contact || "",
+      lastLoginAt:serverTimestamp(),
+      updatedAt:serverTimestamp()
+    };
+    await setDoc(doc(db,"members",uid),base,{merge:true});
+    await setDoc(doc(db,"users",uid),base,{merge:true});
+    await addDoc(collection(db,"activityLogs"),{type:"member",memberUid:uid,memberEmail:email,action:"접속/동기화",detail:"회원 정보 자동 동기화",createdAt:serverTimestamp()}).catch(()=>{});
+  }catch(e){console.warn("member sync failed",e)}
+}
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
@@ -615,7 +636,8 @@ async function review(){
 async function join(){
   try{
     const cr=await createUserWithEmailAndPassword(auth,$("joinEmail").value.trim(),$("joinPw").value);
-    await setDoc(doc(db,"members",cr.user.uid),{uid:cr.user.uid,name:$("joinName").value,contact:$("joinContact").value,email:$("joinEmail").value.trim(),points:0,createdAt:serverTimestamp()},{merge:true});
+    await setDoc(doc(db,"members",cr.user.uid),{uid:cr.user.uid,name:$("joinName").value,contact:$("joinContact").value,email:$("joinEmail").value.trim(),points:0,status:"정상",createdAt:serverTimestamp(),updatedAt:serverTimestamp()},{merge:true});
+    await setDoc(doc(db,"users",cr.user.uid),{uid:cr.user.uid,name:$("joinName").value,contact:$("joinContact").value,email:$("joinEmail").value.trim(),points:0,status:"정상",createdAt:serverTimestamp(),updatedAt:serverTimestamp()},{merge:true});
     // 회원가입 자동 쿠폰
     await addDoc(collection(db,"coupons"),{code:"WELCOME-"+Math.random().toString(36).slice(2,7).toUpperCase(),discount:"5000",desc:"신규 회원 쿠폰",used:false,memberUid:cr.user.uid,memberEmail:$("joinEmail").value.trim(),memberName:$("joinName").value,createdAt:serverTimestamp()});
     const set=getPointSettings();
@@ -626,7 +648,8 @@ async function join(){
   }catch(e){alert(e.code==="auth/email-already-in-use"?"이미 가입된 이메일입니다. 로그인해 주세요.":"회원가입 실패: "+e.message)}
 }
 async function login(){try{await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPw").value);alert("로그인 완료");close("authModal"); setTimeout(()=>logMemberActivity("로그인 성공","이메일 로그인"),500)}catch(e){alert("로그인 실패")}}
-async function loadMember(u){user=u;if(!u){member=null;renderMember();return}let m=state.members?.find(x=>x.id===u.uid); if(!m){const ms=await once("members");m=ms.find(x=>x.id===u.uid)} member=m||{uid:u.uid,email:u.email}; renderMember(); fill();}
+async function loadMember(u){user=u;if(!u){member=null;renderMember();return}
+  await ensureMemberSynced(u);let m=state.members?.find(x=>x.id===u.uid); if(!m){const ms=await once("members");m=ms.find(x=>x.id===u.uid)} member=m||{uid:u.uid,email:u.email}; await ensureMemberSynced(member); renderMember(); fill();}
 function renderMember(){
   if($("loginOpen"))$("loginOpen").textContent=member?"내 정보":"로그인";
   if($("memberBox"))$("memberBox").innerHTML=member?`<b>${esc(member.name||"회원")}</b><p>${esc(member.email)}</p><button id="logout" class="secondary">로그아웃</button>`:"<p>로그인하면 내 쿠폰과 주문/예약을 확인할 수 있습니다.</p><button class='primary' id='mypageLoginBtn'>로그인/회원가입</button>";

@@ -1064,3 +1064,83 @@ function startSync(){
   Object.entries(map).forEach(([col,key])=>listen(col,key));
 }
 initTheme(); bind(); hydrate(); renderAll(); startSync(); recordVisit(); trackVisitor(); onAuthStateChanged(auth,loadMember);
+
+
+// ===== 8.5 예약/상품 버튼 사업자정보 이동 오류 최종 수정 =====
+const FIX_BOOKING_PAGE_ID = "booking";
+const FIX_PRODUCT_PAGE_ID = "shop";
+
+function safeGoFixed(pageId){
+  try{
+    if(typeof go === "function") {
+      go(pageId);
+      return;
+    }
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("on","active"));
+    const target=document.getElementById(pageId);
+    if(target) target.classList.add("on","active");
+    document.querySelectorAll(".bottomNav button").forEach(b=>b.classList.remove("on"));
+    window.scrollTo({top:0, behavior:"smooth"});
+  }catch(e){}
+}
+
+function forceMainButtonsRoute(){
+  const routeMap = [
+    {words:["상담 예약하기","예약"], target:FIX_BOOKING_PAGE_ID},
+    {words:["상품 보기","상품 구매하기","상품"], target:FIX_PRODUCT_PAGE_ID}
+  ];
+
+  document.querySelectorAll("button,a").forEach(el=>{
+    const txt=(el.textContent||"").replace(/\s+/g," ").trim();
+    for(const r of routeMap){
+      if(r.words.some(w=>txt === w || txt.includes(w))){
+        // 단, 사업자정보/우체국/결제 안내 안쪽의 텍스트는 제외
+        const parentText=(el.closest(".businessInfo,.businessCard,#businessInfo,#businessPage")?.textContent||"");
+        if(parentText && !txt.includes("예약") && !txt.includes("상품")) continue;
+
+        el.setAttribute("data-go", r.target);
+        el.removeAttribute("href");
+        el.onclick = function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          safeGoFixed(r.target);
+          return false;
+        };
+      }
+    }
+  });
+
+  // 홈 히어로 버튼은 순서 기준으로도 강제 지정
+  const hero=document.querySelector(".premiumHero");
+  if(hero){
+    const buttons=[...hero.querySelectorAll("button,a")];
+    const reserveBtn=buttons.find(b=>(b.textContent||"").includes("상담"));
+    const productBtn=buttons.find(b=>(b.textContent||"").includes("상품"));
+    if(reserveBtn){
+      reserveBtn.setAttribute("data-go", FIX_BOOKING_PAGE_ID);
+      reserveBtn.onclick=(e)=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();safeGoFixed(FIX_BOOKING_PAGE_ID);return false;};
+    }
+    if(productBtn){
+      productBtn.textContent="상품 보기";
+      productBtn.setAttribute("data-go", FIX_PRODUCT_PAGE_ID);
+      productBtn.onclick=(e)=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();safeGoFixed(FIX_PRODUCT_PAGE_ID);return false;};
+    }
+  }
+}
+
+setInterval(forceMainButtonsRoute, 500);
+window.addEventListener("load", forceMainButtonsRoute);
+document.addEventListener("click", function(e){
+  const el=e.target.closest("button,a");
+  if(!el) return;
+  const txt=(el.textContent||"").replace(/\s+/g," ").trim();
+  if(txt.includes("상담 예약하기") || txt==="예약"){
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    safeGoFixed(FIX_BOOKING_PAGE_ID);
+  }
+  if(txt.includes("상품 보기") || txt.includes("상품 구매하기") || txt==="상품"){
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    safeGoFixed(FIX_PRODUCT_PAGE_ID);
+  }
+}, true);

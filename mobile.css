@@ -1488,3 +1488,10 @@ body.adminPage .adminTabBar{
     margin-bottom:18px;
   }
 }
+
+
+/* ===== 8.5 예약/상품 버튼 수정 보조 ===== */
+.page.active,
+.page.on{
+  display:block;
+}

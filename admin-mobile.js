@@ -961,7 +961,8 @@ setInterval(loadEnterprise,5000);
 let selectedAdminChatMember="";
 async function loadAdminChat(){
   try{
-    const [m1,m2,chats]=await Promise.all([list("members").catch(()=>[]),list("users").catch(()=>[]),list("chats").catch(()=>[])]); const members=uniqueByEmailOrUid([...m1,...m2]);
+    const [m1,m2,chats]=await Promise.all([list("members").catch(()=>[]),list("users").catch(()=>[]),list("chats").catch(()=>[]),
+      list("adminRoles").catch(()=>[])]); const members=uniqueByEmailOrUid([...m1,...m2]);
     const sel=$("chatMemberSelect");
     if(sel){
       const current=sel.value || selectedAdminChatMember;
@@ -1017,15 +1018,17 @@ function uniqueByEmailOrUid(rows){
 }
 async function loadMemberSyncAdmin(){
   try{
-    const [members,users,orders,bookings,points,coupons,chats] = await Promise.all([
+    const [members,users,orders,bookings,points,coupons,chats,roles] = await Promise.all([
       list("members").catch(()=>[]),
       list("users").catch(()=>[]),
       list("orders").catch(()=>[]),
       list("bookings").catch(()=>[]),
       list("points").catch(()=>[]),
       list("coupons").catch(()=>[]),
-      list("chats").catch(()=>[])
+      list("chats").catch(()=>[]),
+      list("adminRoles").catch(()=>[])
     ]);
+    window.__rolesCache=roles;
     const fromOrders=orders.map(o=>({uid:o.memberUid||"",email:o.memberEmail||"",name:o.name||"",contact:o.contact||"",source:"orders"})).filter(x=>x.email||x.contact||x.name);
     const fromBookings=bookings.map(b=>({uid:b.memberUid||"",email:b.memberEmail||"",name:b.name||"",contact:b.contact||"",source:"bookings"})).filter(x=>x.email||x.contact||x.name);
     let rows=uniqueByEmailOrUid([...members,...users,...fromOrders,...fromBookings]);
@@ -1042,7 +1045,7 @@ async function loadMemberSyncAdmin(){
         const bookCnt=bookings.filter(b=>(uid&&b.memberUid===uid)||(email&&b.memberEmail===email)||b.contact===m.contact).length;
         const pointSum=points.filter(p=>(uid&&p.memberUid===uid)||(email&&p.memberEmail===email)).reduce((s,p)=>s+Number(p.amount||0),0);
         const couponCnt=coupons.filter(c=>(uid&&c.memberUid===uid)||(email&&c.memberEmail===email)).length;
-        return card(`${m.name||"이름 없음"} · ${email||"이메일 없음"}`,`연락처: ${m.contact||"-"}<br>상태: ${m.status||"정상"}<br>총구매: ${total.toLocaleString()}원<br>예약: ${bookCnt}건 / 적립금: ${pointSum.toLocaleString()}원 / 쿠폰: ${couponCnt}개`,`
+        return card(`${m.name||"이름 없음"} · ${email||"이메일 없음"}`,`연락처: ${m.contact||"-"}<br>상태: ${m.status||"정상"}<br>관리권한: ${((window.__rolesCache||[]).find(r=>String(r.email||"").toLowerCase()===String(email).toLowerCase())||{}).role||"-"}<br>총구매: ${total.toLocaleString()}원<br>예약: ${bookCnt}건 / 적립금: ${pointSum.toLocaleString()}원 / 쿠폰: ${couponCnt}개`,`
           <button class="secondary" onclick="openMemberChat('${uid}','${email}')">채팅</button>
           <button class="secondary" onclick="setMemberAdminStatus('${uid}','휴면')">휴면</button>
           <button class="secondary" onclick="setMemberAdminStatus('${uid}','정상')">정상</button>
@@ -1068,3 +1071,18 @@ setTimeout(()=>{
   loadMemberSyncAdmin();
 },900);
 setInterval(loadMemberSyncAdmin,3000);
+
+
+// ===== 6.4 관리자 권한 저장 보강 =====
+function roleDocId(email){return String(email||"").toLowerCase().replace(/[^a-z0-9]/g,"_");}
+async function saveSuperRoleFixed(){
+  const email=val("roleUserEmail").trim().toLowerCase();
+  const role=val("roleUserType");
+  if(!email)return alert("관리자 이메일을 입력해 주세요.");
+  const data={email,role,updatedAt:serverTimestamp(),createdAt:serverTimestamp()};
+  await setDoc(doc(db,"adminRoles",roleDocId(email)),data,{merge:true});
+  await setDoc(doc(db,"allowedAdmins",roleDocId(email)),{email,role,updatedAt:serverTimestamp()},{merge:true});
+  await adminLog("관리자 권한 저장/동기화");
+  alert("권한이 저장되었습니다. 홈페이지에서 새로고침 또는 재로그인하면 반영됩니다.");
+  loadEnterprise?.(); loadMemberSyncAdmin?.();
+}

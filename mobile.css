@@ -425,3 +425,15 @@ body{
     padding-right:10px;
   }
 }
+
+/* ===== 6.4 최고관리자 표시 강조 ===== */
+.roleBadge,.adminRoleBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:4px 10px;
+  border-radius:999px;
+  background:rgba(230,186,96,.18);
+  color:#ffd875;
+  font-weight:900;
+}

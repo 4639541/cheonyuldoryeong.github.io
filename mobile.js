@@ -490,6 +490,20 @@ async function ensureMemberSynced(u){
   }catch(e){console.warn("member sync failed",e)}
 }
 
+
+// ===== 6.4 최고관리자 등급 표시 수정 =====
+function adminRoleLabel(role){
+  const map={super:"최고관리자",operation:"운영관리자",consult:"상담관리자",delivery:"배송관리자",customer:"고객관리자",admin:"관리자",staff:"직원"};
+  return map[role]||role||"";
+}
+function getMyVisibleGrade(){
+  if(!member) return "일반";
+  const email=String(member.email||auth.currentUser?.email||"").toLowerCase();
+  const role=(state.adminRoles||[]).find(r=>String(r.email||"").toLowerCase()===email);
+  if(role) return adminRoleLabel(role.role);
+  return member.grade || member.vipStatus || "일반";
+}
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]

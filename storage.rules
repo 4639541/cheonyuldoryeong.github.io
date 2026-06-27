@@ -2,6 +2,17 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     function signedIn(){ return request.auth != null; }
+    match /profiles/{fileName} {
+      allow read: if true;
+      allow write: if signedIn() && request.resource.size < 5 * 1024 * 1024;
+    }
+    match /products/{fileName} {
+      allow read: if true;
+      allow write: if signedIn() && request.resource.size < 10 * 1024 * 1024;
+    }
+    match /consultReports/{fileName} {
+      allow read, write: if signedIn() && request.resource.size < 20 * 1024 * 1024;
+    }
     match /{allPaths=**} {
       allow read: if true;
       allow write: if signedIn() && request.resource.size < 10 * 1024 * 1024;

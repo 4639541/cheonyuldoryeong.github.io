@@ -1,0 +1,11 @@
+Firebase 보안 규칙 실제 적용 방법
+
+1. Firebase 콘솔 접속
+2. Firestore Database > 규칙
+3. 이 ZIP 안의 firestore.rules 내용을 붙여넣기
+4. 게시 클릭
+5. Storage > Rules
+6. 이 ZIP 안의 storage.rules 내용을 붙여넣기
+7. 게시 클릭
+8. Firestore Database > 색인
+9. firestore.indexes.json 기준으로 필요한 색인 생성

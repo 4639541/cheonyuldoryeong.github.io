@@ -2,24 +2,42 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn(){ return request.auth != null; }
+    function email(){ return request.auth.token.email; }
+    function roleDoc(){ return /databases/$(database)/documents/adminRoles/$(email().replace('.', '_')); }
     function isAdmin(){
-      return signedIn() && exists(/databases/$(database)/documents/adminRoles/$(request.auth.token.email));
+      return signedIn() && (
+        exists(/databases/$(database)/documents/allowedAdmins/$(email().replace('.', '_'))) ||
+        exists(/databases/$(database)/documents/adminRoles/$(email().replace('.', '_')))
+      );
     }
+    function isOwner(uid){ return signedIn() && request.auth.uid == uid; }
+
     match /members/{uid} {
-      allow read, update: if signedIn() && request.auth.uid == uid;
-      allow create: if signedIn();
+      allow create: if signedIn() && request.auth.uid == uid;
+      allow read, update: if isOwner(uid) || isAdmin();
+      allow delete, list: if isAdmin();
+    }
+    match /users/{uid} {
+      allow create: if signedIn() && request.auth.uid == uid;
+      allow read, update: if isOwner(uid) || isAdmin();
       allow delete, list: if isAdmin();
     }
     match /orders/{id} {
       allow create: if signedIn();
-      allow read: if signedIn() && (resource.data.memberUid == request.auth.uid || isAdmin());
+      allow read: if isAdmin() || (signedIn() && resource.data.memberUid == request.auth.uid);
       allow update, delete, list: if isAdmin();
     }
     match /bookings/{id} {
       allow create: if signedIn();
-      allow read: if signedIn() && (resource.data.memberUid == request.auth.uid || isAdmin());
+      allow read: if isAdmin() || (signedIn() && resource.data.memberUid == request.auth.uid);
       allow update, delete, list: if isAdmin();
     }
+    match /chats/{id} {
+      allow create, read: if signedIn();
+      allow update, delete, list: if isAdmin();
+    }
+    match /adminRoles/{id} { allow read, write: if isAdmin(); }
+    match /allowedAdmins/{id} { allow read, write: if isAdmin(); }
     match /{document=**} {
       allow read: if true;
       allow write: if isAdmin();

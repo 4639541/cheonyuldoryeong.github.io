@@ -1296,3 +1296,41 @@ setTimeout(()=>{
   loadAllInOne();
 },2200);
 setInterval(loadAllInOne,6000);
+
+
+// ===== 8.1 관리자 안정화/최종 메뉴 =====
+function finalAdminMenu(){
+  try{
+    document.body.classList.add("adminPage");
+    // 첫 화면은 기업형 패널만 강조
+    document.querySelectorAll("[data-tab-link]").forEach(b=>{
+      b.onclick=()=>openAdminTabClean ? openAdminTabClean(b.dataset.tabLink) : document.querySelector(`[data-tab="${b.dataset.tabLink}"]`)?.click();
+    });
+  }catch(e){}
+}
+async function loadFinalMemberSync(){
+  try{
+    const [members,users,orders,bookings]=await Promise.all([
+      list("members").catch(()=>[]), list("users").catch(()=>[]), list("orders").catch(()=>[]), list("bookings").catch(()=>[])
+    ]);
+    const merged=uniqueByEmailOrUid ? uniqueByEmailOrUid([...members,...users]) : [...members,...users];
+    if($("panelOrderCount"))$("panelOrderCount").textContent=orders.length;
+    if($("panelBookingCount"))$("panelBookingCount").textContent=bookings.length;
+    // 회원관리 화면이 비어 보이지 않게 보조 렌더
+    if($("memberSyncStats")) $("memberSyncStats").innerHTML=`<button>회원 <b>${merged.length}</b></button><button>주문 <b>${orders.length}</b></button><button>예약 <b>${bookings.length}</b></button><button>상태 <b>정상</b></button>`;
+  }catch(e){}
+}
+async function saveChecklistResult(){
+  const checked=[...document.querySelectorAll(".stableChecklist input")].filter(i=>i.checked).length;
+  const total=[...document.querySelectorAll(".stableChecklist input")].length;
+  await addDoc(collection(db,"deployChecklists"),{checked,total,createdAt:serverTimestamp(),adminEmail:auth.currentUser?.email||""});
+  alert(`점검 결과 저장 완료: ${checked}/${total}`);
+}
+setTimeout(()=>{
+  finalAdminMenu();
+  loadFinalMemberSync();
+  $("saveChecklistResult")?.addEventListener("click",saveChecklistResult);
+  $("showFirestoreRulesGuide")?.addEventListener("click",()=>{$("rulesApplyPreview").textContent="Firebase 콘솔 → Firestore Database → 규칙 → firestore.rules 내용 붙여넣기 → 게시";});
+  $("showStorageRulesGuide")?.addEventListener("click",()=>{$("rulesApplyPreview").textContent="Firebase 콘솔 → Storage → Rules → storage.rules 내용 붙여넣기 → 게시";});
+},1000);
+setInterval(()=>{finalAdminMenu();loadFinalMemberSync();},4000);

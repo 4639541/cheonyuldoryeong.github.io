@@ -655,8 +655,165 @@ function renderVipBenefits(){
   box.innerHTML=`<article class="card"><h3>VIP 전용혜택</h3><p>${esc(s.vipBenefit||"VIP 회원에게는 우선 상담, 전용 쿠폰, 특별 적립 혜택이 제공됩니다.")}</p></article>`;
 }
 
+
+// ===== 8.1 안정화/버그정리 최종 =====
+function stableCleanup(){
+  try{
+    document.querySelectorAll(".syncStatus,#syncStatus,.realtimeBadge,.liveSyncBadge,[data-sync-status]").forEach(el=>el.remove());
+    // 홈 중복 히어로 제거
+    const home=document.getElementById("home");
+    if(home){
+      let premium=home.querySelector(".premiumHero");
+      [...home.children].forEach(el=>{
+        if(el===premium || el.classList.contains("premiumProfileSection") || el.classList.contains("premiumSection")) return;
+        const txt=(el.textContent||"");
+        if(txt.includes("천율도령 공식 신점 상담") && txt.includes("상담 예약하기")) el.style.display="none";
+        if(txt.includes("17년차 황해도 이북 만신") && txt.includes("상품 구매하기")) el.style.display="none";
+      });
+    }
+    // 하단 메뉴 핵심만
+    const nav=document.querySelector(".bottomNav");
+    if(nav){
+      const allow=["홈","예약","상품","후기","문의","마이","프로필"];
+      [...nav.querySelectorAll("button")].forEach(btn=>{
+        const t=(btn.textContent||"").trim();
+        if(!allow.some(a=>t.includes(a))) btn.style.display="none";
+      });
+    }
+  }catch(e){}
+}
+async function stableEnsureMember(){
+  try{
+    if(!auth.currentUser) return;
+    const uid=auth.currentUser.uid, email=auth.currentUser.email||"";
+    const data={
+      uid,email,
+      name:member?.name||auth.currentUser.displayName||"",
+      contact:member?.contact||"",
+      lastLoginAt:serverTimestamp(),
+      updatedAt:serverTimestamp(),
+      status:member?.status||"정상"
+    };
+    await setDoc(doc(db,"members",uid),data,{merge:true});
+    await setDoc(doc(db,"users",uid),data,{merge:true});
+  }catch(e){console.warn("stable member sync",e)}
+}
+setInterval(stableCleanup,1000);
+window.addEventListener("load",()=>{stableCleanup(); setTimeout(stableEnsureMember,1000);});
+
+
+// ===== 8.2 결제 안내 카드형 정리 / 신점 10만원 =====
+function premiumPaymentCardsHTML(){
+  return `
+  <section class="payPremiumWrap">
+    <h2>💳 결제 안내</h2>
+    <article class="payPremiumCard intro">
+      <h3>📌 예약제 상담</h3>
+      <p>모든 상담은 <b>선결제 예약제</b>로 진행됩니다.<br>결제 확인 후 예약 순서에 따라 상담을 진행해 드립니다.</p>
+    </article>
+
+    <article class="payPremiumCard">
+      <h3>💰 상담 비용</h3>
+      <div class="priceRows">
+        <div><span>❤️ 한 질문 상담</span><b>20,000원</b></div>
+        <div><span>❤️ 세 질문 상담</span><b>50,000원</b></div>
+        <div><span>💞 궁합 상담</span><b>80,000원</b></div>
+        <div><span>🔮 신점 상담</span><b>100,000원</b></div>
+      </div>
+    </article>
+
+    <article class="payPremiumCard">
+      <h3>💳 카카오페이</h3>
+      <p class="payNumber">020-02-407816</p>
+      <button class="primary" type="button" onclick="location.href='https://qr.kakaopay.com/'">카카오페이 송금하기</button>
+      <button class="secondary" type="button" onclick="navigator.clipboard.writeText('020-02-407816').then(()=>alert('카카오페이 번호가 복사되었습니다.'))">카카오페이 번호 복사</button>
+    </article>
+
+    <article class="payPremiumCard">
+      <h3>🏦 계좌이체</h3>
+      <p class="bankName">농협 3521566284653</p>
+      <p>예금주 <b>정세진</b></p>
+      <button class="primary" type="button" onclick="navigator.clipboard.writeText('3521566284653').then(()=>alert('계좌번호가 복사되었습니다.'))">계좌번호 복사</button>
+    </article>
+
+    <article class="payPremiumCard">
+      <h3>📩 입금 후 보내주세요</h3>
+      <ul>
+        <li>성함 또는 닉네임</li>
+        <li>입금자명</li>
+        <li>상담 내용 또는 예약 시간</li>
+      </ul>
+      <p>입금 확인 후 순차적으로 상담을 진행해 드립니다.</p>
+    </article>
+
+    <article class="payPremiumCard notice">
+      <h3>📢 안내사항</h3>
+      <ul>
+        <li>상담은 결제 완료 순서대로 진행됩니다.</li>
+        <li>상담 시작 후에는 취소 및 환불이 어려울 수 있습니다.</li>
+        <li>예약 시간 변경이 필요한 경우 미리 연락 부탁드립니다.</li>
+        <li>질문을 미리 정리해 주시면 더욱 정확한 상담이 가능합니다.</li>
+      </ul>
+    </article>
+
+    <article class="payPremiumCard thanks">
+      <h3>🌙 천명신당 │ 천율도령</h3>
+      <p>감사합니다.</p>
+    </article>
+  </section>`;
+}
+function replacePaymentGuideWithCards(){
+  try{
+    const candidates=[...document.querySelectorAll(".card,.formCard,section,article,div")].filter(el=>{
+      const t=el.textContent||"";
+      return t.includes("결제 안내") && (t.includes("카카오페이") || t.includes("계좌이체")) && t.includes("상담 비용");
+    });
+    candidates.forEach(el=>{
+      if(el.classList.contains("payPremiumWrap") || el.querySelector(".payPremiumWrap")) return;
+      if((el.textContent||"").length > 120){
+        el.innerHTML = premiumPaymentCardsHTML();
+        el.classList.add("paymentCardsApplied");
+      }
+    });
+  }catch(e){}
+}
+setInterval(replacePaymentGuideWithCards,1200);
+window.addEventListener("load",replacePaymentGuideWithCards);
+
+
+// ===== 8.3 홈 메인 문구 정리 + CTA 연결 수정 =====
+function fixPremiumHeroTextAndLinks(){
+  try{
+    const hero=document.querySelector(".premiumHero");
+    if(hero){
+      const eyebrow=hero.querySelector(".premiumEyebrow");
+      if(eyebrow) eyebrow.textContent="CHEONYUL DORYEONG OFFICIAL";
+      const h1=hero.querySelector("h1");
+      if(h1) h1.innerHTML="천명신당<br><span>천율도령</span>";
+      const lead=hero.querySelector(".premiumLead");
+      if(lead) lead.innerHTML="17년차 황해도 이북 만신이 전하는<br>신점 · 신타로 · 부적 · 초발원 상담";
+      const trust=hero.querySelector(".premiumTrust");
+      if(trust) trust.innerHTML="<span>1:1 비밀상담</span><span>예약제 상담</span><span>회원 쿠폰/적립금</span>";
+    }
+    document.querySelectorAll("button,a").forEach(el=>{
+      const t=(el.textContent||"").trim();
+      if(t==="상담 예약하기" || t==="예약"){
+        el.onclick=(e)=>{e.preventDefault(); go("booking");};
+        el.setAttribute("data-go","booking");
+      }
+      if(t==="상품 보기" || t==="상품 구매하기" || t==="상품"){
+        if(t==="상품 구매하기") el.textContent="상품 보기";
+        el.onclick=(e)=>{e.preventDefault(); go("products");};
+        el.setAttribute("data-go","products");
+      }
+    });
+  }catch(e){}
+}
+setInterval(fixPremiumHeroTextAndLinks,1000);
+window.addEventListener("load",fixPremiumHeroTextAndLinks);
+
 const defaults={
-  prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
+  prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"100,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]
 };
 

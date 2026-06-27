@@ -1159,3 +1159,292 @@ button:active{
 #shopOpsList .card,#memberGrowthList .card,#consultOpsList .card,#scheduleOpsList .card,#revenueChartList .card,#automationRunList .card,#aiRiskList .card,#builderSectionList .card,#auditLogList .card{
   border-left:4px solid #e6ba60;
 }
+
+
+/* ===== 8.1 안정화/버그정리 최종 ===== */
+
+/* 중복 섹션 강제 정리 */
+#home > .heroCard:not(.premiumHero),
+#home > .mainHero:not(.premiumHero),
+#home > section:not(.premiumHero):not(.premiumProfileSection):not(.premiumSection):has(h1):has(button[data-go="booking"]){
+  display:none !important;
+}
+
+/* 화면 겹침 방지 기본값 */
+*{
+  box-sizing:border-box;
+}
+.page,.screen,main{
+  overflow-x:hidden !important;
+  padding-bottom:104px !important;
+}
+.card,.formCard,.premiumHero,.premiumProfileCard{
+  overflow:visible !important;
+}
+input,select,textarea,button{
+  max-width:100% !important;
+}
+
+/* 버튼 깨짐 방지 */
+button,.primary,.secondary,.pill{
+  min-height:48px;
+  line-height:1.25 !important;
+  white-space:normal !important;
+  word-break:keep-all !important;
+  text-align:center;
+}
+.couponRow,.pointRow,.chatInputRow{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:10px !important;
+}
+@media(min-width:520px){
+  .couponRow,.pointRow,.chatInputRow{
+    grid-template-columns:1fr 130px !important;
+  }
+}
+
+/* 고객용 하단 메뉴 최종: 핵심 6개만 */
+.bottomNav{
+  height:auto !important;
+  max-height:74px !important;
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom)) !important;
+  gap:8px !important;
+  justify-content:flex-start !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  background:rgba(5,4,3,.94) !important;
+  border-top:1px solid rgba(230,186,96,.22) !important;
+}
+.bottomNav::-webkit-scrollbar{display:none}
+.bottomNav button{
+  flex:0 0 auto !important;
+  min-width:70px !important;
+  height:48px !important;
+  padding:4px 8px !important;
+  font-size:14px !important;
+  border-radius:20px !important;
+}
+.bottomNav button:not(.on):not([data-go="home"]):not([data-go="booking"]):not([data-go="products"]):not([data-go="reviews"]):not([data-go="supportPage"]):not([data-go="mypage"]):not([data-go="premiumProfilePage"]){
+  display:none !important;
+}
+
+/* 실시간 배지 완전 제거 */
+.syncStatus,#syncStatus,.realtimeBadge,.liveSyncBadge,[data-sync-status]{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+}
+
+/* 결제/복사 영역 안정화 */
+.paymentBox button,.paymentCard button,.payBox button,.payCard button,
+#paymentGuide button,#checkoutPage button,#cartPage button,
+button[id*="copy"],button[id*="Copy"]{
+  position:static !important;
+  width:100% !important;
+  margin:10px 0 0 !important;
+  display:block !important;
+}
+.paymentNumber,.accountNumber,.kakaoNumber{
+  word-break:break-all !important;
+  line-height:1.25 !important;
+}
+
+/* 관리자 메뉴 최종 정리 */
+.enterpriseAdminPanel{
+  display:block !important;
+}
+.adminGroupGrid{
+  grid-template-columns:repeat(2,1fr) !important;
+}
+.adminMiniMenu{
+  grid-template-columns:repeat(2,1fr) !important;
+}
+.adminMiniMenu button{
+  min-height:46px !important;
+  font-size:14px !important;
+}
+/* 기존 수많은 원본 탭은 화면에서 숨기되 JS 클릭용으로 유지 */
+body.adminPage .adminTabs,
+body.adminPage .tabBar,
+body.adminPage .adminTabBar{
+  display:none !important;
+}
+
+/* 체크리스트 */
+.stableChecklist label{
+  display:block;
+  padding:12px;
+  margin:8px 0;
+  border:1px solid rgba(230,186,96,.20);
+  border-radius:14px;
+  background:rgba(255,255,255,.025);
+  color:#fff4d7;
+  font-weight:800;
+}
+.stableChecklist input{
+  width:auto !important;
+  margin-right:8px;
+}
+
+/* 모바일 최종 */
+@media(max-width:430px){
+  .premiumHero h1{
+    font-size:42px !important;
+  }
+  .premiumHero{
+    padding-left:16px !important;
+    padding-right:16px !important;
+  }
+  .adminGroupGrid{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* ===== 8.2 결제 안내 카드형 정리 ===== */
+.payPremiumWrap{
+  display:grid;
+  gap:16px;
+  margin:10px 0 24px;
+}
+.payPremiumWrap h2{
+  margin:0 0 4px;
+  font-size:32px;
+  color:#fff4d7;
+  letter-spacing:-.04em;
+}
+.payPremiumCard{
+  padding:20px;
+  border:1px solid rgba(230,186,96,.28);
+  border-radius:24px;
+  background:
+    linear-gradient(145deg,rgba(255,216,117,.08),rgba(255,255,255,.025)),
+    #090604;
+  box-shadow:0 14px 34px rgba(0,0,0,.24);
+}
+.payPremiumCard h3{
+  margin:0 0 14px;
+  color:#ffe1a0;
+  font-size:22px;
+}
+.payPremiumCard p{
+  margin:8px 0;
+  color:#f5ead1;
+  line-height:1.7;
+  word-break:keep-all;
+}
+.priceRows{
+  display:grid;
+  gap:10px;
+}
+.priceRows div{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:14px;
+  border-radius:16px;
+  background:rgba(0,0,0,.26);
+  border:1px solid rgba(230,186,96,.14);
+}
+.priceRows span{
+  color:#fff4d7;
+  font-weight:900;
+}
+.priceRows b{
+  color:#ffd875;
+  font-size:20px;
+  white-space:nowrap;
+}
+.payNumber,.bankName{
+  font-size:clamp(24px,7vw,36px)!important;
+  font-weight:950!important;
+  color:#ffd875!important;
+  word-break:break-all!important;
+  line-height:1.2!important;
+}
+.payPremiumCard button{
+  width:100%!important;
+  margin-top:10px!important;
+  min-height:54px!important;
+  border-radius:18px!important;
+}
+.payPremiumCard ul{
+  margin:0;
+  padding-left:20px;
+  color:#f5ead1;
+  line-height:1.8;
+}
+.payPremiumCard li{
+  margin:4px 0;
+}
+.payPremiumCard.thanks{
+  text-align:center;
+}
+.paymentCardsApplied{
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+@media(max-width:520px){
+  .priceRows div{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .payPremiumCard{
+    padding:18px;
+    border-radius:22px;
+  }
+}
+
+
+/* ===== 8.3 홈 메인 문구/버튼 최고급 정리 ===== */
+.premiumHero{
+  padding-top:62px !important;
+}
+.premiumHero h1{
+  word-break:keep-all !important;
+  line-height:.98 !important;
+  letter-spacing:-.055em !important;
+}
+.premiumHero h1 span{
+  display:inline-block;
+}
+.premiumLead{
+  font-size:clamp(17px,4.6vw,22px) !important;
+  line-height:1.75 !important;
+  letter-spacing:-.025em !important;
+  word-break:keep-all !important;
+  text-wrap:balance;
+  max-width:560px !important;
+}
+.premiumEyebrow{
+  font-size:12px !important;
+  letter-spacing:.20em !important;
+  color:#ffd875 !important;
+}
+.premiumActions button{
+  font-size:17px !important;
+  min-height:62px !important;
+  border-radius:22px !important;
+}
+.premiumTrust span{
+  font-size:13px !important;
+  padding:9px 13px !important;
+}
+@media(max-width:430px){
+  .premiumHero{
+    padding-top:54px !important;
+  }
+  .premiumHero h1{
+    font-size:50px !important;
+  }
+  .premiumLead{
+    font-size:18px !important;
+  }
+  .premiumActions button{
+    min-height:58px !important;
+  }
+}

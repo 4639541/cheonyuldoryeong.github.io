@@ -986,3 +986,150 @@ main{
   min-width:0 !important;
   height:auto !important;
 }
+
+
+/* ===== 7.4 최고급 버튼/중복 정리/프로필 복원 ===== */
+.navMoreHidden{
+  display:none !important;
+}
+.premiumProfileSection{
+  margin:18px 0 22px;
+}
+.premiumProfileCard{
+  display:grid;
+  grid-template-columns:86px 1fr;
+  gap:16px;
+  align-items:center;
+  padding:20px;
+  border-radius:28px;
+  border:1px solid rgba(230,186,96,.32);
+  background:
+    linear-gradient(145deg,rgba(255,216,117,.10),rgba(255,255,255,.025)),
+    #090604;
+  box-shadow:0 18px 44px rgba(0,0,0,.34);
+}
+.profileSeal{
+  width:76px;
+  height:76px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(circle,#ffe8a8,#d6a64b 62%,#805112);
+  color:#170d04;
+  font-size:24px;
+  font-weight:950;
+  box-shadow:0 10px 28px rgba(230,186,96,.24);
+}
+.premiumProfileCard h2{
+  margin:2px 0 4px;
+  font-size:28px;
+  color:#fff4d7;
+}
+.premiumProfileCard p{
+  margin:0;
+  color:#d9c9a8;
+  line-height:1.6;
+}
+.profileDesc{
+  margin-top:8px!important;
+  font-size:14px;
+}
+
+/* 최고급형 버튼 공통 */
+button,
+.pill,
+.primary,
+.secondary,
+.premiumPrimary,
+.premiumSecondary,
+.bottomNav button,
+.adminMiniMenu button,
+.adminGroupCard{
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+button:active{
+  transform:scale(.98);
+}
+.pill,
+#themeToggle,
+#installPwaBtn,
+#loginOpen{
+  background:
+    linear-gradient(145deg,rgba(255,216,117,.12),rgba(255,255,255,.025)),
+    #0b0805 !important;
+  border:1px solid rgba(230,186,96,.35) !important;
+  color:#fff1c7 !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025), 0 10px 26px rgba(0,0,0,.22);
+}
+.primary,
+.premiumPrimary{
+  background:linear-gradient(135deg,#fff0b8 0%,#e8bd5c 54%,#b77722 100%) !important;
+  color:#160d04 !important;
+  box-shadow:0 12px 28px rgba(230,186,96,.24), inset 0 1px 0 rgba(255,255,255,.45) !important;
+}
+.secondary,
+.premiumSecondary{
+  background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(230,186,96,.04)) !important;
+  border:1px solid rgba(230,186,96,.32) !important;
+  color:#fff4d7 !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025) !important;
+}
+.quickGrid button,
+.card button,
+.formCard button{
+  border-radius:20px !important;
+}
+
+/* 홈 바로가기 카드 최고급형 */
+#home .quickGrid button,
+#home .menuGrid button,
+#home [data-go]{
+  background:
+    linear-gradient(145deg,rgba(255,216,117,.08),rgba(255,255,255,.02)),
+    #0b0805 !important;
+  border:1px solid rgba(230,186,96,.28) !important;
+  color:#fff4d7 !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.22);
+}
+#home .quickGrid button:hover,
+#home .menuGrid button:hover{
+  background:linear-gradient(135deg,rgba(230,186,96,.22),rgba(255,255,255,.035)) !important;
+}
+
+/* 하단 메뉴 최고급화 */
+.bottomNav{
+  justify-content:flex-start;
+  gap:8px;
+  padding-left:14px !important;
+  padding-right:14px !important;
+}
+.bottomNav button{
+  min-width:76px !important;
+  border-radius:22px !important;
+  background:rgba(255,255,255,.02) !important;
+  border:1px solid transparent !important;
+}
+.bottomNav button.on{
+  background:linear-gradient(135deg,rgba(255,216,117,.30),rgba(166,108,30,.20)) !important;
+  border-color:rgba(230,186,96,.28) !important;
+  box-shadow:0 10px 26px rgba(0,0,0,.26);
+}
+
+/* 기존 히어로가 남아도 시각 중복 최소화 */
+#home > .heroCard:not(.premiumHero),
+#home > .mainHero:not(.premiumHero){
+  display:none !important;
+}
+
+@media(max-width:520px){
+  .premiumProfileCard{
+    grid-template-columns:70px 1fr;
+    padding:16px;
+  }
+  .profileSeal{
+    width:62px;height:62px;font-size:20px;
+  }
+  .premiumProfileCard h2{font-size:24px}
+  .bottomNav button{min-width:68px!important}
+}

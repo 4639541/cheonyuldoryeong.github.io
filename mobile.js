@@ -568,6 +568,37 @@ function fixPaymentLayout(){
 setInterval(fixPaymentLayout,1000);
 window.addEventListener("load",fixPaymentLayout);
 
+
+// ===== 7.4 premium UI dedupe/profile restore =====
+function premiumDedupeHome(){
+  const home=document.getElementById("home");
+  if(!home)return;
+  const premium=home.querySelector(".premiumHero");
+  if(premium){
+    [...home.children].forEach(el=>{
+      if(el===premium || el.classList.contains("premiumProfileSection") || el.classList.contains("premiumSection")) return;
+      const txt=(el.textContent||"");
+      if(txt.includes("17년차 황해도 이북 만신") && txt.includes("천율도령 공식 신점 상담")){
+        el.style.display="none";
+      }
+      if(txt.includes("상담 예약하기") && txt.includes("상품 구매하기") && !el.classList.contains("premiumHero")){
+        el.style.display="none";
+      }
+    });
+  }
+  // 하단 메뉴 중복 텍스트/과다 버튼 정리
+  const nav=document.querySelector(".bottomNav");
+  if(nav){
+    const keep=["홈","통합","검색","예약","상품","후기","혜택","문의","마이"];
+    [...nav.querySelectorAll("button")].forEach(btn=>{
+      const t=(btn.textContent||"").trim();
+      if(!keep.some(k=>t.includes(k))) btn.classList.add("navMoreHidden");
+    });
+  }
+}
+setInterval(premiumDedupeHome,1000);
+window.addEventListener("load",premiumDedupeHome);
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]

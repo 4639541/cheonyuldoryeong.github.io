@@ -1495,3 +1495,8 @@ body.adminPage .adminTabBar{
 .page.on{
   display:block;
 }
+
+
+/* ===== 8.6 홈/예약/상품 페이지 전환 안정화 ===== */
+.page.hide{display:none!important}
+.page.on,.page.active{display:block!important}

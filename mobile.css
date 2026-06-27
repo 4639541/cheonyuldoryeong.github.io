@@ -437,3 +437,29 @@ body{
   color:#ffd875;
   font-weight:900;
 }
+
+/* ===== 6.5 실시간 연동 배지 따라다님 제거 ===== */
+.syncStatus,
+#syncStatus,
+.realtimeBadge,
+.liveSyncBadge,
+[data-sync-status]{
+  position:static !important;
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
+/* 상단에 남아있는 작은 연동 배지도 화면을 따라다니지 않게 처리 */
+.appTop .syncStatus,
+.header .syncStatus{
+  display:none !important;
+}
+
+/* 검색/혜택/상품 페이지 중간에 뜨는 연동 배지 제거 */
+.page .syncStatus,
+.screen .syncStatus,
+main .syncStatus{
+  display:none !important;
+}

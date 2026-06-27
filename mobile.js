@@ -504,6 +504,19 @@ function getMyVisibleGrade(){
   return member.grade || member.vipStatus || "일반";
 }
 
+
+// ===== 6.5 sync badge disable =====
+function hideSyncBadges(){
+  document.querySelectorAll(".syncStatus,#syncStatus,.realtimeBadge,.liveSyncBadge,[data-sync-status]").forEach(el=>{
+    el.style.display="none";
+    el.style.visibility="hidden";
+    el.style.opacity="0";
+    el.style.position="static";
+  });
+}
+setInterval(hideSyncBadges,800);
+window.addEventListener("load",hideSyncBadges);
+
 const defaults={
   prices:[{title:"한 질문 상담",price:"20,000원",desc:"핵심 질문"},{title:"세 질문 상담",price:"50,000원",desc:"세 가지 질문"},{title:"궁합 상담",price:"80,000원",desc:"궁합 흐름"},{title:"신점 상담",price:"120,000원",desc:"심층 상담"}],
   notices:[{title:"상담은 예약제로 진행됩니다.",body:"입금 확인 후 순차적으로 안내됩니다."}]

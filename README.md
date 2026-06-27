@@ -361,3 +361,20 @@ Mobile 8.5:
 - 상품 보기/상품 → shop 페이지 강제 이동
 - 기존 잘못된 click 이벤트보다 우선 실행되도록 캡처링 이벤트 적용
 - 캐시 방지 v=850
+
+Mobile 8.6:
+- 홈/예약/상품 버튼이 사업자정보로 이동하는 문제 최종 수정
+- 실제 페이지 ID 기준: 홈=home, 예약=reserve, 상품=shop
+- 클릭 캡처링 단계에서 기존 잘못된 이벤트를 차단
+- 사업자정보 페이지가 같이 표시되면 강제로 숨김
+- 캐시 방지 v=860
+
+Mobile 8.7 Stable Nav Final:
+- 하단 메뉴를 실제 존재 페이지 기준으로 다시 생성
+- 홈/예약/상품/후기/문의/예약이력/마이 정상 표시
+- 홈 버튼이 결제안내로 보이는 문제 복구
+- 예약/상품이 사라지는 문제 복구
+- 사업자정보 페이지가 잘못 표시되는 문제 차단
+- 홈 복구 프리미엄 섹션 추가
+- 실제 ID: home=home, reserve=reserve, shop=shop, review=reviews, support=supportPage, history=bookingHistory, my=mypage
+- 캐시 방지 v=870

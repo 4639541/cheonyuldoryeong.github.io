@@ -1144,3 +1144,102 @@ document.addEventListener("click", function(e){
     safeGoFixed(FIX_PRODUCT_PAGE_ID);
   }
 }, true);
+
+
+// ===== 8.6 홈/예약/상품 라우팅 최종 수정 =====
+const FINAL_HOME_ID = "home";
+const FINAL_BOOKING_ID = "reserve";
+const FINAL_PRODUCTS_ID = "shop";
+const FINAL_BUSINESS_IDS = ['businessInfoHome'];
+
+function finalShowPage(pageId){
+  try{
+    const pages=[...document.querySelectorAll(".page")];
+    pages.forEach(p=>{
+      p.classList.add("hide");
+      p.classList.remove("on","active");
+      p.style.display="none";
+    });
+    const target=document.getElementById(pageId);
+    if(target){
+      target.classList.remove("hide");
+      target.classList.add("on","active");
+      target.style.display="block";
+    }
+    FINAL_BUSINESS_IDS.forEach(id=>{
+      const b=document.getElementById(id);
+      if(b && id!==pageId){
+        b.classList.add("hide");
+        b.classList.remove("on","active");
+        b.style.display="none";
+      }
+    });
+    document.querySelectorAll(".bottomNav button").forEach(btn=>{
+      btn.classList.remove("on");
+      const t=(btn.textContent||"").trim();
+      if((pageId===FINAL_HOME_ID && t.includes("홈")) ||
+         (pageId===FINAL_BOOKING_ID && t.includes("예약")) ||
+         (pageId===FINAL_PRODUCTS_ID && t.includes("상품"))){
+        btn.classList.add("on");
+      }
+    });
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){ console.warn("finalShowPage", e); }
+}
+
+function finalRouteForText(txt){
+  txt=(txt||"").replace(/\s+/g," ").trim();
+  if(txt==="홈") return FINAL_HOME_ID;
+  if(txt==="상담 예약하기" || txt==="예약") return FINAL_BOOKING_ID;
+  if(txt==="상품 보기" || txt==="상품 구매하기" || txt==="상품") return FINAL_PRODUCTS_ID;
+  return "";
+}
+
+function finalFixNavButtons(){
+  document.querySelectorAll("button,a").forEach(el=>{
+    const txt=(el.textContent||"").replace(/\s+/g," ").trim();
+    const route=finalRouteForText(txt);
+    if(route){
+      el.setAttribute("data-go", route);
+      el.removeAttribute("href");
+      el.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        finalShowPage(route);
+        return false;
+      };
+      if(txt==="상품 구매하기") el.textContent="상품 보기";
+    }
+  });
+}
+
+document.addEventListener("click", function(e){
+  const el=e.target.closest("button,a");
+  if(!el) return;
+  const route=finalRouteForText(el.textContent||"");
+  if(route){
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    finalShowPage(route);
+    return false;
+  }
+}, true);
+
+setInterval(finalFixNavButtons, 300);
+window.addEventListener("load", ()=>{ finalFixNavButtons(); });
+
+
+// ===== 8.7 최종 라우팅/하단메뉴 안정화 =====
+window.CHEONYUL_STABLE_NAV = [["홈","home"],["예약","reserve"],["상품","shop"],["후기","reviews"],["문의","supportPage"],["예약이력","bookingHistory"],["마이","mypage"]];
+window.CHEONYUL_BUSINESS_IDS = ["businessInfoHome"];
+function cyExists(id){return !!document.getElementById(id)}
+function cyResolve(x){x=(x||'').replace(/\s+/g,' ').trim();let m=Object.fromEntries(window.CHEONYUL_STABLE_NAV); if(m[x])return m[x]; if(cyExists(x))return x; if(x.includes('상담 예약')||x==='예약')return 'reserve'; if(x.includes('상품'))return 'shop'; if(x.includes('후기'))return 'reviews'; if(x.includes('문의'))return 'supportPage'; if(x.includes('예약이력'))return 'bookingHistory'; if(x.includes('마이')||x.includes('내 정보'))return 'mypage'; if(x.includes('홈'))return 'home'; return '';}
+function cyShow(id){id=cyResolve(id)||'home'; if(!cyExists(id)) id='home'; document.querySelectorAll('.page').forEach(p=>{p.classList.add('hide');p.classList.remove('on','active');p.style.display='none';}); let t=document.getElementById(id); if(t){t.classList.remove('hide');t.classList.add('on','active');t.style.display='block';} window.CHEONYUL_BUSINESS_IDS.forEach(bid=>{let b=document.getElementById(bid); if(b&&bid!==id){b.classList.add('hide');b.classList.remove('on','active');b.style.display='none';}}); document.querySelectorAll('.bottomNav button').forEach(b=>b.classList.toggle('on',b.dataset.go===id)); sessionStorage.setItem('cheonyul_current_page',id); window.scrollTo({top:0,behavior:'smooth'});}
+function cyBuildNav(){let nav=document.querySelector('.bottomNav'); if(!nav){nav=document.createElement('nav');nav.className='bottomNav';document.body.appendChild(nav);} let html=window.CHEONYUL_STABLE_NAV.filter(([l,id])=>cyExists(id)).map(([l,id])=>`<button type="button" data-go="${id}">${l}</button>`).join(''); if(nav.dataset.stableFinal!=='870'||nav.innerHTML.trim()!==html.trim()){nav.innerHTML=html;nav.dataset.stableFinal='870';} nav.querySelectorAll('button').forEach(btn=>btn.onclick=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();cyShow(btn.dataset.go);return false;});}
+function cyFixBtns(){document.querySelectorAll('button,a').forEach(el=>{let text=(el.textContent||'').replace(/\s+/g,' ').trim();let route=cyResolve(text); if(['홈','예약','상담 예약하기','상품','상품 보기','상품 구매하기','후기','문의','예약이력','마이','내 정보'].includes(text)){el.setAttribute('data-go',route);el.removeAttribute('href'); if(text==='상품 구매하기')el.textContent='상품 보기'; el.onclick=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();cyShow(route);return false;};} });}
+function cyHomeRescue(){let h=document.getElementById('home'), r=document.getElementById('homeRescuePremium'); if(h&&r) h.prepend(r);}
+document.addEventListener('click',function(e){let el=e.target.closest('button,a'); if(!el)return; let txt=(el.textContent||'').replace(/\s+/g,' ').trim(); if(['홈','예약','상담 예약하기','상품','상품 보기','상품 구매하기','후기','문의','예약이력','마이','내 정보'].includes(txt)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();cyShow(cyResolve(txt));return false;}},true);
+function cyInit(){cyBuildNav();cyFixBtns();cyHomeRescue();let cur=sessionStorage.getItem('cheonyul_current_page')||'home'; if(!document.querySelector('.page.on,.page.active'))cyShow(cur);}
+window.addEventListener('load',()=>setTimeout(cyInit,100)); setInterval(()=>{cyBuildNav();cyFixBtns();cyHomeRescue();},700); window.go=cyShow;

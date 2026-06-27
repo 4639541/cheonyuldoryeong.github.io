@@ -1,5 +1,95 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천율도령 모바일 관리자</title><link rel="stylesheet" href="mobile.css?v=700"></head><body><header class="appTop">
-  <span id="adminSyncStatus" class="syncStatus">연동 준비</span><div><b>관리자</b><small>모바일 전용</small></div><a class="pill" href="index.html">홈</a></header><main class="screen"><section class="formCard" id="adminLoginBox"><h1>관리자 로그인</h1><input id="adminEmail" placeholder="이메일"><input id="adminPw" type="password" placeholder="비밀번호">
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>천율도령 모바일 관리자</title><link rel="stylesheet" href="mobile.css?v=710"></head><body><header class="appTop">
+  <span id="adminSyncStatus" class="syncStatus">연동 준비</span><div><b>관리자</b><small>모바일 전용</small></div><a class="pill" href="index.html">홈</a></header>
+<section id="enterpriseAdminPanel" class="enterpriseAdminPanel">
+  <div class="adminHero">
+    <div>
+      <p class="eyebrow">Enterprise Admin Panel</p>
+      <h1>천율도령 관리자</h1>
+      <p>주문 · 예약 · 회원 · 상담 · 운영을 한 화면에서 관리합니다.</p>
+    </div>
+    <button id="adminPanelHomeBtn" type="button">대시보드</button>
+  </div>
+
+  <div class="adminKpiGrid">
+    <article><span>오늘 매출</span><b id="panelTodaySales">0원</b></article>
+    <article><span>주문</span><b id="panelOrderCount">0</b></article>
+    <article><span>예약</span><b id="panelBookingCount">0</b></article>
+    <article><span>문의</span><b id="panelSupportCount">0</b></article>
+  </div>
+
+  <div class="adminGroupGrid">
+    <button class="adminGroupCard" data-open-group="dashboard"><b>📊 대시보드</b><span>매출 · 주문 · 예약 · 문의</span></button>
+    <button class="adminGroupCard" data-open-group="member"><b>👥 회원관리</b><span>회원 · VIP · CRM · 쿠폰 · 적립금</span></button>
+    <button class="adminGroupCard" data-open-group="order"><b>🛒 주문관리</b><span>주문 · 결제 · 배송 · 환불 · 영수증</span></button>
+    <button class="adminGroupCard" data-open-group="consult"><b>💬 상담관리</b><span>예약 · 채팅 · 보고서 · AI · 음성</span></button>
+    <button class="adminGroupCard" data-open-group="operation"><b>🏪 운영관리</b><span>상품 · 배너 · 공지 · 이벤트 · 후기</span></button>
+    <button class="adminGroupCard" data-open-group="system"><b>⚙️ 시스템</b><span>보안 · 백업 · SEO · PWA · 로그</span></button>
+  </div>
+
+  <div class="adminGroupMenus">
+    <details open data-group-box="dashboard"><summary>📊 대시보드</summary><div class="adminMiniMenu">
+      <button data-tab-link="dash2Admin">대시보드</button>
+      <button data-tab-link="statsProAdmin">통계 Pro</button>
+      <button data-tab-link="realtimeCenterAdmin">실시간 알림</button>
+      <button data-tab-link="visitorAdmin">방문자</button>
+      <button data-tab-link="syncHealthAdmin">연동 점검</button>
+    </div></details>
+
+    <details data-group-box="member"><summary>👥 회원관리</summary><div class="adminMiniMenu">
+      <button data-tab-link="memberSyncAdmin">회원목록</button>
+      <button data-tab-link="memberProAdmin">회원 고도화</button>
+      <button data-tab-link="crm2Admin">CRM 2.0</button>
+      <button data-tab-link="crmProAdmin">CRM Pro</button>
+      <button data-tab-link="pointsAdmin">적립금</button>
+      <button data-tab-link="memberAnalytics">고객분석</button>
+      <button data-tab-link="memberSystemAdmin">회원시스템</button>
+    </div></details>
+
+    <details data-group-box="order"><summary>🛒 주문관리</summary><div class="adminMiniMenu">
+      <button data-tab-link="orders">주문</button>
+      <button data-tab-link="orderAutoAdmin">주문자동화</button>
+      <button data-tab-link="paymentProAdmin">결제</button>
+      <button data-tab-link="refund2Admin">환불</button>
+      <button data-tab-link="epostAdmin">배송</button>
+      <button data-tab-link="excelAdmin">엑셀</button>
+    </div></details>
+
+    <details data-group-box="consult"><summary>💬 상담관리</summary><div class="adminMiniMenu">
+      <button data-tab-link="reservationAdvanced">예약관리</button>
+      <button data-tab-link="consultAutoAdmin">상담자동화</button>
+      <button data-tab-link="chatAdmin">상담채팅</button>
+      <button data-tab-link="consultManageAdmin">상담보고서</button>
+      <button data-tab-link="aiProAdmin">AI Pro</button>
+      <button data-tab-link="pdfAdmin">PDF</button>
+      <button data-tab-link="calendarProAdmin">캘린더</button>
+    </div></details>
+
+    <details data-group-box="operation"><summary>🏪 운영관리</summary><div class="adminMiniMenu">
+      <button data-tab-link="products">상품</button>
+      <button data-tab-link="productOptionsAdmin">상품옵션</button>
+      <button data-tab-link="opsAdmin">공지/배너</button>
+      <button data-tab-link="eventGameAdmin">이벤트</button>
+      <button data-tab-link="marketingProAdmin">마케팅</button>
+      <button data-tab-link="reviewProAdmin">리뷰</button>
+      <button data-tab-link="supportAdmin">문의/FAQ</button>
+      <button data-tab-link="storageAdmin">Storage</button>
+    </div></details>
+
+    <details data-group-box="system"><summary>⚙️ 시스템</summary><div class="adminMiniMenu">
+      <button data-tab-link="settings">설정</button>
+      <button data-tab-link="superRoleAdmin">권한</button>
+      <button data-tab-link="securityProAdmin">보안</button>
+      <button data-tab-link="backupProAdmin">백업</button>
+      <button data-tab-link="seoProAdmin">SEO</button>
+      <button data-tab-link="pwaAdmin">PWA</button>
+      <button data-tab-link="logs2Admin">로그</button>
+      <button data-tab-link="functionsAdmin">Functions</button>
+      <button data-tab-link="cacheAdmin">캐시</button>
+    </div></details>
+  </div>
+</section>
+
+<main class="screen"><section class="formCard" id="adminLoginBox"><h1>관리자 로그인</h1><input id="adminEmail" placeholder="이메일"><input id="adminPw" type="password" placeholder="비밀번호">
         <button id="adminLogin" class="primary" type="button">로그인</button>
         <button id="adminJoin" class="secondary" type="button">관리자 최초 등록</button>
         <button id="adminResetPw" class="secondary" type="button">비밀번호 재설정 메일</button>
@@ -693,4 +783,4 @@
   <div id="syncHealthList"></div>
 </div>
 
-</section></main><script type="module" src="admin-mobile.js?v=700"></script></body></html>
+</section></main><script type="module" src="admin-mobile.js?v=710"></script></body></html>

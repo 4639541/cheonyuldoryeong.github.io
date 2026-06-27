@@ -1180,3 +1180,42 @@ setTimeout(()=>{
   loadTotalPlatform();
 },1800);
 setInterval(loadTotalPlatform,5000);
+
+
+// ===== 7.1 enterprise admin panel navigation =====
+function openAdminTabClean(tab){
+  const btn=document.querySelector(`[data-tab="${tab}"]`);
+  if(btn){btn.click(); window.scrollTo({top:0,behavior:"smooth"}); return;}
+  const target=document.getElementById(tab);
+  if(target){
+    document.querySelectorAll(".adminTab").forEach(x=>x.classList.add("hide"));
+    target.classList.remove("hide");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+}
+function bindEnterprisePanel(){
+  document.querySelectorAll("[data-tab-link]").forEach(b=>{
+    b.onclick=()=>openAdminTabClean(b.dataset.tabLink);
+  });
+  document.querySelectorAll("[data-open-group]").forEach(b=>{
+    b.onclick=()=>{
+      const g=b.dataset.openGroup;
+      document.querySelectorAll("[data-group-box]").forEach(d=>d.open=d.dataset.groupBox===g);
+      document.querySelector(`[data-group-box="${g}"]`)?.scrollIntoView({behavior:"smooth",block:"center"});
+    };
+  });
+  $("adminPanelHomeBtn")?.addEventListener("click",()=>openAdminTabClean("dash2Admin"));
+}
+async function loadEnterprisePanelKpis(){
+  try{
+    const [orders,bookings,tickets]=await Promise.all([list("orders").catch(()=>[]),list("bookings").catch(()=>[]),list("supportTickets").catch(()=>[])]);
+    const today=new Date().toISOString().slice(0,10);
+    const sales=orders.filter(o=>o.createdAt?.seconds && new Date(o.createdAt.seconds*1000).toISOString().slice(0,10)===today).reduce((s,o)=>s+money(o.total),0);
+    if($("panelTodaySales"))$("panelTodaySales").textContent=sales.toLocaleString()+"원";
+    if($("panelOrderCount"))$("panelOrderCount").textContent=orders.length;
+    if($("panelBookingCount"))$("panelBookingCount").textContent=bookings.length;
+    if($("panelSupportCount"))$("panelSupportCount").textContent=tickets.length;
+  }catch(e){}
+}
+setTimeout(()=>{bindEnterprisePanel();loadEnterprisePanelKpis();},1000);
+setInterval(loadEnterprisePanelKpis,5000);

@@ -476,3 +476,138 @@ main .syncStatus{
   color:#fff4d7;
   font-weight:900;
 }
+
+/* ===== 7.1 기업용 관리자 패널 ===== */
+.enterpriseAdminPanel{
+  padding:18px;
+  background:#050403;
+  color:#fff4d7;
+}
+.adminHero{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  padding:20px;
+  border:1px solid rgba(230,186,96,.28);
+  border-radius:24px;
+  background:linear-gradient(135deg,rgba(230,186,96,.14),rgba(0,0,0,.35));
+  margin-bottom:14px;
+}
+.adminHero h1{
+  margin:4px 0;
+  font-size:30px;
+}
+.adminHero p{
+  margin:0;
+  color:#d8c9aa;
+}
+.eyebrow{
+  color:#e6ba60!important;
+  font-weight:900;
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+#adminPanelHomeBtn{
+  border:1px solid rgba(230,186,96,.45);
+  background:#17110b;
+  color:#ffe3a1;
+  border-radius:999px;
+  padding:12px 18px;
+  font-weight:900;
+}
+.adminKpiGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+.adminKpiGrid article{
+  padding:16px;
+  border:1px solid rgba(230,186,96,.22);
+  border-radius:18px;
+  background:#0b0805;
+}
+.adminKpiGrid span{
+  display:block;
+  color:#bca986;
+  font-size:13px;
+}
+.adminKpiGrid b{
+  display:block;
+  margin-top:8px;
+  color:#ffd875;
+  font-size:22px;
+}
+.adminGroupGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+.adminGroupCard{
+  text-align:left;
+  min-height:92px;
+  padding:16px;
+  border:1px solid rgba(230,186,96,.26);
+  border-radius:20px;
+  background:#0d0905;
+  color:#fff4d7;
+}
+.adminGroupCard b{
+  display:block;
+  font-size:20px;
+  margin-bottom:8px;
+}
+.adminGroupCard span{
+  color:#cdb990;
+  font-size:13px;
+}
+.adminGroupMenus details{
+  border:1px solid rgba(230,186,96,.23);
+  border-radius:18px;
+  margin-bottom:10px;
+  background:#080604;
+  overflow:hidden;
+}
+.adminGroupMenus summary{
+  cursor:pointer;
+  padding:15px 16px;
+  font-weight:900;
+  color:#ffd875;
+}
+.adminMiniMenu{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  padding:0 14px 14px;
+}
+.adminMiniMenu button{
+  border:1px solid rgba(230,186,96,.24);
+  background:#130e09;
+  color:#fff4d7;
+  border-radius:14px;
+  padding:12px 8px;
+  font-weight:900;
+}
+.adminMiniMenu button:hover,
+.adminMiniMenu button.active{
+  background:#e6ba60;
+  color:#120d07;
+}
+.adminTabs,
+.tabBar,
+.adminTabBar,
+nav:has([data-tab]){
+  max-height:84px;
+  overflow:auto;
+}
+@media(max-width:760px){
+  .enterpriseAdminPanel{padding:12px}
+  .adminHero{padding:16px}
+  .adminHero h1{font-size:24px}
+  .adminKpiGrid{grid-template-columns:repeat(2,1fr)}
+  .adminGroupGrid{grid-template-columns:1fr}
+  .adminMiniMenu{grid-template-columns:repeat(2,1fr)}
+}

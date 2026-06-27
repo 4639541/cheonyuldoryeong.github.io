@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<link rel="manifest" href="./manifest.webmanifest?v=870">
+<link rel="manifest" href="./manifest.webmanifest?v=880">
 <meta name="theme-color" content="#050403">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,7 +16,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"천율도령 공식 신점 상담","description":"신점 상담, 부적, 초발원, 상담 예약 서비스"}</script>
 <meta name="theme-color" content="#050403">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=870">
+<link rel="stylesheet" href="mobile.css?v=880">
 </head>
 <body>
 <header class="appTop">
@@ -463,8 +463,8 @@
   </div>
 </div>
 
-<script type="module" src="mobile.js?v=870"></script>
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=870").catch(()=>{});}</script>
+<script type="module" src="mobile.js?v=880"></script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=880").catch(()=>{});}</script>
 
 <div id="installGuideModal" class="installGuideModal">
   <div class="installGuideBox">
@@ -482,5 +482,16 @@
 
 
 <script id="bottomNavStableFinal">window.CHEONYUL_STABLE_NAV = [["홈","home"],["예약","reserve"],["상품","shop"],["후기","reviews"],["문의","supportPage"],["예약이력","bookingHistory"],["마이","mypage"]];</script>
+
+<nav id="stableBottomNavFinal" aria-label="하단 메뉴">
+  <button type="button" data-page="home" class="on">홈</button>
+  <button type="button" data-page="reserve">예약</button>
+  <button type="button" data-page="shop">상품</button>
+  <button type="button" data-page="reviews">후기</button>
+  <button type="button" data-page="supportPage">문의</button>
+  <button type="button" data-page="bookingHistory">예약이력</button>
+  <button type="button" data-page="mypage">마이</button>
+</nav>
+
 </body>
 </html>

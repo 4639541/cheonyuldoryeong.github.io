@@ -378,3 +378,12 @@ Mobile 8.7 Stable Nav Final:
 - 홈 복구 프리미엄 섹션 추가
 - 실제 ID: home=home, reserve=reserve, shop=shop, review=reviews, support=supportPage, history=bookingHistory, my=mypage
 - 캐시 방지 v=870
+
+Mobile 8.8 Bottom Nav Final No Flicker:
+- 하단 버튼 깜박임 제거
+- 기존 동적 bottomNav 완전 숨김
+- 별도 stableBottomNavFinal 고정 메뉴로 교체
+- 하단 메뉴: 홈 / 예약 / 상품 / 후기 / 문의 / 예약이력 / 마이
+- 홈/예약/상품/후기/문의/예약이력/마이 라우팅 고정
+- 사업자정보 잘못 노출 차단
+- 캐시 방지 v=880

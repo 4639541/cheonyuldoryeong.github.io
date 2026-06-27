@@ -1243,3 +1243,128 @@ function cyHomeRescue(){let h=document.getElementById('home'), r=document.getEle
 document.addEventListener('click',function(e){let el=e.target.closest('button,a'); if(!el)return; let txt=(el.textContent||'').replace(/\s+/g,' ').trim(); if(['홈','예약','상담 예약하기','상품','상품 보기','상품 구매하기','후기','문의','예약이력','마이','내 정보'].includes(txt)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();cyShow(cyResolve(txt));return false;}},true);
 function cyInit(){cyBuildNav();cyFixBtns();cyHomeRescue();let cur=sessionStorage.getItem('cheonyul_current_page')||'home'; if(!document.querySelector('.page.on,.page.active'))cyShow(cur);}
 window.addEventListener('load',()=>setTimeout(cyInit,100)); setInterval(()=>{cyBuildNav();cyFixBtns();cyHomeRescue();},700); window.go=cyShow;
+
+
+// ===== 8.8 하단 버튼 깜박임 제거 + 최종 라우팅 =====
+window.CHEONYUL_FINAL_IDS = {
+  home: "home",
+  reserve: "reserve",
+  shop: "shop",
+  review: "reviews",
+  support: "supportPage",
+  history: "bookingHistory",
+  my: "mypage",
+  business: ["businessInfoHome"]
+};
+
+function finalPageIdByText(text){
+  text=(text||"").replace(/\s+/g," ").trim();
+  if(text==="홈") return CHEONYUL_FINAL_IDS.home;
+  if(text==="예약" || text==="상담 예약하기") return CHEONYUL_FINAL_IDS.reserve;
+  if(text==="상품" || text==="상품 보기" || text==="상품 구매하기") return CHEONYUL_FINAL_IDS.shop;
+  if(text==="후기") return CHEONYUL_FINAL_IDS.review;
+  if(text==="문의") return CHEONYUL_FINAL_IDS.support;
+  if(text==="예약이력") return CHEONYUL_FINAL_IDS.history;
+  if(text==="마이" || text==="내 정보") return CHEONYUL_FINAL_IDS.my;
+  return "";
+}
+
+function finalShowOnly(pageId){
+  if(!document.getElementById(pageId)) pageId = CHEONYUL_FINAL_IDS.home;
+  document.querySelectorAll(".page").forEach(p=>{
+    p.classList.add("hide");
+    p.classList.remove("on","active");
+    p.style.display="none";
+  });
+  const target=document.getElementById(pageId);
+  if(target){
+    target.classList.remove("hide");
+    target.classList.add("on","active");
+    target.style.display="block";
+  }
+
+  // 사업자정보가 잘못 같이 뜨는 것 차단
+  (CHEONYUL_FINAL_IDS.business||[]).forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && id!==pageId){
+      el.classList.add("hide");
+      el.classList.remove("on","active");
+      el.style.display="none";
+    }
+  });
+
+  const nav=document.getElementById("stableBottomNavFinal");
+  if(nav){
+    nav.querySelectorAll("button").forEach(btn=>{
+      btn.classList.toggle("on", btn.dataset.page===pageId);
+    });
+  }
+  sessionStorage.setItem("cheonyul_final_page", pageId);
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function finalBindStableNav(){
+  // 기존 깜박이는 네비는 완전히 숨김
+  document.querySelectorAll(".bottomNav").forEach(n=>{
+    if(n.id!=="stableBottomNavFinal") {
+      n.style.display="none";
+      n.style.visibility="hidden";
+      n.style.opacity="0";
+      n.setAttribute("aria-hidden","true");
+    }
+  });
+
+  const nav=document.getElementById("stableBottomNavFinal");
+  if(nav){
+    nav.querySelectorAll("button").forEach(btn=>{
+      btn.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        finalShowOnly(btn.dataset.page);
+        return false;
+      };
+    });
+  }
+
+  // 메인 버튼도 정확하게 연결
+  document.querySelectorAll("button,a").forEach(el=>{
+    const target=finalPageIdByText(el.textContent||"");
+    if(target){
+      el.setAttribute("data-go", target);
+      el.removeAttribute("href");
+      if((el.textContent||"").trim()==="상품 구매하기") el.textContent="상품 보기";
+      el.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        finalShowOnly(target);
+        return false;
+      };
+    }
+  });
+}
+
+document.addEventListener("click", function(e){
+  const el=e.target.closest("button,a");
+  if(!el) return;
+  const target=finalPageIdByText(el.textContent||"");
+  if(target){
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    finalShowOnly(target);
+    return false;
+  }
+}, true);
+
+window.go = finalShowOnly;
+
+window.addEventListener("load", function(){
+  finalBindStableNav();
+  const saved=sessionStorage.getItem("cheonyul_final_page") || CHEONYUL_FINAL_IDS.home;
+  finalShowOnly(saved);
+});
+
+// 딱 바인딩만 반복하고, DOM 재생성은 하지 않음 → 깜박임 방지
+setInterval(finalBindStableNav, 2000);

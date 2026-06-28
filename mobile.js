@@ -1065,5 +1065,25 @@ function startSync(){
 }
 initTheme(); bind(); hydrate(); renderAll(); startSync(); recordVisit(); trackVisitor(); onAuthStateChanged(auth,loadMember);
 
-// 9.0 Clean Customer Router
-(function(){const kakaoUrl='https://qr.kakaopay.com/281006011000002710315576';function show(pageId){document.querySelectorAll('#cyCleanApp900 .cyPage900').forEach(p=>p.classList.remove('active'));const target=document.getElementById(pageId)||document.getElementById('cyHome900');if(target)target.classList.add('active');document.querySelectorAll('#cyBottomNav900 button').forEach(btn=>btn.classList.toggle('on',btn.dataset.cygo===(target?target.id:pageId)));sessionStorage.setItem('cyCleanPage900',target?target.id:'cyHome900');window.scrollTo({top:0,behavior:'smooth'});}function bind(){document.querySelectorAll('[data-cygo]').forEach(el=>{el.onclick=function(e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();show(el.dataset.cygo);return false;};});let kb=document.getElementById('cyKakaoPayBtn900');if(kb)kb.onclick=e=>{e.preventDefault();location.href=kakaoUrl;};let kc=document.getElementById('cyKakaoCopyBtn900');if(kc)kc.onclick=e=>{e.preventDefault();navigator.clipboard.writeText('020-02-407816').then(()=>alert('카카오페이 번호가 복사되었습니다.'));};let bc=document.getElementById('cyBankCopyBtn900');if(bc)bc.onclick=e=>{e.preventDefault();navigator.clipboard.writeText('3521566284653').then(()=>alert('계좌번호가 복사되었습니다.'));};}window.addEventListener('load',()=>{bind();show(sessionStorage.getItem('cyCleanPage900')||'cyHome900');});window.cyCleanShow900=show;})();
+// ===== 9.1 Clean Home/Profile Final =====
+(function(){
+  const kakaoUrl = "https://qr.kakaopay.com/281006011000002710315576";
+  function show(id){
+    document.querySelectorAll("#cyApp910 .cyPage910").forEach(p=>p.classList.remove("active"));
+    const page = document.getElementById(id) || document.getElementById("cyHome910");
+    if(page) page.classList.add("active");
+    document.querySelectorAll("#cyBottom910 button").forEach(b=>b.classList.toggle("on", b.dataset.cyPage === (page ? page.id : id)));
+    sessionStorage.setItem("cyPage910", page ? page.id : "cyHome910");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  function bind(){
+    document.querySelectorAll("[data-cy-page]").forEach(el=>{
+      el.onclick=function(e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();show(el.dataset.cyPage);return false;};
+    });
+    const kp=document.getElementById("cyKakaoPay910"); if(kp) kp.onclick=e=>{e.preventDefault();location.href=kakaoUrl;};
+    const kc=document.getElementById("cyKakaoCopy910"); if(kc) kc.onclick=e=>{e.preventDefault();navigator.clipboard.writeText("020-02-407816").then(()=>alert("카카오페이 번호가 복사되었습니다."));};
+    const bc=document.getElementById("cyBankCopy910"); if(bc) bc.onclick=e=>{e.preventDefault();navigator.clipboard.writeText("3521566284653").then(()=>alert("계좌번호가 복사되었습니다."));};
+  }
+  window.addEventListener("load",()=>{bind();show(sessionStorage.getItem("cyPage910")||"cyHome910");});
+  window.cyShow910=show;
+})();

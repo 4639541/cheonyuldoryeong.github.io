@@ -355,4 +355,4 @@ Mobile 8.4:
 - qr.kakaopay.com 기본 주소 오류 방지
 - 캐시 방지 v=840
 
-Mobile 9.0 Clean Router Rebuild: 기존 꼬인 고객용 페이지/하단메뉴를 숨기고 새 고객용 라우터로 재구축. 홈/예약/상품/결제/후기/문의/예약이력/마이 정상 작동. 캐시 v=900.
+Mobile 9.1 Clean Home/Profile Final: 3번째 화면 느낌 홈, 2번째 프로필 이미지, 예약/상품 버튼 정상화, 캐시 v=910.

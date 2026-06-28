@@ -1,474 +1,59 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<link rel="manifest" href="./manifest.webmanifest?v=840">
-<meta name="theme-color" content="#050403">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="천율도령">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>천율도령 공식 신점 상담</title>
-<meta name="description" content="천율도령 공식 신점 상담, 상담 예약, 상품 구매, 회원 쿠폰, 실시간 상담 채팅">
-<meta property="og:title" content="천율도령 공식 신점 상담">
-<meta property="og:description" content="신점 상담·상품 구매·예약·회원 관리">
-<meta property="og:type" content="website">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"천율도령 공식 신점 상담","description":"신점 상담, 부적, 초발원, 상담 예약 서비스"}</script>
-<meta name="theme-color" content="#050403">
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="mobile.css?v=840">
+<link rel="stylesheet" href="mobile.css?v=1000">
 </head>
 <body>
-<header class="appTop">
-  <span id="syncStatus" class="syncStatus">연동 준비</span>
-  <div>
-    <b>천율도령</b>
-    <small>공식 신점 상담</small>
-  </div>
-  <button id="themeToggle" class="pill" type="button">모드</button><button id="installPwaBtn" class="pill" type="button">앱설치</button><button id="loginOpen" class="pill" type="button">로그인</button>
+<header class="top">
+  <div><b>천율도령</b><p>공식 신점 상담</p></div>
+  <button id="themeBtn">모드</button>
+  <button id="installBtn">앱설치</button>
+  <button data-page="my">내 정보</button>
 </header>
 
-<main class="screen">
-  <section id="totalStatusPage" class="page">
-    <h1>내 통합 현황</h1>
-    <div id="myTotalStatus" class="cards"></div>
-  </section>
-  <section id="marketingPage" class="page">
-    <h1>마케팅 이벤트</h1>
-    <div class="formCard">
-      <button id="birthdayCouponBtn" class="primary" type="button">생일쿠폰 확인</button>
-      <button id="firstBuyCouponBtn" class="secondary" type="button">첫구매 쿠폰 받기</button>
-      <button id="friendReferralBtn" class="secondary" type="button">친구추천 보상 확인</button>
-    </div>
-    <div id="marketingResult" class="cards"></div>
-  </section>
-  <section id="globalSearchPage" class="page">
-    <h1>통합 검색</h1>
-    <input id="globalSearchInput" placeholder="상품, 후기, 공지, 상담, 문의 검색">
-    <div id="globalSearchResults" class="cards"></div>
-  </section>
-  <section id="eventPlayPage" class="page">
-    <h1>이벤트</h1>
-    <div class="formCard">
-      <button id="checkinBtn" class="primary" type="button">오늘 출석체크</button>
-      <button id="rouletteBtn" class="secondary" type="button">룰렛 이벤트 참여</button>
-      <div id="eventPlayResult"></div>
-    </div>
-  </section>
-  <section id="qrPage" class="page">
-    <h1>QR 코드</h1>
-    <div class="formCard">
-      <input id="qrText" placeholder="QR로 만들 링크/문구">
-      <button id="makeQrBtn" class="primary" type="button">QR 생성</button>
-      <div id="qrResult"></div>
-    </div>
-  </section>
-  <section id="home" class="page active">
-
-<section class="premiumHero">
-  <div class="premiumAura"></div>
-  <p class="premiumEyebrow">CHEONYUL DORYEONG OFFICIAL</p>
-  <h1>천명신당<br><span>천율도령</span></h1>
-  <p class="premiumLead">17년차 황해도 이북 만신이 전하는<br>신점 · 신타로 · 부적 · 초발원 상담</p>
-  <div class="premiumActions">
-    <button class="premiumPrimary" data-go="booking" type="button">상담 예약하기</button>
-    <button class="premiumSecondary" data-go="products" type="button">상품 보기</button>
-  </div>
-  <div class="premiumTrust">
-    <span>1:1 비밀상담</span>
-    <span>모바일 최적화</span>
-    <span>회원 쿠폰/적립금</span>
+<main id="app">
+<section id="home" class="page on">
+  <div class="hero">
+    <img src="./assets/cheonyul_profile.png" class="profile" alt="천율도령 프로필">
+    <p class="eyebrow">CHEONYUL DORYEONG OFFICIAL</p>
+    <h1>천명신당<br><span>천율도령</span></h1>
+    <p class="lead">17년차 황해도 이북 만신이 전하는 신점 · 신타로 ·<br>부적 · 초발원 상담</p>
+    <button class="primary" data-page="reserve">상담 예약하기</button>
+    <button class="secondary" data-page="shop">상품 보기</button>
+    <div class="chips"><span>1:1 비밀상담</span><span>모바일 최적화</span><span>회원 쿠폰/적립금</span></div>
   </div>
 </section>
 
-<section class="premiumProfileSection">
-  <div class="premiumProfileCard">
-    <div class="profileSeal">天律</div>
-    <div>
-      <p class="premiumEyebrow">MASTER PROFILE</p>
-      <h2>천율도령</h2>
-      <p>17년차 황해도 이북 만신</p>
-      <p class="profileDesc">연애 · 재회 · 속마음 · 금전운 · 사업운 · 취업운 등 삶의 흐름을 깊이 살펴드립니다.</p>
-    </div>
-  </div>
+<section id="reserve" class="page">
+  <h1>상담 예약</h1>
+  <div class="card"><h2>📌 예약제 상담</h2><p>모든 상담은 선결제 예약제로 진행됩니다. 결제 확인 후 예약 순서에 따라 상담을 진행해 드립니다.</p><button class="primary" data-page="payment">결제 안내 보기</button></div>
+  <div class="card"><h2>💰 상담 비용</h2><div class="price"><span>❤️ 한 질문 상담</span><b>20,000원</b></div><div class="price"><span>❤️ 세 질문 상담</span><b>50,000원</b></div><div class="price"><span>💞 궁합 상담</span><b>80,000원</b></div><div class="price"><span>🔮 신점 상담</span><b>100,000원</b></div></div>
 </section>
 
-
-<section class="premiumSection">
-  <div class="sectionTitle">
-    <p>CONSULTING FIELD</p>
-    <h2>상담 분야</h2>
-  </div>
-  <div class="premiumFieldGrid">
-    <article><b>❤️ 연애 · 재회</b><span>속마음, 연락운, 재회 흐름</span></article>
-    <article><b>💰 금전 · 사업</b><span>재물운, 사업운, 계약 흐름</span></article>
-    <article><b>🧭 직장 · 취업</b><span>취업운, 이직운, 인간관계</span></article>
-    <article><b>🧧 부적 · 초발원</b><span>개인 맞춤 발원 상담</span></article>
-  </div>
+<section id="shop" class="page">
+  <h1>상품</h1>
+  <div class="card"><h2>평안 염주</h2><p>마음의 불안을 내려놓고 평안과 안정을 전하는 염주입니다.</p><b class="gold">25,000원</b><button class="primary" data-page="payment">구매/결제 안내</button></div>
 </section>
 
-<section class="premiumSection premiumNotice">
-  <div class="sectionTitle">
-    <p>OFFICIAL GUIDE</p>
-    <h2>상담 안내</h2>
-  </div>
-  <div class="premiumGuideCard">
-    <p>상담은 단순한 흥미가 아닌, 현재의 흐름과 앞으로의 방향성을 함께 살펴보는 과정입니다.</p>
-    <p>예약 · 결제 · 상담 이력 · 쿠폰 · 적립금은 회원 페이지에서 확인할 수 있습니다.</p>
-  </div>
+<section id="payment" class="page">
+  <h1>💳 결제 안내</h1>
+  <div class="card"><h2>📌 예약제 상담</h2><p>모든 상담은 <b>선결제 예약제</b>로 진행됩니다. 결제 확인 후 예약 순서대로 상담해 드립니다.</p></div>
+  <div class="card"><h2>💰 상담 비용</h2><div class="price"><span>❤️ 한 질문 상담</span><b>20,000원</b></div><div class="price"><span>❤️ 세 질문 상담</span><b>50,000원</b></div><div class="price"><span>💞 궁합 상담</span><b>80,000원</b></div><div class="price"><span>🔮 신점 상담</span><b>100,000원</b></div></div>
+  <div class="card"><h2>💳 카카오페이</h2><p class="number">020-02-407816</p><button class="primary" id="kakaoPay">카카오페이 송금하기</button><button class="secondary" data-copy="020-02-407816">카카오페이 번호 복사</button></div>
+  <div class="card"><h2>🏦 계좌이체</h2><p class="number">농협 3521566284653</p><p>예금주 <b>정세진</b></p><button class="primary" data-copy="3521566284653">계좌번호 복사</button></div>
 </section>
 
-    <div class="heroCard">
-      <p class="tag">17년차 황해도 이북 만신</p>
-      <h1>천율도령<br>공식 신점 상담</h1>
-      <p>연애 · 재회 · 속마음 · 금전운 · 사업운 · 취업운</p>
-      <button class="primary" data-go="reserve" type="button">상담 예약하기</button>
-      <button class="secondary" data-go="shop" type="button">상품 보기</button>
-    </div>
-
-    <div class="quickGrid">
-      <button data-go="reserve">📅 예약</button>
-      <button data-go="shop">🛍 상품</button>
-      <button data-go="mypage">🎫 내 쿠폰</button>
-      <button data-go="benefits">💎 혜택</button>
-      <button data-go="tracking">🚚 배송</button>
-      <button data-go="epostPage">📮 우체국</button>
-      <button data-go="spiritualApply">🧧 부적/초발원</button>
-    </div>
-
-    <h2>오늘의 안내</h2>
-    <div id="homeBannerList" class="cards"></div>
-
-    <h2>상담 가격</h2>
-    <div id="priceList" class="cards"></div>
-
-    <h2>회원 혜택</h2>
-    <div id="homeBenefitList" class="cards"></div>
-
-    <h2>결제 안내</h2>
-    <div id="paymentSummaryHome" class="cards"></div>
-
-    <h2>공지사항</h2>
-    <div id="noticeList" class="cards"></div>
-  </section>
-
-  <section id="shop" class="page">
-    <h1>상품 구매</h1>
-    <div class="searchBar">
-      <input id="search" placeholder="상품 검색">
-      <button id="cartOpen" class="pill" type="button">장바구니 <span id="cartCount">0</span></button>
-    </div>
-    <div id="productList" class="cards"></div>
-  </section>
-
-  <section id="reserve" class="page">
-    <h1>상담 예약</h1>
-    <div class="formCard">
-      <input id="bookName" placeholder="이름/닉네임">
-      <input id="bookContact" placeholder="연락처 또는 카카오톡 ID">
-      <select id="bookType"></select>
-      <label>상담 희망 날짜</label>
-      <input id="bookDate" type="date">
-      <select id="bookTime"></select>
-      <textarea id="bookBody" placeholder="상담 내용"></textarea>
-      <button id="bookBtn" class="primary" type="button">예약 신청</button>
-    </div>
-  </section>
-
-  <section id="tracking" class="page">
-    <h1>배송 조회</h1>
-    <div class="formCard">
-      <input id="trackNo" placeholder="주문번호">
-      <input id="trackContact" placeholder="주문 시 연락처">
-      <button id="trackBtn" class="primary" type="button">조회하기</button>
-      <div id="trackResult"></div>
-    </div>
-  </section>
-
-  <section id="mypage" class="page">
-    <h1>마이페이지</h1>
-    <div id="memberBox" class="formCard"></div>
-    <h2>내 쿠폰</h2>
-    <div id="myCoupons" class="cards"></div>
-    <h2>알림센터</h2>
-    <div id="myNotifications" class="cards"></div>
-    <h2>내 주문/예약</h2>
-    <div id="myHistory" class="cards"></div>
-  </section>
-
-  <section id="benefits" class="page">
-    <h1>회원 혜택</h1>
-    <div id="memberGradeBox" class="formCard"></div>
-    <h2>적립금</h2>
-    <div id="pointSummaryBox" class="formCard"></div>
-    <div id="pointBox" class="cards"></div>
-    <h2>즐겨찾기</h2>
-    <div id="favoriteList" class="cards"></div>
-    <h2>최근 본 상품</h2>
-    <div id="recentList" class="cards"></div>
-  </section>
-
-  <section id="spiritualApply" class="page">
-    <h1>부적 · 초발원 신청</h1>
-    <div class="formCard">
-      <input id="spName" placeholder="이름/닉네임">
-      <input id="spContact" placeholder="연락처 또는 카카오톡 ID">
-      <select id="spType">
-        <option>부적 제작</option>
-        <option>초발원</option>
-        <option>기도 신청</option>
-        <option>기타 의뢰</option>
-      </select>
-      <input id="spAmount" placeholder="예상 금액 또는 상담 후 조율">
-      <textarea id="spBody" placeholder="신청 내용"></textarea>
-      <button id="spSubmit" class="primary" type="button">신청하기</button>
-    </div>
-  </section>
-
-  <section id="progressCenter" class="page">
-    <h1>진행 현황</h1>
-    <div id="myProgressList" class="cards"></div>
-  </section>
-
-  <section id="records" class="page">
-    <h1>상담 이력</h1>
-    <div id="myConsultRecords" class="cards"></div>
-  </section>
-
-  <section id="chatPage" class="page">
-    <h1>실시간 상담 채팅</h1>
-    <div id="chatLoginGuide" class="formCard">로그인 후 상담 채팅을 이용할 수 있습니다.</div>
-    <div id="chatBox" class="chatBox"></div>
-    <div class="chatInputRow">
-      <input id="chatInput" placeholder="메시지를 입력하세요">
-      <button id="chatSend" class="primary" type="button">전송</button>
-    </div>
-  </section>
-
-  <section id="referralPage" class="page">
-    <h1>추천인 · 적립금</h1>
-    <div id="myReferralBox" class="formCard"></div>
-    <div class="formCard">
-      <input id="referralInput" placeholder="추천인 코드 입력">
-      <button id="saveReferral" class="primary" type="button">추천인 등록</button>
-    </div>
-    <h2>적립금 내역</h2>
-    <div id="pointHistory" class="cards"></div>
-  </section>
-
-  <section id="filesPage" class="page">
-    <h1>내 상담 자료</h1>
-    <div id="myFilesList" class="cards"></div>
-  </section>
-
-  <section id="receiptPage" class="page">
-    <h1>영수증/주문서</h1>
-    <div id="myReceiptList" class="cards"></div>
-  </section>
-
-  <section id="epostPage" class="page">
-    <h1>우체국 익일특급 배송조회</h1>
-    <div class="formCard">
-      <input id="epostTrackNo" placeholder="우체국 등기/송장번호">
-      <button id="epostTrackBtn" class="primary" type="button">우체국 배송조회</button>
-      <div id="epostTrackResult" class="cards"></div>
-    </div>
-    <h2>내 우체국 배송</h2>
-    <div id="myEpostList" class="cards"></div>
-  </section>
-
-  
-  <section id="supportPage" class="page">
-    <h1>1:1 문의 · FAQ</h1>
-    <div class="formCard">
-      <input id="supportTitle" placeholder="문의 제목">
-      <textarea id="supportBody" placeholder="문의 내용"></textarea>
-      <button id="supportSubmit" class="primary" type="button">문의 등록</button>
-    </div>
-    <h2>자주 묻는 질문</h2>
-    <div id="faqList" class="cards"></div>
-    <h2>내 문의</h2>
-    <div id="mySupportList" class="cards"></div>
-  </section>
-
-  <section id="memberEditPage" class="page">
-    <h1>개인정보 수정</h1>
-    <div class="formCard">
-      <input id="editName" placeholder="이름/닉네임">
-      <input id="editContact" placeholder="연락처/카카오톡 ID">
-      <label class="fieldLabel">생년월일</label><input id="editBirthday" type="date">
-      <button id="saveMemberEdit" class="primary" type="button">회원정보 저장</button>
-      <button id="requestDeleteMember" class="secondary" type="button">회원탈퇴 요청</button>
-    </div>
-  </section>
-
-  <section id="memberSecurityPage" class="page">
-    <h1>계정 보안</h1>
-    <div class="formCard">
-      <p>비밀번호 재설정, 이메일 인증, 로그인 기록을 확인할 수 있습니다.</p>
-      <button id="sendEmailVerifyBtn" class="primary" type="button">이메일 인증 메일 보내기</button>
-      <button id="sendResetPwBtn" class="secondary" type="button">비밀번호 재설정 메일 보내기</button>
-    </div>
-    <h2>내 활동 로그</h2>
-    <div id="myActivityLogs" class="cards"></div>
-  </section>
-
-  <section id="bookingHistoryPage" class="page">
-    <h1>예약 이력</h1>
-    <div id="bookingHistoryList" class="cards"></div>
-  </section>
-
-  <section id="refundHistoryPage" class="page">
-    <h1>환불 · 취소 이력</h1>
-    <div id="refundHistoryList" class="cards"></div>
-  </section>
-
-  
-<section id="premiumProfilePage" class="page">
-  <h1>프리미엄 프로필</h1>
-  <div id="premiumMyProfile" class="cards"></div>
-  <div class="formCard">
-    <h3>프로필 수정</h3>
-    <input id="profilePhotoInput" type="file" accept="image/*">
-    <input id="profileNickname" placeholder="닉네임">
-    <button id="savePremiumProfile" class="primary" type="button">프로필 저장</button>
-  </div>
-</section>
-
-<section id="commercePlusPage" class="page">
-  <h1>쇼핑 플러스</h1>
-  <h2>최근 본 상품</h2><div id="recentProductList" class="cards"></div>
-  <h2>관심상품</h2><div id="wishlistProductList" class="cards"></div>
-  <h2>추천상품</h2><div id="recommendProductList" class="cards"></div>
-</section>
-
-<section id="consultLoungePage" class="page">
-  <h1>상담 라운지</h1>
-  <div id="consultProgressBox" class="cards"></div>
-  <div id="consultQueueBox" class="cards"></div>
-</section>
-
-<section id="vipBenefitPage" class="page">
-  <h1>VIP 전용 혜택</h1>
-  <div id="vipBenefitList" class="cards"></div>
-</section>
-
-<section id="reviews" class="page">
-    <h1>후기</h1>
-    <button id="reviewOpen" class="primary" type="button">후기 작성</button>
-    <div id="reviewList" class="cards"></div>
-  </section>
-
-<section class="screen businessMobile">
-  <h2>사업자 정보</h2>
-  <div id="businessInfoHome" class="formCard"></div>
-</section>
+<section id="review" class="page"><h1>후기</h1><div class="card"><p>상담 후기는 순차적으로 등록됩니다.</p></div></section>
+<section id="support" class="page"><h1>문의</h1><div class="card"><h2>카카오톡 오픈프로필</h2><p>천율도령 검색 후 문의해 주세요.</p></div></section>
+<section id="my" class="page"><h1>내 정보</h1><div class="card"><img src="./assets/cheonyul_profile.png" class="small" alt=""><h2>회원님</h2><p>쿠폰 · 적립금 · 예약이력을 확인할 수 있습니다.</p></div></section>
 </main>
 
-<nav class="bottomNav">
-  <button data-go="home" class="on">홈</button>
-  <button data-go="premiumProfilePage">프로필</button>
-  <button data-go="totalStatusPage">통합</button>
-  <button data-go="globalSearchPage">검색</button>
-  <button data-go="reserve">예약</button>
-  <button data-go="shop">상품</button>
-  <button data-go="reviews">후기</button>
-  <button data-go="benefits">혜택</button>
-  <button data-go="records">이력</button>
-  <button data-go="progressCenter">진행</button>
-  <button data-go="chatPage">채팅</button>
-  <button data-go="referralPage">추천</button>
-  <button data-go="filesPage">자료</button>
-  <button data-go="receiptPage">영수증</button>
-  <button data-go="commercePlusPage">찜</button>
-  <button data-go="consultLoungePage">상담</button>
-  <button data-go="vipBenefitPage">VIP</button>
-  <button data-go="marketingPage">마케팅</button>
-  <button data-go="eventPlayPage">이벤트</button>
-  <button data-go="qrPage">QR</button>
-  <button data-go="supportPage">문의</button>
-  <button data-go="memberSecurityPage">보안</button>
-  <button data-go="bookingHistoryPage">예약이력</button>
-  <button data-go="refundHistoryPage">환불</button>
-  <button data-go="memberEditPage">정보</button>
-  <button data-go="mypage">마이</button>
+<nav class="nav">
+  <button data-page="home" class="on">홈</button><button data-page="reserve">예약</button><button data-page="shop">상품</button><button data-page="review">후기</button><button data-page="support">문의</button><button data-page="my">마이</button>
 </nav>
-
-<div id="authModal" class="modal">
-  <div class="sheet">
-    <button class="close" data-close="authModal" type="button">×</button>
-    <h2>회원</h2>
-    <div class="tabs"><button id="loginTab" class="on">로그인</button><button id="joinTab">회원가입</button></div>
-    <div id="loginPanel">
-      <input id="loginEmail" placeholder="이메일">
-      <input id="loginPw" type="password" placeholder="비밀번호">
-      <button id="loginBtn" class="primary" type="button">로그인</button>
-    </div>
-    <div id="joinPanel" class="hide">
-      <input id="joinName" placeholder="이름/닉네임">
-      <input id="joinContact" placeholder="연락처/카카오톡 ID">
-      <input id="joinEmail" placeholder="이메일">
-      <input id="joinPw" type="password" placeholder="비밀번호 6자리 이상">
-      <button id="joinBtn" class="primary" type="button">회원가입</button>
-    </div>
-  </div>
-</div>
-
-<div id="cartModal" class="modal">
-  <div class="sheet">
-    <button class="close" data-close="cartModal" type="button">×</button>
-    <h2>주문 · 결제</h2>
-    <div id="cartItems"></div>
-    <h3>적립금 사용</h3>
-    <div class="couponRow"><input id="pointUseInput" placeholder="사용할 적립금"><button id="pointApply" class="primary" type="button">사용</button></div>
-    <p id="pointUseText">사용한 적립금이 없습니다.</p>
-    <h3>쿠폰 등록</h3>
-    <div class="couponRow"><input id="couponInput" placeholder="쿠폰 코드"><button id="couponApply" class="primary" type="button">적용</button></div>
-    <p id="couponText">적용된 쿠폰이 없습니다.</p>
-    <h3>결제 안내</h3>
-    <div id="payInfo"></div>
-    <div class="summary">
-      <p><span>상품금액</span><b id="subtotal">0원</b></p>
-      <p><span>쿠폰할인</span><b id="discount">0원</b></p>
-      <p class="total"><span>결제금액</span><b id="total">0원</b></p>
-    </div>
-    <input id="orderName" placeholder="이름">
-    <input id="orderContact" placeholder="연락처">
-    <input id="orderAddress" placeholder="배송주소">
-    <textarea id="orderMemo" placeholder="요청사항"></textarea>
-    <button id="orderBtn" class="primary" type="button">주문하기</button>
-  </div>
-</div>
-
-<div id="reviewModal" class="modal">
-  <div class="sheet">
-    <button class="close" data-close="reviewModal" type="button">×</button>
-    <h2>후기 작성</h2>
-    <input id="reviewName" placeholder="이름">
-    <input id="reviewCategory" placeholder="분야">
-    <select id="reviewStars"><option>★★★★★</option><option>★★★★☆</option><option>★★★☆☆</option></select>
-    <input id="reviewImages" type="file" multiple accept="image/*">
-    <textarea id="reviewBody" placeholder="후기 내용"></textarea>
-    <button id="reviewSubmit" class="primary" type="button">후기 등록 요청</button>
-  </div>
-</div>
-
-<script type="module" src="mobile.js?v=840"></script>
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=840").catch(()=>{});}</script>
-
-<div id="installGuideModal" class="installGuideModal">
-  <div class="installGuideBox">
-    <button id="installGuideClose" type="button">닫기</button>
-    <h2>앱처럼 설치하기</h2>
-    <p>현재 브라우저에서 자동 설치창이 뜨지 않으면 아래 방법으로 진행하세요.</p>
-    <ol>
-      <li>오른쪽 아래 또는 위의 <b>⋮ 메뉴</b>를 누릅니다.</li>
-      <li><b>홈 화면에 추가</b> 또는 <b>앱 설치</b>를 선택합니다.</li>
-      <li>추가 후 홈 화면에서 바로 실행할 수 있습니다.</li>
-    </ol>
-    <p class="small">카카오톡/네이버 인앱 브라우저에서는 설치창이 제한될 수 있어 Chrome 또는 삼성 인터넷에서 열면 더 잘 됩니다.</p>
-  </div>
-</div>
-
+<script src="mobile.js?v=1000"></script>
 </body>
 </html>

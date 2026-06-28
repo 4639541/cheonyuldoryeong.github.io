@@ -1,9 +1,1 @@
-{
-  "name": "천율도령 모바일 상담",
-  "short_name": "천율도령",
-  "start_url": "index.html",
-  "display": "standalone",
-  "background_color": "#050403",
-  "theme_color": "#050403",
-  "icons": []
-}
+{"name":"천율도령","short_name":"천율도령","start_url":"./index.html","display":"standalone","background_color":"#050302","theme_color":"#050302","icons":[{"src":"./assets/cheonyul_profile.png","sizes":"512x512","type":"image/png"}]}

@@ -1,59 +1,126 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>천율도령 공식 신점 상담</title>
-<link rel="stylesheet" href="mobile.css?v=1000">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050302">
+  <title>천율도령 공식 신점 상담</title>
+  <link rel="manifest" href="manifest.webmanifest?v=1010">
+  <link rel="stylesheet" href="mobile.css?v=1010">
 </head>
 <body>
-<header class="top">
-  <div><b>천율도령</b><p>공식 신점 상담</p></div>
-  <button id="themeBtn">모드</button>
-  <button id="installBtn">앱설치</button>
-  <button data-page="my">내 정보</button>
+<header class="topbar">
+  <div class="brand">
+    <strong>천율도령</strong>
+    <span>공식 신점 상담</span>
+  </div>
+  <button type="button" data-page="home">홈</button>
+  <button type="button" id="installBtn">앱설치</button>
+  <button type="button" data-page="my">내 정보</button>
 </header>
 
 <main id="app">
-<section id="home" class="page on">
-  <div class="hero">
-    <img src="./assets/cheonyul_profile.png" class="profile" alt="천율도령 프로필">
-    <p class="eyebrow">CHEONYUL DORYEONG OFFICIAL</p>
-    <h1>천명신당<br><span>천율도령</span></h1>
-    <p class="lead">17년차 황해도 이북 만신이 전하는 신점 · 신타로 ·<br>부적 · 초발원 상담</p>
-    <button class="primary" data-page="reserve">상담 예약하기</button>
-    <button class="secondary" data-page="shop">상품 보기</button>
-    <div class="chips"><span>1:1 비밀상담</span><span>모바일 최적화</span><span>회원 쿠폰/적립금</span></div>
-  </div>
-</section>
+  <section id="home" class="page active">
+    <div class="hero">
+      <img src="./assets/cheonyul_profile.png" class="profile" alt="천율도령 프로필">
+      <p class="eyebrow">CHEONYUL DORYEONG OFFICIAL</p>
+      <h1>천명신당<br><span>천율도령</span></h1>
+      <p class="lead">17년차 황해도 이북 만신이 전하는 신점 · 신타로 ·<br>부적 · 초발원 상담</p>
+      <button type="button" class="primary" data-page="reserve">상담 예약하기</button>
+      <button type="button" class="secondary" data-page="shop">상품 보기</button>
+      <div class="chips">
+        <span>1:1 비밀상담</span>
+        <span>모바일 최적화</span>
+        <span>회원 쿠폰/적립금</span>
+      </div>
+    </div>
+  </section>
 
-<section id="reserve" class="page">
-  <h1>상담 예약</h1>
-  <div class="card"><h2>📌 예약제 상담</h2><p>모든 상담은 선결제 예약제로 진행됩니다. 결제 확인 후 예약 순서에 따라 상담을 진행해 드립니다.</p><button class="primary" data-page="payment">결제 안내 보기</button></div>
-  <div class="card"><h2>💰 상담 비용</h2><div class="price"><span>❤️ 한 질문 상담</span><b>20,000원</b></div><div class="price"><span>❤️ 세 질문 상담</span><b>50,000원</b></div><div class="price"><span>💞 궁합 상담</span><b>80,000원</b></div><div class="price"><span>🔮 신점 상담</span><b>100,000원</b></div></div>
-</section>
+  <section id="reserve" class="page">
+    <h1>상담 예약</h1>
+    <div class="card">
+      <h2>📌 예약제 상담</h2>
+      <p>모든 상담은 선결제 예약제로 진행됩니다. 결제 확인 후 예약 순서에 따라 상담을 진행해 드립니다.</p>
+      <button type="button" class="primary" data-page="payment">결제 안내 보기</button>
+    </div>
+    <div class="card">
+      <h2>💰 상담 비용</h2>
+      <div class="price"><span>❤️ 한 질문 상담</span><b>20,000원</b></div>
+      <div class="price"><span>❤️ 세 질문 상담</span><b>50,000원</b></div>
+      <div class="price"><span>💞 궁합 상담</span><b>80,000원</b></div>
+      <div class="price"><span>🔮 신점 상담</span><b>100,000원</b></div>
+    </div>
+  </section>
 
-<section id="shop" class="page">
-  <h1>상품</h1>
-  <div class="card"><h2>평안 염주</h2><p>마음의 불안을 내려놓고 평안과 안정을 전하는 염주입니다.</p><b class="gold">25,000원</b><button class="primary" data-page="payment">구매/결제 안내</button></div>
-</section>
+  <section id="shop" class="page">
+    <h1>상품</h1>
+    <div class="card">
+      <h2>평안 염주</h2>
+      <p>마음의 불안을 내려놓고 평안과 안정을 전하는 염주입니다.</p>
+      <p class="gold">25,000원</p>
+      <button type="button" class="primary" data-page="payment">구매/결제 안내</button>
+    </div>
+  </section>
 
-<section id="payment" class="page">
-  <h1>💳 결제 안내</h1>
-  <div class="card"><h2>📌 예약제 상담</h2><p>모든 상담은 <b>선결제 예약제</b>로 진행됩니다. 결제 확인 후 예약 순서대로 상담해 드립니다.</p></div>
-  <div class="card"><h2>💰 상담 비용</h2><div class="price"><span>❤️ 한 질문 상담</span><b>20,000원</b></div><div class="price"><span>❤️ 세 질문 상담</span><b>50,000원</b></div><div class="price"><span>💞 궁합 상담</span><b>80,000원</b></div><div class="price"><span>🔮 신점 상담</span><b>100,000원</b></div></div>
-  <div class="card"><h2>💳 카카오페이</h2><p class="number">020-02-407816</p><button class="primary" id="kakaoPay">카카오페이 송금하기</button><button class="secondary" data-copy="020-02-407816">카카오페이 번호 복사</button></div>
-  <div class="card"><h2>🏦 계좌이체</h2><p class="number">농협 3521566284653</p><p>예금주 <b>정세진</b></p><button class="primary" data-copy="3521566284653">계좌번호 복사</button></div>
-</section>
+  <section id="payment" class="page">
+    <h1>💳 결제 안내</h1>
+    <div class="card">
+      <h2>📌 예약제 상담</h2>
+      <p>모든 상담은 <b>선결제 예약제</b>로 진행됩니다. 결제 확인 후 예약 순서대로 상담해 드립니다.</p>
+    </div>
+    <div class="card">
+      <h2>💰 상담 비용</h2>
+      <div class="price"><span>❤️ 한 질문 상담</span><b>20,000원</b></div>
+      <div class="price"><span>❤️ 세 질문 상담</span><b>50,000원</b></div>
+      <div class="price"><span>💞 궁합 상담</span><b>80,000원</b></div>
+      <div class="price"><span>🔮 신점 상담</span><b>100,000원</b></div>
+    </div>
+    <div class="card">
+      <h2>💳 카카오페이</h2>
+      <p class="number">020-02-407816</p>
+      <button type="button" class="primary" id="kakaoPayBtn">카카오페이 송금하기</button>
+      <button type="button" class="secondary" data-copy="020-02-407816">카카오페이 번호 복사</button>
+    </div>
+    <div class="card">
+      <h2>🏦 계좌이체</h2>
+      <p class="number">농협 3521566284653</p>
+      <p>예금주 <b>정세진</b></p>
+      <button type="button" class="primary" data-copy="3521566284653">계좌번호 복사</button>
+    </div>
+  </section>
 
-<section id="review" class="page"><h1>후기</h1><div class="card"><p>상담 후기는 순차적으로 등록됩니다.</p></div></section>
-<section id="support" class="page"><h1>문의</h1><div class="card"><h2>카카오톡 오픈프로필</h2><p>천율도령 검색 후 문의해 주세요.</p></div></section>
-<section id="my" class="page"><h1>내 정보</h1><div class="card"><img src="./assets/cheonyul_profile.png" class="small" alt=""><h2>회원님</h2><p>쿠폰 · 적립금 · 예약이력을 확인할 수 있습니다.</p></div></section>
+  <section id="review" class="page">
+    <h1>후기</h1>
+    <div class="card"><p>상담 후기는 순차적으로 등록됩니다.</p></div>
+  </section>
+
+  <section id="support" class="page">
+    <h1>문의</h1>
+    <div class="card">
+      <h2>카카오톡 오픈프로필</h2>
+      <p>천율도령 검색 후 문의해 주세요.</p>
+    </div>
+  </section>
+
+  <section id="my" class="page">
+    <h1>내 정보</h1>
+    <div class="card">
+      <img src="./assets/cheonyul_profile.png" class="smallProfile" alt="천율도령 프로필">
+      <h2>회원님</h2>
+      <p>쿠폰 · 적립금 · 예약이력을 확인할 수 있습니다.</p>
+    </div>
+  </section>
 </main>
 
-<nav class="nav">
-  <button data-page="home" class="on">홈</button><button data-page="reserve">예약</button><button data-page="shop">상품</button><button data-page="review">후기</button><button data-page="support">문의</button><button data-page="my">마이</button>
+<nav class="bottomNav">
+  <button type="button" data-page="home" class="active">홈</button>
+  <button type="button" data-page="reserve">예약</button>
+  <button type="button" data-page="shop">상품</button>
+  <button type="button" data-page="review">후기</button>
+  <button type="button" data-page="support">문의</button>
+  <button type="button" data-page="my">마이</button>
 </nav>
-<script src="mobile.js?v=1000"></script>
+
+<script src="mobile.js?v=1010"></script>
 </body>
 </html>

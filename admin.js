@@ -1,1 +1,1 @@
-/* cleaned: legacy file intentionally disabled. Use mobile.js?v=1010 */
+/* legacy disabled: use admin-mobile.js */

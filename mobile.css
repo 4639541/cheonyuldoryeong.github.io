@@ -15,3 +15,16 @@ button{font-family:inherit;cursor:pointer}
 .price{display:flex;justify-content:space-between;gap:12px;padding:14px;margin-top:10px;border-radius:16px;background:rgba(0,0,0,.26);border:1px solid rgba(230,186,96,.14)}.price span{font-weight:900}.price b,.gold,.number{color:#ffd875;font-weight:950}.number{font-size:28px;word-break:break-all}.smallProfile{width:96px;height:96px;object-fit:cover;border-radius:999px;border:2px solid rgba(255,216,117,.65)}
 .bottomNav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:8px;overflow-x:auto;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(5,4,3,.97);border-top:1px solid rgba(230,186,96,.28);box-shadow:0 -12px 30px rgba(0,0,0,.36)}.bottomNav::-webkit-scrollbar{display:none}.bottomNav button{flex:0 0 auto;min-width:74px;height:50px;border-radius:22px;border:1px solid rgba(230,186,96,.14);background:rgba(255,255,255,.025);color:#fff4d7;font-size:14px;font-weight:950;white-space:nowrap}.bottomNav button.active{background:linear-gradient(135deg,rgba(255,216,117,.38),rgba(166,108,30,.26));border-color:rgba(230,186,96,.42);color:#ffe39a}
 @media(max-width:430px){#app{padding-left:14px;padding-right:14px}.hero h1{font-size:46px}.profile{width:128px;height:128px}.bottomNav button{min-width:70px;height:48px;font-size:13px}.price{flex-direction:column}.topbar button{min-width:78px;font-size:15px}}
+
+#profileImageInput{
+  width:100%;
+  padding:14px;
+  margin:12px 0;
+  border-radius:16px;
+  border:1px solid rgba(230,186,96,.25);
+  background:#090604;
+  color:#fff4d7;
+}
+
+.danger{width:100%;min-height:48px;border-radius:16px;background:#2a0707;border:1px solid rgba(255,120,120,.35);color:#ffd6d6;font-weight:950;margin-top:10px}
+.adminItem{padding:14px;border-radius:16px;border:1px solid rgba(230,186,96,.16);margin-top:10px;background:rgba(0,0,0,.22)}

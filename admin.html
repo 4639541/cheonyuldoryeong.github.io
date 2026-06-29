@@ -4,51 +4,98 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>천율도령 관리자</title>
-<link rel="stylesheet" href="mobile.css?v=1100">
+<link rel="stylesheet" href="mobile.css?v=1210">
 </head>
 <body>
 <header class="topbar">
   <div class="brand"><strong>관리자</strong><span>천율도령</span></div>
   <button onclick="location.href='index.html'">홈</button>
 </header>
+
 <main id="app">
-  <section class="page active">
-    <h1>관리자</h1>
-    <div class="card">
-      <h2>📷 프로필 이미지 변경</h2>
-      <p>이미지를 선택 후 저장하면 이 브라우저에서 홈페이지 프로필에 즉시 반영됩니다.</p>
-      <img id="adminProfilePreview" src="./assets/cheonyul_profile.png" class="smallProfile" alt="프로필">
-      <input id="profileImageInput" type="file" accept="image/*">
-      <button class="primary" id="saveProfileImage" type="button">프로필 저장</button>
-      <button class="secondary" id="resetProfileImage" type="button">기본 이미지로 복구</button>
-    </div>
-    <div class="card">
-      <h2>🛍️ 상품 관리</h2>
-      <input id="productName" placeholder="상품명">
-      <input id="productPrice" placeholder="가격 예: 25,000원">
-      <textarea id="productDesc" placeholder="상품 설명"></textarea>
-      <button class="primary" id="addProduct" type="button">상품 등록</button>
-      <div id="adminProductList"></div>
-    </div>
-    <div class="card">
-      <h2>⭐ 후기 관리</h2>
-      <input id="reviewTitle" placeholder="후기 제목">
-      <textarea id="reviewText" placeholder="후기 내용"></textarea>
-      <button class="primary" id="addReview" type="button">후기 등록</button>
-      <div id="adminReviewList"></div>
-    </div>
-    <div class="card">
-      <h2>📢 공지사항</h2>
-      <textarea id="noticeText" placeholder="공지 내용을 입력하세요"></textarea>
-      <button class="primary" id="saveNotice" type="button">공지 저장</button>
-      <button class="secondary" id="clearNotice" type="button">공지 삭제</button>
-    </div>
-    <div class="card">
-      <h2>📌 안내</h2>
-      <p>GitHub Pages 정적 홈페이지라 관리자 변경은 현재 브라우저 저장 방식입니다. 모든 방문자에게 공통 반영하려면 GitHub 파일 자체를 교체해야 합니다.</p>
-    </div>
-  </section>
+<section class="page active">
+<h1>관리자</h1>
+
+<div class="adminTabs">
+<button data-tab="profile" class="active">프로필</button>
+<button data-tab="products">상품</button>
+<button data-tab="reviews">후기</button>
+<button data-tab="notice">공지</button>
+<button data-tab="reservations">예약</button>
+<button data-tab="payments">결제</button>
+<button data-tab="coupons">쿠폰</button>
+<button data-tab="members">회원</button>
+</div>
+
+<div id="profile" class="adminPanel active card">
+<h2>📷 프로필 이미지 변경</h2>
+<img id="adminProfilePreview" src="./assets/cheonyul_profile.png" class="smallProfile" alt="프로필">
+<input id="profileImageInput" type="file" accept="image/*">
+<button class="primary" id="saveProfileImage" type="button">프로필 저장</button>
+<button class="secondary" id="resetProfileImage" type="button">기본 이미지로 복구</button>
+</div>
+
+<div id="products" class="adminPanel card">
+<h2>🛍️ 상품 관리</h2>
+<input id="productName" placeholder="상품명">
+<input id="productPrice" placeholder="가격 예: 25,000원">
+<textarea id="productDesc" placeholder="상품 설명"></textarea>
+<button class="primary" id="addProduct" type="button">상품 등록</button>
+<div id="adminProductList"></div>
+</div>
+
+<div id="reviews" class="adminPanel card">
+<h2>⭐ 후기 관리</h2>
+<input id="reviewTitle" placeholder="후기 제목">
+<textarea id="reviewText" placeholder="후기 내용"></textarea>
+<button class="primary" id="addReview" type="button">후기 등록</button>
+<div id="adminReviewList"></div>
+</div>
+
+<div id="notice" class="adminPanel card">
+<h2>📢 공지사항</h2>
+<textarea id="noticeText" placeholder="공지 내용을 입력하세요"></textarea>
+<button class="primary" id="saveNotice" type="button">공지 저장</button>
+<button class="secondary" id="clearNotice" type="button">공지 삭제</button>
+</div>
+
+<div id="reservations" class="adminPanel card">
+<h2>📅 예약 관리</h2>
+<input id="resName" placeholder="예약자명">
+<input id="resType" placeholder="상담 종류">
+<input id="resTime" placeholder="예약 시간">
+<button class="primary" id="addReservation" type="button">예약 등록</button>
+<div id="adminReservationList"></div>
+</div>
+
+<div id="payments" class="adminPanel card">
+<h2>💳 결제 관리</h2>
+<input id="payName" placeholder="입금자명">
+<input id="payAmount" placeholder="금액">
+<select id="payStatus"><option>결제대기</option><option>결제완료</option><option>환불요청</option><option>환불완료</option></select>
+<button class="primary" id="addPayment" type="button">결제 기록 등록</button>
+<div id="adminPaymentList"></div>
+</div>
+
+<div id="coupons" class="adminPanel card">
+<h2>🎟️ 쿠폰 관리</h2>
+<input id="couponName" placeholder="쿠폰명">
+<input id="couponBenefit" placeholder="혜택 예: 5,000원 할인">
+<button class="primary" id="addCoupon" type="button">쿠폰 등록</button>
+<div id="adminCouponList"></div>
+</div>
+
+<div id="members" class="adminPanel card">
+<h2>👤 회원 관리</h2>
+<input id="memberName" placeholder="회원명">
+<input id="memberMemo" placeholder="메모 / 등급 / 주의사항">
+<button class="primary" id="addMember" type="button">회원 등록</button>
+<div id="adminMemberList"></div>
+</div>
+
+<div class="card"><h2>📌 안내</h2><p>GitHub Pages 정적 홈페이지라 관리자 변경은 현재 브라우저 저장 방식입니다. 모든 방문자에게 공통 반영하려면 GitHub 파일 자체를 교체해야 합니다.</p></div>
+</section>
 </main>
-<script src="admin-mobile.js?v=1100"></script>
+<script src="admin.js?v=1210"></script>
 </body>
 </html>

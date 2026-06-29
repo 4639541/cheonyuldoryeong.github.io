@@ -1,1 +1,1 @@
-const CACHE='cheonyul-final-v1100';self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.map(k=>k!==CACHE&&caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{});
+const CACHE='cheonyul-v1210';self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.map(k=>k!==CACHE&&caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{});

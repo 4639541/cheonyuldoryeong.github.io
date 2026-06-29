@@ -39,3 +39,9 @@ select{width:100%;padding:15px;margin:8px 0;border-radius:16px;border:1px solid 
 .businessFooter h2{color:#fff4d7}
 .businessFooter p{margin:7px 0;font-size:15px;line-height:1.65;color:#d9c9a8}
 .businessFooter b{color:#ffe1a0}
+
+.brand{min-width:120px}
+.brand strong{white-space:nowrap;word-break:keep-all}
+.brand span{white-space:nowrap;word-break:keep-all}
+.adminItem{padding:14px;border-radius:16px;border:1px solid rgba(230,186,96,.16);margin-top:10px;background:rgba(0,0,0,.22)}
+@media(max-width:430px){.brand strong{font-size:24px}.brand{min-width:105px}.topbar button{min-width:74px}}

@@ -1,1 +1,1 @@
-/* legacy disabled: use mobile.js */
+/* disabled */

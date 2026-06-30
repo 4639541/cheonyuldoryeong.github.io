@@ -1,1 +1,1 @@
-/* disabled: use admin.js */
+/* disabled */
